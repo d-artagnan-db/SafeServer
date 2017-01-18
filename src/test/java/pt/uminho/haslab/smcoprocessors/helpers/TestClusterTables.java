@@ -126,11 +126,17 @@ public class TestClusterTables extends ClusterTables {
 	private List<Scan> getScans(Dealer dealer, byte[] startRow, byte[] stopRow)
 			throws InvalidSecretValue {
 		List<Scan> scans = new ArrayList<Scan>();
+		System.out.println("0-Start row are " + startRow + " / " + stopRow);
 
 		if (startRow != null && stopRow != null) {
 			scanWithStartAndStopRow(dealer, scans, startRow, stopRow);
 		} else if (startRow != null && stopRow == null) {
 			scanWithStartRow(dealer, scans, startRow);
+		} else if (startRow == null && stopRow == null) {
+			System.out.println("Going to do a full table scan");
+			scans.add(new Scan());
+			scans.add(new Scan());
+			scans.add(new Scan());
 		}
 
 		return scans;
@@ -142,6 +148,7 @@ public class TestClusterTables extends ClusterTables {
 			InvalidSecretValue {
 
 		int playerID = 1;
+		System.out.println("Start row are " + startRow + " / " + stopRow);
 		List<Scan> scans = getScans(dealer, startRow, stopRow);
 
 		byte[] requestIDba = ("" + requestID).getBytes();

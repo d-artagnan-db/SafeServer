@@ -37,7 +37,6 @@ public class SecureRegionScanner implements RegionScanner {
 			RegionCoprocessorEnvironment env, Player player,
 			SmpcConfiguration config, boolean stopOnMatch, Column col)
 			throws IOException {
-		System.out.println("Secure Region Scanner was created");
 		this.searchValue = searchValue;
 		this.env = env;
 		this.player = player;
@@ -85,8 +84,7 @@ public class SecureRegionScanner implements RegionScanner {
 	}
 
 	public boolean next(List<Cell> results) throws IOException {
-		System.out.println("Next in SecureRegionScanner was issued "
-				+ results.size());
+		System.out.println("Next in SecureRegionScanner was issued ");
 		boolean matchFound = false;
 		List<Cell> localResults = new ArrayList<Cell>();
 
@@ -95,6 +93,13 @@ public class SecureRegionScanner implements RegionScanner {
 		do {
 			localResults.clear();
 			hasMore = scanner.next(localResults);
+			// IF there is nothing to search;
+			if (hasMore == false && localResults.isEmpty()) {
+				System.out.println("there is nothing to search");
+				results.addAll(localResults);
+				return false;
+			}
+			System.out.println("Number of results is " + localResults.size());
 			byte[] rowID = null;
 			byte[] protectedValue = null;
 			for (Cell cell : localResults) {
@@ -104,15 +109,19 @@ public class SecureRegionScanner implements RegionScanner {
 								col.getCq())) {
 					rowID = CellUtil.cloneRow(cell);
 					protectedValue = CellUtil.cloneValue(cell);
+					System.out.println("Found protected value");
 				}
 
 			}
 
+			// System.out.println("column is "+new String(col.getCf()));
+			System.out.println("qualifier is " + new String(col.getCq()));
 			SharemindPlayer splayer = (SharemindPlayer) player;
 			// System.out.println("Before Searching for match. HasMore: "
 			// + hasMore + "; MatchFound: " + matchFound);
 			System.out.println("Going to do search for rowID "
-					+ new String(rowID) + " with the protectedValue "
+					+ new String(rowID));
+			System.out.println("Search with the protectedValue "
 					+ new BigInteger(protectedValue));
 			matchFound = searchValue.evaluateCondition(protectedValue, rowID,
 					splayer);
@@ -123,9 +132,10 @@ public class SecureRegionScanner implements RegionScanner {
 		} while (hasMore & !matchFound);
 
 		// Copy the resulting cells if a match was found.
-		System.out.println("Going to copy Results of rowID "
-				+ new String(CellUtil.cloneRow(localResults.get(0))));
+
 		if (matchFound) {
+			System.out.println("Going to copy Results of rowID "
+					+ new String(CellUtil.cloneRow(localResults.get(0))));
 			results.addAll(localResults);
 		}
 
@@ -143,6 +153,7 @@ public class SecureRegionScanner implements RegionScanner {
 	}
 
 	public void close() throws IOException {
+		((SharemindPlayer) player).cleanValues();
 		scanner.close();
 	}
 

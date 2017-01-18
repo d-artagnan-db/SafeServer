@@ -50,7 +50,7 @@ public class SearchValue extends AbstractSearchValue {
 
 			BigInteger bOrigValue = new BigInteger(this.value);
 			BigInteger bCmpValue = new BigInteger(value);
-			System.out.println("Row id " + new BigInteger(rowID));
+			System.out.println("Row id " + new String(rowID));
 			System.out.println("First Value " + bOrigValue);
 			System.out.println("Second Value " + bCmpValue);
 			Secret originalSecret = generateSecret(nBits, bOrigValue, player);

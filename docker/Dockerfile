@@ -16,24 +16,24 @@ RUN \
 RUN apt-get install oracle-java7-set-default --assume-yes --quiet
 
 WORKDIR /usr/local/hbase
-RUN wget http://mirrors.fe.up.pt/pub/apache/hbase/0.98.22/hbase-0.98.22-hadoop2-bin.tar.gz --quiet
-RUN tar -xvzf hbase-0.98.22-hadoop2-bin.tar.gz
-RUN rm -f hbase-0.98.22-hadoop2-bin.tar.gz
+RUN wget http://mirrors.fe.up.pt/pub/apache/hbase/0.98.24/hbase-0.98.24-hadoop2-bin.tar.gz --quiet
+RUN tar -xvzf hbase-0.98.24-hadoop2-bin.tar.gz
+RUN rm -f hbase-0.98.24-hadoop2-bin.tar.gz
 
-WORKDIR /usr/local/hbase/hbase-0.98.22-hadoop2/conf
+WORKDIR /usr/local/hbase/hbase-0.98.24-hadoop2/conf
 RUN sed -i "s|/usr/java/jdk1.6.0|/usr/lib/jvm/java-7-oracle|g" hbase-env.sh
 RUN sed -i "s/# export JAVA_HOME/export JAVA_HOME/g" hbase-env.sh
 
-ENV PATH /usr/local/hbase/hbase-0.98.22-hadoop2/bin:$PATH
-ENV HBASE_HOME /usr/local/hbase/hbase-0.98.22-hadoop2
+ENV PATH /usr/local/hbase/hbase-0.98.24-hadoop2/bin:$PATH
+ENV HBASE_HOME /usr/local/hbase/hbase-0.98.24-hadoop2
 
 WORKDIR /root
 
 COPY saferegions.sh .
-COPY configurations/* .
+COPY configurations/standalone-template.xml .
 
 
-COPY *.jar /usr/local/hbase/hbase-0.98.22-hadoop2/lib/	
+COPY *.jar /usr/local/hbase/hbase-0.98.24-hadoop2/lib/	
 
 ENTRYPOINT ["./saferegions.sh"]
 

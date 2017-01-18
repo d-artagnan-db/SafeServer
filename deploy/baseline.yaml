@@ -1,0 +1,6 @@
+baseline:
+    image: rogerp/baseline
+    net: ncwork
+    hostname: baseline
+    container_name: baseline
+

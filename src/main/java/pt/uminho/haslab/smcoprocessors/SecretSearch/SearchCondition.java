@@ -13,7 +13,7 @@ public interface SearchCondition {
 	 * !GreaterOrEqualThan LesserOrEqualThan = !GreaterOrEqualThan && Equal
 	 */
 	public enum Condition {
-		Equal, GreaterOrEqualThan, And, Or, Not
+		Equal, GreaterOrEqualThan, And, Or, Not, Nop
 	}
 
 	/**

@@ -96,9 +96,14 @@ public abstract class ScanSearchEndpointTest extends AbstractSearchEndpointTest 
 		} else {
 			stopRow = null;
 		}
+		//System.out.println("going to call scan endpoint with null keys");
+		//List<Result> results = tables.scanEndpoint(nbits, null, null, 1,
+                //			config, dealer);
 
-		List<Result> results = tables.scanEndpoint(nbits, startRow, stopRow, 1,
-				config, dealer);
+		//System.out.println("Results sie is " + results.size());
+		
+		 List<Result> results = tables.scanEndpoint(nbits, startRow, stopRow, 1, config, dealer);
+		 
 		List<BigInteger> subsetValues = getKeysInRange(values, startKey,
 				stopKey);
 		System.out.println(subsetValues);
