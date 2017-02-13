@@ -191,7 +191,7 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 		// SearchValue toSearch = new SearchValue(col, cond, secret);
 		byte[] requestID = op.getAttribute("requestID");
 		byte[] regionID = env.getRegionInfo().getStartKey();
-		System.out.println("RequestID " + new String(requestID));
+		// System.out.println("RequestID " + new String(requestID));
 		RequestIdentifier ident = new RequestIdentifier(requestID, regionID);
 		Player player = getPlayer(ident);
 		// SearchResults searchRes = tableSearch(toSearch, player, env);
@@ -223,14 +223,14 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 		// SearchValue toSearch = new SearchValue(col, cond, secret);
 		byte[] requestID = op.getAttribute("requestID");
 		byte[] regionID = env.getRegionInfo().getStartKey();
-		System.out.println("RequestID " + new String(requestID));
+		// System.out.println("RequestID " + new String(requestID));
 		RequestIdentifier ident = new RequestIdentifier(requestID, regionID);
 		Player player = getPlayer(ident);
 		// SearchResults searchRes = tableSearch(toSearch, player, env);
 		int nbits = this.searchConf.getnBits();
 		String targetPlayerS = new String(op.getAttribute("targetPlayer"));
 		int targetPlayer = Integer.parseInt(targetPlayerS);
-		System.out.println("Target player is " + targetPlayer);
+		// System.out.println("Target player is " + targetPlayer);
 		if (this.searchConf.getPlayerID() == targetPlayer) {
 			((SharemindPlayer) player).setTargetPlayer();
 		}
@@ -250,8 +250,10 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 		}
 
 		SearchCondition keySearch = null;
-		System.out.println("Scan rows size are " + startRow.length + " / "
-				+ stopRow.length);
+		/*
+		 * System.out.println("Scan rows size are " + startRow.length + " / " +
+		 * stopRow.length);
+		 */
 		if (startRow.length != 0 && stopRow.length != 0) {
 			keySearch = new ComposedSearchValue(And, startKeySearch,
 					endKeySearch, targetPlayer);
@@ -315,12 +317,13 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 			try {
 				List<Cell> searchResults = secretGetSearch(row, get, EQUAL,
 						e.getEnvironment(), true);
-				System.out.println("The filtered result found are: ");
-				for (Cell cell : searchResults) {
-					System.out.println("ROW ID "
-							+ new String(CellUtil.cloneRow(cell)));
-					System.out.println("Cell content is " + cell);
-				}
+				// System.out.println("The filtered result found are: ");
+				/*
+				 * for (Cell cell : searchResults) {
+				 * System.out.println("ROW ID " + new
+				 * String(CellUtil.cloneRow(cell)));
+				 * System.out.println("Cell content is " + cell); }
+				 */
 				results.addAll(searchResults);
 
 				// for (Cell cell :searchResults) {

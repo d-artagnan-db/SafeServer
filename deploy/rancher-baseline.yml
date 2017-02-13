@@ -1,0 +1,6 @@
+baseline:
+    image: safecloud/baseline:latest
+    hostname: baseline
+    container_name: baseline
+    labels:
+        io.rancher.scheduler.affinity:host_label: computingNode=3

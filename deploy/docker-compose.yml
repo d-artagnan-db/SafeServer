@@ -1,5 +1,5 @@
 cluster1:
-    image: saferegions
+    image: saferegions:latest
     ports:
         - "60010:60010" # Master info web portal port
         - "60000:60000" # Master port for client to connect
@@ -10,7 +10,7 @@ cluster1:
     command: "-s 0 6262 cluster2 6262 cluster3 6262 60000 16262"
 
 cluster2:
-    image: saferegions
+    image: saferegions:latest
     ports:
         - "60020:60010"
         - "61000:61000"
@@ -21,7 +21,7 @@ cluster2:
     command: "-s 1 6262 cluster3 6262 cluster1 6262 61000 17262"
 
 cluster3:
-    image: saferegions
+    image: saferegions:latest
     ports:
         - "60030:60010"
         - "62000:62000"

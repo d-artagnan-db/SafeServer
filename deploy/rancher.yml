@@ -1,0 +1,24 @@
+cluster1:
+    image: safecloud/saferegions:latest
+    hostname: cluster1
+    container_name: cluster1
+    command: "-s 0 6262 cluster2 6262 cluster3 6262 60000 16262"
+    labels:
+        io.rancher.scheduler.affinity:host_label: computingNode=1
+
+
+cluster2:
+    image: safecloud/saferegions:latest
+    hostname: cluster2
+    container_name: cluster2
+    command: "-s 1 6262 cluster3 6262 cluster1 6262 61000 17262"
+    labels:
+        io.rancher.scheduler.affinity:host_label: computingNode=2
+
+cluster3:
+    image: safecloud/saferegions:latest
+    hostname: cluster3
+    container_name: cluster3
+    command: "-s 2 6262 cluster1 6262 cluster2 6262 62000 18262"
+    labels:
+        io.rancher.scheduler.affinity:host_label: computingNode=3

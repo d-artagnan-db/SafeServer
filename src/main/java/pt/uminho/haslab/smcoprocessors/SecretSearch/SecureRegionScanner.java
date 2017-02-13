@@ -11,6 +11,7 @@ import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.regionserver.RegionScanner;
+import org.mortbay.log.Log;
 import pt.uminho.haslab.smcoprocessors.SharemindPlayer;
 import pt.uminho.haslab.smcoprocessors.SmpcConfiguration;
 import pt.uminho.haslab.smhbase.interfaces.Player;
@@ -84,7 +85,7 @@ public class SecureRegionScanner implements RegionScanner {
 	}
 
 	public boolean next(List<Cell> results) throws IOException {
-		System.out.println("Next in SecureRegionScanner was issued ");
+		Log.debug("Next in SecureRegionScanner was issued ");
 		boolean matchFound = false;
 		List<Cell> localResults = new ArrayList<Cell>();
 
@@ -95,11 +96,12 @@ public class SecureRegionScanner implements RegionScanner {
 			hasMore = scanner.next(localResults);
 			// IF there is nothing to search;
 			if (hasMore == false && localResults.isEmpty()) {
-				System.out.println("there is nothing to search");
+				// System.out.println("there is nothing to search");
 				results.addAll(localResults);
 				return false;
 			}
-			System.out.println("Number of results is " + localResults.size());
+			// System.out.println("Number of results is " +
+			// localResults.size());
 			byte[] rowID = null;
 			byte[] protectedValue = null;
 			for (Cell cell : localResults) {
@@ -109,33 +111,33 @@ public class SecureRegionScanner implements RegionScanner {
 								col.getCq())) {
 					rowID = CellUtil.cloneRow(cell);
 					protectedValue = CellUtil.cloneValue(cell);
-					System.out.println("Found protected value");
+					// System.out.println("Found protected value");
 				}
 
 			}
 
 			// System.out.println("column is "+new String(col.getCf()));
-			System.out.println("qualifier is " + new String(col.getCq()));
+			// System.out.println("qualifier is " + new String(col.getCq()));
 			SharemindPlayer splayer = (SharemindPlayer) player;
 			// System.out.println("Before Searching for match. HasMore: "
 			// + hasMore + "; MatchFound: " + matchFound);
-			System.out.println("Going to do search for rowID "
-					+ new String(rowID));
-			System.out.println("Search with the protectedValue "
-					+ new BigInteger(protectedValue));
+			// System.out.println("Going to do search for rowID "
+			// + new String(rowID));
+			// System.out.println("Search with the protectedValue "
+			// + new BigInteger(protectedValue));
 			matchFound = searchValue.evaluateCondition(protectedValue, rowID,
 					splayer);
 
-			System.out.println("After Search for match. HasMore: " + hasMore
-					+ "; MatchFound: " + matchFound);
+			// System.out.println("After Search for match. HasMore: " + hasMore
+			// + "; MatchFound: " + matchFound);
 
 		} while (hasMore & !matchFound);
 
 		// Copy the resulting cells if a match was found.
 
 		if (matchFound) {
-			System.out.println("Going to copy Results of rowID "
-					+ new String(CellUtil.cloneRow(localResults.get(0))));
+			// System.out.println("Going to copy Results of rowID "
+			// + new String(CellUtil.cloneRow(localResults.get(0))));
 			results.addAll(localResults);
 		}
 
@@ -143,7 +145,7 @@ public class SecureRegionScanner implements RegionScanner {
 		if (matchFound & stopOnMatch) {
 			hasMore = false;
 		}
-		System.out.println("Next result is " + hasMore);
+		// System.out.println("Next result is " + hasMore);
 
 		return hasMore;
 	}

@@ -21,7 +21,7 @@ public class UnarySearchValue extends AbstractSearchValue {
 	@Override
 	public boolean evaluateCondition(byte[] value, byte[] rowID,
 			SharemindPlayer p) {
-		System.out.println("Going to evaluate unary search value");
+		// System.out.println("Going to evaluate unary search value");
 		if (condition == Not) {
 			return !searchCondition.evaluateCondition(value, rowID, p);
 		}
