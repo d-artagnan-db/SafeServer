@@ -3,6 +3,7 @@ package pt.uminho.haslab.smcoprocessors;
 import java.math.BigInteger;
 import java.util.List;
 import org.apache.hadoop.hbase.client.Result;
+import static org.junit.Assert.assertEquals;
 import pt.uminho.haslab.smcoprocessors.helpers.TestClusterTables;
 import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
 import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
@@ -32,22 +33,11 @@ public abstract class ScanSearchEndpointTest extends AbstractSearchEndpointTest 
 		startKey = getStartKey(shelper);
 		stopKey = getStopKey(shelper);
 
-		// System.out.println("going to call scan endpoint with null keys");
-		// List<Result> results = tables.scanEndpoint(nbits, null, null, 1,
-		// config, dealer);
-
-		// System.out.println("Results sie is " + results.size());
-
 		List<Result> results = tables.scanEndpoint(nbits, startKey, stopKey, 1,
 				config, dealer);
 
-		shelper.validateResults(results);
-
-		// Remove two random values , one start key one end key
-		// Create multiple tests, with and without keys
-		// Create with while match filter
-		// create without match filter but with row filter
-
+		boolean res = shelper.validateResults(results);
+		assertEquals(true, res);
 	}
 
 	@Override

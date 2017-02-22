@@ -6,7 +6,6 @@ public class ScanSearchWithStartKey extends ScanSearchEndpointTest {
 
 	public ScanSearchWithStartKey() throws Exception {
 		super();
-
 	}
 
 	@Override

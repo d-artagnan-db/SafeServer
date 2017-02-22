@@ -5,158 +5,146 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.regionserver.RegionScanner;
-import org.mortbay.log.Log;
 import pt.uminho.haslab.smcoprocessors.SharemindPlayer;
 import pt.uminho.haslab.smcoprocessors.SmpcConfiguration;
 import pt.uminho.haslab.smhbase.interfaces.Player;
 
 public class SecureRegionScanner implements RegionScanner {
+    static final Log LOG = LogFactory.getLog(SecureRegionScanner.class
+            .getName());
 
-	private final RegionCoprocessorEnvironment env;
+    private final RegionCoprocessorEnvironment env;
 
-	private final Player player;
+    private final Player player;
 
-	private final SearchCondition searchValue;
+    private final SearchCondition searchValue;
 
-	private final boolean stopOnMatch;
+    private final boolean stopOnMatch;
 
-	private final Column col;
+    private final Column col;
 
-	private boolean isFilterDone;
-	private boolean hasMore;
+    private boolean isFilterDone;
+    private boolean hasMore;
 
-	private final Scan scan;
-	private final RegionScanner scanner;
+    private final Scan scan;
+    private final RegionScanner scanner;
 
-	public SecureRegionScanner(SearchCondition searchValue,
-			RegionCoprocessorEnvironment env, Player player,
-			SmpcConfiguration config, boolean stopOnMatch, Column col)
-			throws IOException {
-		this.searchValue = searchValue;
-		this.env = env;
-		this.player = player;
-		this.stopOnMatch = stopOnMatch;
-		this.col = col;
-		scan = new Scan();
-		scanner = env.getRegion().getScanner(scan);
+    public SecureRegionScanner(SearchCondition searchValue,
+            RegionCoprocessorEnvironment env, Player player,
+            SmpcConfiguration config, boolean stopOnMatch, Column col)
+            throws IOException {
+        this.searchValue = searchValue;
+        this.env = env;
+        this.player = player;
+        this.stopOnMatch = stopOnMatch;
+        this.col = col;
+        scan = new Scan();
+        scanner = env.getRegion().getScanner(scan);
 
-	}
+    }
 
-	public HRegionInfo getRegionInfo() {
-		return env.getRegionInfo();
-	}
+    public HRegionInfo getRegionInfo() {
+        return env.getRegionInfo();
+    }
 
-	public boolean isFilterDone() throws IOException {
-		System.out.println("is filter done " + isFilterDone);
+    public boolean isFilterDone() throws IOException {
+        LOG.debug("is filter done " + isFilterDone);
 
-		return isFilterDone;
-	}
+        return isFilterDone;
+    }
 
-	public boolean reseek(byte[] row) throws IOException {
-		System.out.println("reseek was issued");
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
+    public boolean reseek(byte[] row) throws IOException {
+        LOG.debug("reseek was issued");
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 
-	public long getMaxResultSize() {
-		System.out.println("Mvcc result size was issued");
-		return scanner.getMaxResultSize();
-	}
+    public long getMaxResultSize() {
+        LOG.debug("Mvcc result size was issued");
+        return scanner.getMaxResultSize();
+    }
 
-	public long getMvccReadPoint() {
-		System.out.println("MvccReadPoint was issued");
-		return scanner.getMvccReadPoint();
-	}
+    public long getMvccReadPoint() {
+        LOG.debug("MvccReadPoint was issued");
+        return scanner.getMvccReadPoint();
+    }
 
-	public boolean nextRaw(List<Cell> result) throws IOException {
-		System.out.println("Next raw was issued");
-		return this.next(result);
-		// throw new UnsupportedOperationException("Not supported yet.");
-	}
+    public boolean nextRaw(List<Cell> result) throws IOException {
+        LOG.debug("Next raw was issued");
+        return this.next(result);
+    }
 
-	public boolean nextRaw(List<Cell> result, int limit) throws IOException {
-		System.out.println("Next raw with limit was issued");
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
+    public boolean nextRaw(List<Cell> result, int limit) throws IOException {
+        LOG.debug("Next raw with limit was issued");
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 
-	public boolean next(List<Cell> results) throws IOException {
-		Log.debug("Next in SecureRegionScanner was issued ");
-		boolean matchFound = false;
-		List<Cell> localResults = new ArrayList<Cell>();
+    public boolean next(List<Cell> results) throws IOException {
+        LOG.debug("Next in SecureRegionScanner was issued ");
+        boolean matchFound = false;
+        List<Cell> localResults = new ArrayList<Cell>();
 
-		// Search for a matching encrypted value.
+        // Search for a matching encrypted value.
 
-		do {
-			localResults.clear();
-			hasMore = scanner.next(localResults);
-			// IF there is nothing to search;
-			if (hasMore == false && localResults.isEmpty()) {
-				// System.out.println("there is nothing to search");
-				results.addAll(localResults);
-				return false;
-			}
-			// System.out.println("Number of results is " +
-			// localResults.size());
-			byte[] rowID = null;
-			byte[] protectedValue = null;
-			for (Cell cell : localResults) {
+        do {
+            localResults.clear();
+            hasMore = scanner.next(localResults);
+            // If there is nothing to search;
+            if (hasMore == false && localResults.isEmpty()) {
+                results.addAll(localResults);
+                return false;
+            }
 
-				if (Arrays.equals(CellUtil.cloneFamily(cell), col.getCf())
-						&& Arrays.equals(CellUtil.cloneQualifier(cell),
-								col.getCq())) {
-					rowID = CellUtil.cloneRow(cell);
-					protectedValue = CellUtil.cloneValue(cell);
-					// System.out.println("Found protected value");
-				}
+            byte[] rowID = null;
+            byte[] protectedValue = null;
+            for (Cell cell : localResults) {
 
-			}
+                if (Arrays.equals(CellUtil.cloneFamily(cell), col.getCf())
+                        && Arrays.equals(CellUtil.cloneQualifier(cell),
+                                col.getCq())) {
+                    rowID = CellUtil.cloneRow(cell);
+                    protectedValue = CellUtil.cloneValue(cell);
+                }
 
-			// System.out.println("column is "+new String(col.getCf()));
-			// System.out.println("qualifier is " + new String(col.getCq()));
-			SharemindPlayer splayer = (SharemindPlayer) player;
-			// System.out.println("Before Searching for match. HasMore: "
-			// + hasMore + "; MatchFound: " + matchFound);
-			// System.out.println("Going to do search for rowID "
-			// + new String(rowID));
-			// System.out.println("Search with the protectedValue "
-			// + new BigInteger(protectedValue));
-			matchFound = searchValue.evaluateCondition(protectedValue, rowID,
-					splayer);
+            }
 
-			// System.out.println("After Search for match. HasMore: " + hasMore
-			// + "; MatchFound: " + matchFound);
+            SharemindPlayer splayer = (SharemindPlayer) player;
 
-		} while (hasMore & !matchFound);
+            matchFound = searchValue.evaluateCondition(protectedValue, rowID,
+                    splayer);
 
-		// Copy the resulting cells if a match was found.
+        } while (hasMore & !matchFound);
 
-		if (matchFound) {
-			// System.out.println("Going to copy Results of rowID "
-			// + new String(CellUtil.cloneRow(localResults.get(0))));
-			results.addAll(localResults);
-		}
+        if (matchFound) {
+            results.addAll(localResults);
+        }
 
-		localResults.clear();
-		if (matchFound & stopOnMatch) {
-			hasMore = false;
-		}
-		// System.out.println("Next result is " + hasMore);
+        localResults.clear();
 
-		return hasMore;
-	}
+        if (matchFound & stopOnMatch) {
+            hasMore = false;
+        }
 
-	public boolean next(List<Cell> result, int limit) throws IOException {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
+        return hasMore;
+    }
 
-	public void close() throws IOException {
-		((SharemindPlayer) player).cleanValues();
-		scanner.close();
-	}
+    public boolean next(List<Cell> result, int limit) throws IOException {
+        LOG.debug("Next with limit was issued");
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void close() throws IOException {
+        LOG.debug("close was issued");
+
+        ((SharemindPlayer) player).cleanValues();
+        scanner.close();
+    }
 
 }

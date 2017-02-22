@@ -56,24 +56,7 @@ public class TestClusterTables extends ClusterTables {
 		}
 
 		ClusterResults results = this.get(gets);
-		// BigInteger secretOne = new BigInteger(results.getResult(0).getValue(
-		// config.getSecretFamily(), config.getSecretQualifier()));
-		// BigInteger secretTwo = new BigInteger(results.getResult(1).getValue(
-		// config.getSecretFamily(), config.getSecretQualifier()));
-		// BigInteger secretThree = new
-		// BigInteger(results.getResult(2).getValue(
-		// config.getSecretFamily(), config.getSecretQualifier()));
-		// LOG.debug("Received ");
-		// LOG.debug("0 " + new String(results.getResult(0).getRow())
-		// + " -> " + secretOne);
-		// LOG.debug("1 " + new String(results.getResult(1).getRow())
-		// + " -> " + secretTwo);
-		// LOG.debug("2 " + new String(results.getResult(2).getRow())
-		// + " -> " + secretThree);
 
-		// System.out.println(results.isInconsistant());
-		// System.out.println(results.allEmpty());
-		// System.out.println(results.oneEmpty());
 		if (results.isInconsistant()) {
 			throw new IllegalStateException(
 					"One Result was empty but the others" + "were not");
@@ -110,13 +93,30 @@ public class TestClusterTables extends ClusterTables {
 		SharemindSharedSecret startSharedSecret = (SharemindSharedSecret) dealer
 				.share(new BigInteger(startRow));
 
-		byte[] stopRow = null;
-		Scan firstScan = new Scan(startSharedSecret.getU1().toByteArray(),
-				stopRow);
-		Scan secondScan = new Scan(startSharedSecret.getU2().toByteArray(),
-				stopRow);
-		Scan thirdScan = new Scan(startSharedSecret.getU3().toByteArray(),
-				stopRow);
+		Scan firstScan = new Scan();
+		firstScan.setStartRow(startSharedSecret.getU1().toByteArray());
+		Scan secondScan = new Scan();
+		secondScan.setStartRow(startSharedSecret.getU2().toByteArray());
+
+		Scan thirdScan = new Scan();
+		thirdScan.setStartRow(startSharedSecret.getU3().toByteArray());
+
+		scans.add(firstScan);
+		scans.add(secondScan);
+		scans.add(thirdScan);
+	}
+
+	public void scanWithStopRow(Dealer dealer, List<Scan> scans, byte[] stopRow)
+			throws InvalidSecretValue {
+		SharemindSharedSecret startSharedSecret = (SharemindSharedSecret) dealer
+				.share(new BigInteger(stopRow));
+
+		Scan firstScan = new Scan();
+		firstScan.setStopRow(startSharedSecret.getU1().toByteArray());
+		Scan secondScan = new Scan();
+		secondScan.setStopRow(startSharedSecret.getU2().toByteArray());
+		Scan thirdScan = new Scan();
+		thirdScan.setStopRow(startSharedSecret.getU3().toByteArray());
 
 		scans.add(firstScan);
 		scans.add(secondScan);
@@ -126,14 +126,17 @@ public class TestClusterTables extends ClusterTables {
 	private List<Scan> getScans(Dealer dealer, byte[] startRow, byte[] stopRow)
 			throws InvalidSecretValue {
 		List<Scan> scans = new ArrayList<Scan>();
-		System.out.println("0-Start row are " + startRow + " / " + stopRow);
+		LOG.debug("0-Start row are " + new BigInteger(startRow) + " / "
+				+ new BigInteger(stopRow));
 
 		if (startRow != null && stopRow != null) {
 			scanWithStartAndStopRow(dealer, scans, startRow, stopRow);
 		} else if (startRow != null && stopRow == null) {
 			scanWithStartRow(dealer, scans, startRow);
+		} else if (startRow == null && stopRow != null) {
+			scanWithStopRow(dealer, scans, stopRow);
 		} else if (startRow == null && stopRow == null) {
-			System.out.println("Going to do a full table scan");
+			LOG.debug("Going to do a full table scan");
 			scans.add(new Scan());
 			scans.add(new Scan());
 			scans.add(new Scan());
@@ -148,7 +151,8 @@ public class TestClusterTables extends ClusterTables {
 			InvalidSecretValue {
 
 		int playerID = 1;
-		System.out.println("Start row are " + startRow + " / " + stopRow);
+		LOG.debug("Start row are " + new BigInteger(startRow) + " / "
+				+ new BigInteger(stopRow));
 		List<Scan> scans = getScans(dealer, startRow, stopRow);
 
 		byte[] requestIDba = ("" + requestID).getBytes();
@@ -162,12 +166,13 @@ public class TestClusterTables extends ClusterTables {
 		ClusterScanResult results = this.scan(scans);
 
 		if (!results.isConsistant()) {
-			throw new IllegalStateException(
-					"One Result was empty but the others" + " were not");
+			String error = "One Result was empty but the others were not";
+			LOG.debug(error);
+			throw new IllegalStateException(error);
 		}
 
 		if (!results.notEmpty()) {
-			System.out.printf("Results are empty");
+			LOG.debug("Results are empty");
 			return null;
 		}
 

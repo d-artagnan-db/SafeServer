@@ -55,9 +55,6 @@ public class RelayClient extends Thread {
 
 	public void sendToClient(int type, byte[] msg) throws IOException {
 
-		// System.out.println(this.bindingPort +
-		// " asked to send message of type "+ type + " with size "+ msg.length +
-		// " to "+targetPort);
 		out.writeInt(msg.length);
 		out.writeInt(type);
 		out.write(msg);
@@ -87,10 +84,7 @@ public class RelayClient extends Thread {
 	}
 
 	public void connectToTarget() throws InterruptedException, IOException {
-		/*
-		 * System.out.println(this.bindingPort+"Going to connect to " +
-		 * targetAddress + ":" + targetPort);
-		 */
+
 		LOG.info((this.bindingPort + " is going to connect to " + targetAddress
 				+ ":" + targetPort));
 		socket = new Socket(targetAddress, targetPort);
@@ -101,15 +95,13 @@ public class RelayClient extends Thread {
 	}
 
 	public void shutdown() throws InterruptedException, IOException {
-		/*
-		 * LOG.debug(targetAddress + ":" + targetPort +
-		 * " is shutting down channel");
-		 */
 		LOG.debug(this.bindingPort + " is going to shutdown connection to "
 				+ targetAddress + ":" + targetPort);
+
 		LOG.debug(this.bindingPort + " asked to send "
 				+ this.messagesAskedToSend + " messages and actualy sent "
 				+ this.messagesSent);
+
 		while (messagesSent.get() != messagesAskedToSend.get()) {
 			LOG.debug(this.bindingPort + " asked to send "
 					+ this.messagesAskedToSend + " messages and actualy sent "
@@ -119,7 +111,7 @@ public class RelayClient extends Thread {
 
 		running = false;
 		sendShutdown();
-		// socket.close();
+
 		LOG.debug(this.bindingPort + " is shutting down now " + targetAddress
 				+ ":" + targetPort);
 
@@ -136,6 +128,7 @@ public class RelayClient extends Thread {
 				}
 			} catch (IOException ex) {
 				LOG.debug("Error on closing socket that was waiting " + ex);
+				throw new IllegalStateException(ex);
 			}
 
 		}
@@ -143,6 +136,8 @@ public class RelayClient extends Thread {
 			socket.close();
 		} catch (IOException ex) {
 			LOG.debug("socket could not be closed" + ex);
+			throw new IllegalStateException(ex);
+
 		}
 
 	}

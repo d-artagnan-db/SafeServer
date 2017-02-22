@@ -62,8 +62,7 @@ public class SendThenReceiveMessageBrokerTest {
 				RequestIdentifier ident = new RequestIdentifier(reqID, regionID);
 				ContextPlayer r = new ContextPlayer(relay, ident, playerID,
 						broker);
-				// System.out.println(this.playerID +
-				// " is going to send to "+this.playerDest);
+
 				r.sendValueToPlayer(playerDest, value);
 				contextId++;
 				players.add(r);
@@ -71,7 +70,6 @@ public class SendThenReceiveMessageBrokerTest {
 
 			for (ContextPlayer p : players) {
 				BigInteger rec = p.getValue(this.playerSource);
-				// System.out.println(this.playerID+" received " +rec);
 				recVal.add(rec);
 			}
 		}

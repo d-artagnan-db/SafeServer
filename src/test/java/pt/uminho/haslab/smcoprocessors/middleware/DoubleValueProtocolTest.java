@@ -183,23 +183,19 @@ public abstract class DoubleValueProtocolTest extends TestLinkedRegions {
 
 	public void validatePlayersMessagesOrder() {
 
-		// printMessageCount();
 		for (Integer playerID : players.keySet()) {
 
 			for (int i = 0; i < players.get(playerID).size(); i++) {
 				TestPlayer p = players.get(playerID).get(i);
 
 				for (Integer playerDest : p.getMessagesSent().keySet()) {
-					// LOG.debug(playerID+" checking "+playerDest);
-					// LOG.debug(p.getMessagesSent().get(playerDest).size());
-					// LOG.debug(players.get(playerDest).get(i).getMessagesReceived().get(playerID).size());
+
 					assertEquals(p.getMessagesSent().get(playerDest).size(),
 							players.get(playerDest).get(i)
 									.getMessagesReceived().get(playerID).size());
 					for (int j = 0; j < p.getMessagesSent().get(playerDest)
 							.size(); j++) {
-						// LOG.debug(playerID + " checking " + playerDest+
-						// " at " + j);
+
 						BigInteger sentVal = p.getMessagesSent()
 								.get(playerDest).get(j);
 						BigInteger recVal = players.get(playerDest).get(i)

@@ -44,7 +44,6 @@ public class PlayerResults {
 			throws ResultsIdentifiersMissmatch {
 		int nIdentifiers = results.get(0).getIdentifiers().size();
 
-		// BigInteger mIndex = null;
 		for (int i = 0; i < nIdentifiers; i++) {
 
 			BigInteger firstIdent = results.get(0).getIdentifiers().get(i);
@@ -55,22 +54,14 @@ public class PlayerResults {
 			BigInteger secondSecret = results.get(1).getSecrets().get(i);
 			BigInteger thirdSecret = results.get(2).getSecrets().get(i);
 
-			// Check if identifiers match
 			if (!firstIdent.equals(secondIdent)
 					|| !secondIdent.equals(thirdIdent)) {
 				throw new ResultsIdentifiersMissmatch();
 			}
 
-			// String currentID = new String(results.get(0).getIdentifiers()
-			// .get(i).toByteArray());
-			// System.out.println(currentID+" firstSecret "+ firstSecret);
-			// System.out.println(currentID+" secondSecret "+ secondSecret);
-			// System.out.println(currentID+" thirdSecret "+ thirdSecret);
-
 			SharemindSharedSecret secretResult = new SharemindSharedSecret(1,
 					firstSecret, secondSecret, thirdSecret);
-			// System.out.println(i+" searching "+currentID+" seeking a match "+
-			// secretResult.unshare().intValue());
+
 			int result = secretResult.unshare().intValue();
 			if (condition == Equal && result == 1) {
 				return results.get(0).getIdentifiers().get(i);
@@ -79,7 +70,6 @@ public class PlayerResults {
 			}
 		}
 
-		// If match is not found, null is returned
 		return null;
 	}
 }

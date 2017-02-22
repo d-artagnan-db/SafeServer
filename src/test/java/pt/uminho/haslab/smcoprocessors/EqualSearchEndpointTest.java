@@ -47,17 +47,17 @@ public class EqualSearchEndpointTest extends AbstractSearchEndpointTest {
 		for (int i = 0; i < values.size() - 1; i++) {
 
 			BigInteger value = values.get(i);
-			System.out.println("Going to search for value " + value
-					+ " in position " + i);
+			LOG.debug("Going to search for value " + value + " in position "
+					+ i);
 			SharedSecret secret = dealer.share(value);
 
-			// LOG.debug("Going to compare value " + value);
+			LOG.debug("Going to compare value " + value);
 			/*
 			 * The computations will be made on 63 bits on reality. Always the
 			 * nbits used on the dealer +1. nbits+1. Explanation on the
 			 * description of the paramters of the region server and smhbase.
 			 */
-			// System.out.println("Exepecting row " + i);
+			LOG.debug("Exepecting row " + i);
 			int result = tables.equalEndpoint(nbits + 1, secret, 1, config);
 
 			assertEquals(i, result);
@@ -70,7 +70,7 @@ public class EqualSearchEndpointTest extends AbstractSearchEndpointTest {
 		long end = System.nanoTime();
 		long duration = TimeUnit.SECONDS.convert(end - start,
 				TimeUnit.NANOSECONDS);
-		System.out.println("Execution time was " + duration + " seconds");
+		LOG.debug("Execution time was " + duration + " seconds");
 	}
 
 	@Override

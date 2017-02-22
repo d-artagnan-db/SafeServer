@@ -41,7 +41,7 @@ public abstract class TestLinkedRegions {
 		long end = System.nanoTime();
 		long duration = TimeUnit.SECONDS.convert(end - start,
 				TimeUnit.NANOSECONDS);
-		System.out.println("Execution time was " + duration + " second");
+		LOG.debug("Execution time was " + duration + " second");
 		validateResults();
 
 		// wait some time before next tests

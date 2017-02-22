@@ -7,11 +7,16 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
 import pt.uminho.haslab.protocommunication.Search.ShareMessage;
 
 public class SharemindMessageBroker implements MessageBroker {
+
+	private static final Log LOG = LogFactory
+			.getLog(SharemindMessageBroker.class.getName());
 
 	private final Lock lock;
 
@@ -129,6 +134,7 @@ public class SharemindMessageBroker implements MessageBroker {
 			return messagesReceived.get(requestId);
 
 		} catch (InterruptedException ex) {
+			LOG.error(ex);
 			throw new IllegalArgumentException(ex.getMessage());
 		}
 	}
@@ -151,6 +157,7 @@ public class SharemindMessageBroker implements MessageBroker {
 			return protocolResults.get(requestID);
 
 		} catch (InterruptedException ex) {
+			LOG.error(ex);
 			throw new IllegalArgumentException(ex.getMessage());
 		}
 	}
@@ -170,7 +177,7 @@ public class SharemindMessageBroker implements MessageBroker {
 			return filterIndex.get(requestID);
 
 		} catch (InterruptedException ex) {
-
+			LOG.error(ex);
 			throw new IllegalArgumentException(ex.getMessage());
 		}
 
@@ -184,14 +191,11 @@ public class SharemindMessageBroker implements MessageBroker {
 	@Override
 	public void waitRelayStart() throws InterruptedException {
 		relayStarted.await();
-
 	}
 	@Override
 	public void allMessagesRead(RequestIdentifier requestID) {
-
 		protocolMessagesLocks.removeLock(requestID);
 		messagesReceived.remove(requestID);
-
 	}
 
 	@Override
@@ -241,7 +245,6 @@ public class SharemindMessageBroker implements MessageBroker {
 
 	public boolean lockExistsForResultsOnRequest(RequestIdentifier requestID) {
 		return this.protocolResultsLocks.lockExist(requestID);
-
 	}
 
 }

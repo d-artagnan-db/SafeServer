@@ -22,8 +22,6 @@ public abstract class ConcurrentSecretSearchTest extends ConcurrentProtocolTest 
 	private static final Log LOG = LogFactory.getLog(ConcurrentTestPlayer.class
 			.getName());
 
-	// private BigInteger rowID;
-
 	private final Map<Integer, Map<Integer, Boolean>> results;
 
 	public ConcurrentSecretSearchTest(List<Integer> nbits,
@@ -64,7 +62,6 @@ public abstract class ConcurrentSecretSearchTest extends ConcurrentProtocolTest 
 
 		@Override
 		public void run() {
-			// System.out.println("Going to run "+requestID);
 			Integer reqID = Integer.parseInt(new String(requestID
 					.getRequestID()));
 
@@ -73,15 +70,22 @@ public abstract class ConcurrentSecretSearchTest extends ConcurrentProtocolTest 
 			if (player.getPlayerID() == 1) {
 				player.setTargetPlayer();
 			}
-			// Secret fSecret = generateSecret(nBits, firstValueSecret, this);
-			// Secret sSecret = generateSecret(nBits, secondValueSecret, this);
+
+			/**
+			 * Simulation of comparison of values inside hbase scan. The second
+			 * value is stored on the hbase the database. The first value is
+			 * request by the user to compare to the values stored in the db.
+			 * The comparison should be made as follows: secretTwo == secretOne
+			 * secretTwo >= secretOne secretTwo > secretOne secretTwo <
+			 * secretOne secretTwo <= SecretOne
+			 */
 			SearchCondition condition = getSearchCondition(nBits,
-					firstValueSecret.toByteArray(), 1);
-			searchRes = condition.evaluateCondition(
-					secondValueSecret.toByteArray(), rowID.toByteArray(),
-					player);
+					secondValueSecret.toByteArray(), 1);
+
+			searchRes = condition
+					.evaluateCondition(firstValueSecret.toByteArray(),
+							rowID.toByteArray(), player);
 			Integer playerID = player.getPlayerID();
-			// System.out.println("requestID "+reqID);
 			results.get(playerID).put(reqID, searchRes);
 
 		}
@@ -93,22 +97,13 @@ public abstract class ConcurrentSecretSearchTest extends ConcurrentProtocolTest 
 		@Override
 		protected SharemindSecret testingProtocol(Secret originalSecret,
 				Secret cmpSecret) {
-			throw new UnsupportedOperationException("Not supported yet."); // To
-																			// change
-																			// body
-																			// of
-																			// generated
-																			// methods,
-																			// choose
-																			// Tools
-																			// |
-																			// Templates.
+			throw new UnsupportedOperationException("Not supported yet.");
 		}
 	}
 
 	@Override
 	protected void validateResults() throws InvalidSecretValue {
-		System.out.println("going to validate results");
+		LOG.debug("going to validate results");
 		for (Integer request : results.get(0).keySet()) {
 
 			boolean resOne = results.get(0).get(request);

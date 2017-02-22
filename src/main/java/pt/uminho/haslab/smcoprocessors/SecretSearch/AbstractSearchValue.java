@@ -3,9 +3,6 @@ package pt.uminho.haslab.smcoprocessors.SecretSearch;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
-import static org.apache.hadoop.hbase.filter.CompareFilter.CompareOp.EQUAL;
-import static org.apache.hadoop.hbase.filter.CompareFilter.CompareOp.GREATER_OR_EQUAL;
 import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.And;
 import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.Equal;
 import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.GreaterOrEqualThan;
@@ -21,15 +18,15 @@ import pt.uminho.haslab.smhbase.sharemindImp.SharemindSecret;
 
 public abstract class AbstractSearchValue implements SearchCondition {
 
-	public static SearchCondition conditionTransformer(CompareOp op, int nBits,
+	public static SearchCondition conditionTransformer(Condition op, int nBits,
 			byte[] value, int targetPlayer) {
 		switch (op) {
-			case EQUAL :
+			case Equal :
 				return new SearchValue(nBits, value, Equal, targetPlayer);
-			case GREATER_OR_EQUAL :
+			case GreaterOrEqualThan :
 				return new SearchValue(nBits, value, GreaterOrEqualThan,
 						targetPlayer);
-			case GREATER :
+			case Greater :
 				SearchCondition equal = new SearchValue(nBits, value, Equal,
 						targetPlayer);
 				SearchCondition notEqual = new UnarySearchValue(Not, equal,
@@ -38,11 +35,11 @@ public abstract class AbstractSearchValue implements SearchCondition {
 						value, GreaterOrEqualThan, targetPlayer);
 				return new ComposedSearchValue(And, notEqual, greaterEqualThan,
 						targetPlayer);
-			case LESS :
+			case Less :
 				greaterEqualThan = new SearchValue(nBits, value,
 						GreaterOrEqualThan, targetPlayer);
 				return new UnarySearchValue(Not, greaterEqualThan, targetPlayer);
-			case LESS_OR_EQUAL :
+			case LessOrEqualThan :
 				greaterEqualThan = new SearchValue(nBits, value,
 						GreaterOrEqualThan, targetPlayer);
 				equal = new SearchValue(nBits, value, Equal, targetPlayer);
@@ -50,7 +47,7 @@ public abstract class AbstractSearchValue implements SearchCondition {
 						greaterEqualThan, targetPlayer);
 				return new ComposedSearchValue(Or, equal, notGreater,
 						targetPlayer);
-			case NOT_EQUAL :
+			case NotEqual :
 				equal = new SearchValue(nBits, value, Equal, targetPlayer);
 				return new UnarySearchValue(Not, equal, targetPlayer);
 
@@ -73,9 +70,7 @@ public abstract class AbstractSearchValue implements SearchCondition {
 
 	protected Secret generateSecret(int nBits, BigInteger value,
 			SharemindPlayer player) throws InvalidSecretValue {
-
 		BigInteger bMod = BigInteger.valueOf(2).pow(nBits);
-
 		return new SharemindSecret(nBits, bMod, value, (Player) player);
 	}
 
@@ -83,6 +78,7 @@ public abstract class AbstractSearchValue implements SearchCondition {
 			throws ResultsLengthMissmatch {
 		List<byte[]> secrets = new ArrayList<byte[]>();
 		List<byte[]> ids = new ArrayList<byte[]>();
+
 		ids.add(id);
 		secrets.add(((SharemindSecret) secret).getValue().toByteArray());
 
@@ -90,13 +86,6 @@ public abstract class AbstractSearchValue implements SearchCondition {
 
 	}
 
-	/**
-	 * 
-	 * @param value
-	 * @param rowID
-	 * @param p
-	 * @return
-	 */
 	public abstract boolean evaluateCondition(byte[] value, byte[] rowID,
 			SharemindPlayer p);
 

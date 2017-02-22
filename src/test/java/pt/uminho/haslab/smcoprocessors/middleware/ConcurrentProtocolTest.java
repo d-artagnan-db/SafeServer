@@ -127,10 +127,10 @@ public abstract class ConcurrentProtocolTest extends TestLinkedRegions {
 
 				BigInteger secretOne = firstValueSecrets.get(i);
 				BigInteger secretTwo = secondValueSecrets.get(i);
-				// System.out.println("Nbits size "+i);
 
 				byte[] reqID = ("" + i).getBytes();
 				byte[] regionID = "1".getBytes();
+
 				RequestIdentifier ident = new RequestIdentifier(reqID, regionID);
 				ConcurrentTestPlayer player = createConcurrentPlayer(relay,
 						ident, playerID, broker, secretOne, secretTwo,

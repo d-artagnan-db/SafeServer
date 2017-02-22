@@ -24,9 +24,6 @@ public abstract class AbstractSearchEndpointTest {
 	static final Log LOG = LogFactory.getLog(AbstractSearchEndpointTest.class
 			.getName());
 
-	// public static String columnFamily = "virtualID";
-	// public static String columnQualifier = "id";
-
 	private final Clusters clusters;
 	protected final SmpcConfiguration config;
 
@@ -38,7 +35,6 @@ public abstract class AbstractSearchEndpointTest {
 			resources.add("hbase-site-" + i + ".xml");
 
 		}
-		// System.out.println("Resources " + resources);
 
 		clusters = new Clusters(resources);
 		Thread.sleep(30000);
@@ -79,8 +75,7 @@ public abstract class AbstractSearchEndpointTest {
 		int nbits = ValuesGenerator.maxBits;
 
 		List<BigInteger> values = ValuesGenerator.equalSearchEndpointList();
-		// List<BigInteger> values =
-		// ValuesGenerator.fixedEqualSearchEndpointList();
+
 		TestClusterTables tables = clusters.createTables(getTestTableName(),
 				new String(config.getSecretFamily()));
 		Dealer dealer = new SharemindDealer(nbits);
@@ -113,8 +108,8 @@ public abstract class AbstractSearchEndpointTest {
 			putC3.add(cf, cq, secret.getU3().toByteArray());
 			putC3.add(cf, "val".getBytes(), value.toByteArray());
 
-			System.out.println(i + "- ( " + secret.getU1() + ", "
-					+ secret.getU2() + ", " + secret.getU3() + ")");
+			LOG.debug(i + "- ( " + secret.getU1() + ", " + secret.getU2()
+					+ ", " + secret.getU3() + ")");
 			tables.put(0, putC1).put(1, putC2).put(2, putC3);
 
 		}

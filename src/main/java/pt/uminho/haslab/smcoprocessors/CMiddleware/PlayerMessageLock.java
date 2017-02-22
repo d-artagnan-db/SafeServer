@@ -16,36 +16,18 @@ public class PlayerMessageLock {
 	}
 
 	public void lock() {
-		/*
-		 * LOG.debug(Thread.currentThread().getName() + " lock on " +
-		 * lock.toString());
-		 */
 		lock.lock();
 	}
 
 	public void unlock() {
-		/*
-		 * LOG.debug(Thread.currentThread().getName() + " unlock on " +
-		 * lock.toString());
-		 */
 		lock.unlock();
 	}
 
 	public void signalToRead() {
-		/*
-		 * LOG.debug(Thread.currentThread().getName() + " signal read " +
-		 * lock.toString());
-		 */
-
 		canRead.signal();
 	}
 
 	public void awaitForWrite() throws InterruptedException {
-		/*
-		 * LOG.debug(Thread.currentThread().getName() + " awaiting " +
-		 * lock.toString());
-		 */
-
 		canRead.await();
 	}
 

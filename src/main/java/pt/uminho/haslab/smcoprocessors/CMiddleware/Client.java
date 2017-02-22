@@ -42,24 +42,20 @@ public class Client extends Thread {
 	}
 
 	private void handleMessage(int type, byte[] message) throws IOException {
-		MessageHandler handler = null;
-		LOG.debug("Hndle message with type " + type + " and size "
+		LOG.debug("Handle message with type " + type + " and size "
 				+ message.length);
 		switch (type) {
 
 			case 0 : {
-				handler = new ShareHandler(message);
-				handler.handle();
+				new ShareHandler(message).handle();
 				break;
 			}
 			case 1 : {
-				handler = new ResultsHandler(message);
-				handler.handle();
+				new ResultsHandler(message).handle();
 				break;
 			}
 			case 2 : {
-				handler = new FilterIndexHandler(message);
-				handler.handle();
+				new FilterIndexHandler(message).handle();
 				break;
 			}
 			case 99 : {
@@ -86,26 +82,20 @@ public class Client extends Thread {
 		try {
 			in = getInStream();
 			out = getOutStream();
-			// System.out.println("Client "+clientSocket.toString()+" working");
+
 			while (running) {
 				int messageSize = in.readInt();
 				int messageType = in.readInt();
 				byte[] message = new byte[messageSize];
 				in.readFully(message);
-				// System.out.println(this.clientSocket+" read message of type "+
-				// messageType + " with size "+ read);
 
 				handleMessage(messageType, message);
 
 				if (toClose) {
-					// System.out.println(this.clientSocket+" is going to close");
 					out.writeInt(-99);
 					out.flush();
 					close();
 				} else {
-					// System.out.println(this.clientSocket+" going to send confirmation of message type "+
-					// messageType + " with size "+ read);
-
 					out.writeInt(0);
 					out.flush();
 				}

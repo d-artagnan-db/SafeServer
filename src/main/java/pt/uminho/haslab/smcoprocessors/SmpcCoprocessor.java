@@ -10,7 +10,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.CoprocessorEnvironment;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.OperationWithAttributes;
@@ -19,9 +18,6 @@ import org.apache.hadoop.hbase.coprocessor.BaseRegionObserver;
 import org.apache.hadoop.hbase.coprocessor.ObserverContext;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
-import static org.apache.hadoop.hbase.filter.CompareFilter.CompareOp.EQUAL;
-import static org.apache.hadoop.hbase.filter.CompareFilter.CompareOp.GREATER_OR_EQUAL;
-import static org.apache.hadoop.hbase.filter.CompareFilter.CompareOp.LESS;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.RowFilter;
 import org.apache.hadoop.hbase.filter.WhileMatchFilter;
@@ -36,7 +32,11 @@ import pt.uminho.haslab.smcoprocessors.SecretSearch.ComposedSearchValue;
 import pt.uminho.haslab.smcoprocessors.SecretSearch.ContextPlayer;
 import pt.uminho.haslab.smcoprocessors.SecretSearch.NopSearchValue;
 import pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition;
+import pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition;
 import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.And;
+import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.Equal;
+import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.GreaterOrEqualThan;
+import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.Less;
 import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.Nop;
 import pt.uminho.haslab.smcoprocessors.SecretSearch.SecureRegionScanner;
 import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsIdentifiersMissmatch;
@@ -73,7 +73,8 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 		env = (RegionCoprocessorEnvironment) e;
 		Configuration conf = e.getConfiguration();
 		searchConf = new SmpcConfiguration(conf);
-		LOG.info("Starting coprocessor " + env.getRegionInfo().getTable());
+		LOG.info("Starting coprocessor "
+				+ env.getRegion().getRegionNameAsString());
 
 		if (!playerHasStarted()) {
 			wasFirst = true;
@@ -180,7 +181,7 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 	}
 
 	private List<Cell> secretGetSearch(byte[] secret,
-			OperationWithAttributes op, CompareOp comOP,
+			OperationWithAttributes op, Condition cond,
 			RegionCoprocessorEnvironment env, boolean stopOnMatch)
 			throws IOException, ResultsLengthMissmatch,
 			ResultsIdentifiersMissmatch {
@@ -188,21 +189,19 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 		Column col = new Column(this.searchConf.getSecretFamily(),
 				this.searchConf.getSecretQualifier());
 
-		// SearchValue toSearch = new SearchValue(col, cond, secret);
 		byte[] requestID = op.getAttribute("requestID");
-		byte[] regionID = env.getRegionInfo().getStartKey();
-		// System.out.println("RequestID " + new String(requestID));
+		byte[] regionID = env.getRegion().getStartKey();
 		RequestIdentifier ident = new RequestIdentifier(requestID, regionID);
 		Player player = getPlayer(ident);
-		// SearchResults searchRes = tableSearch(toSearch, player, env);
 		int nbits = this.searchConf.getnBits();
 		String targetPlayerS = new String(op.getAttribute("targetPlayer"));
 		int targetPlayer = Integer.parseInt(targetPlayerS);
+
 		if (this.searchConf.getPlayerID() == targetPlayer) {
 			((SharemindPlayer) player).setTargetPlayer();
 		}
 		SearchCondition searchCondition = AbstractSearchValue
-				.conditionTransformer(comOP, nbits, secret, targetPlayer);
+				.conditionTransformer(cond, nbits, secret, targetPlayer);
 		SecureRegionScanner search = new SecureRegionScanner(searchCondition,
 				env, player, this.searchConf, stopOnMatch, col);
 		List<Cell> results = new ArrayList<Cell>();
@@ -220,17 +219,16 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 		Column col = new Column(this.searchConf.getSecretFamily(),
 				this.searchConf.getSecretQualifier());
 
-		// SearchValue toSearch = new SearchValue(col, cond, secret);
 		byte[] requestID = op.getAttribute("requestID");
-		byte[] regionID = env.getRegionInfo().getStartKey();
-		// System.out.println("RequestID " + new String(requestID));
+		byte[] regionID = env.getRegion().getStartKey();
+
 		RequestIdentifier ident = new RequestIdentifier(requestID, regionID);
 		Player player = getPlayer(ident);
-		// SearchResults searchRes = tableSearch(toSearch, player, env);
+
 		int nbits = this.searchConf.getnBits();
 		String targetPlayerS = new String(op.getAttribute("targetPlayer"));
 		int targetPlayer = Integer.parseInt(targetPlayerS);
-		// System.out.println("Target player is " + targetPlayer);
+
 		if (this.searchConf.getPlayerID() == targetPlayer) {
 			((SharemindPlayer) player).setTargetPlayer();
 		}
@@ -240,20 +238,17 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 
 		if (startRow.length != 0) {
 			startKeySearch = AbstractSearchValue.conditionTransformer(
-					GREATER_OR_EQUAL, nbits, startRow, targetPlayer);
+					GreaterOrEqualThan, nbits, startRow, targetPlayer);
 
 		}
 
 		if (stopRow.length != 0) {
-			endKeySearch = AbstractSearchValue.conditionTransformer(LESS,
+			endKeySearch = AbstractSearchValue.conditionTransformer(Less,
 					nbits, stopRow, targetPlayer);
 		}
 
 		SearchCondition keySearch = null;
-		/*
-		 * System.out.println("Scan rows size are " + startRow.length + " / " +
-		 * stopRow.length);
-		 */
+
 		if (startRow.length != 0 && stopRow.length != 0) {
 			keySearch = new ComposedSearchValue(And, startKeySearch,
 					endKeySearch, targetPlayer);
@@ -268,32 +263,31 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 		boolean stopOnMatch = false;
 		SearchCondition finalCondition = keySearch;
 
-		if (filter != null) {
-			byte[] filterRow = null;
-			CompareOp filterCompare = null;
-			Filter innerFilter = null;
-			if (filter instanceof WhileMatchFilter) {
-				stopOnMatch = true;
-				WhileMatchFilter wmFilter = (WhileMatchFilter) filter;
-				innerFilter = wmFilter.getFilter();
-			}
+		// if (filter != null) {
+		// byte[] filterRow = null;
+		// CompareOp filterCompare = null;
+		// Filter innerFilter = null;//
 
-			if (innerFilter instanceof RowFilter) {
-				RowFilter rFilter = (RowFilter) innerFilter;
-				filterRow = rFilter.getComparator().getValue();
-				filterCompare = rFilter.getOperator();
-			}
+		// if (filter instanceof WhileMatchFilter) {
+		// stopOnMatch = true;
+		// WhileMatchFilter wmFilter = (WhileMatchFilter) filter;
+		// innerFilter = wmFilter.getFilter();
+		// }//
 
-			if (filterCompare != null) {
-				SearchCondition innerFilterCondition = AbstractSearchValue
-						.conditionTransformer(filterCompare, nbits, filterRow,
-								targetPlayer);
-				finalCondition = new ComposedSearchValue(And,
-						innerFilterCondition, keySearch, targetPlayer);
+		// if (innerFilter instanceof RowFilter) {
+		// RowFilter rFilter = (RowFilter) innerFilter;
+		// filterRow = rFilter.getComparator().getValue();
+		// filterCompare = rFilter.getOperator();
+		// }//
 
-			}
-
-		}
+		//
+		// if (filterCompare != null) {
+		// SearchCondition innerFilterCondition = AbstractSearchValue
+		// .conditionTransformer(filterCompare, nbits, filterRow, targetPlayer);
+		// finalCondition = new ComposedSearchValue(And, innerFilterCondition,
+		// keySearch, targetPlayer);
+		// }
+		// }
 
 		return new SecureRegionScanner(finalCondition, env, player,
 				this.searchConf, stopOnMatch, col);
@@ -303,33 +297,22 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 	@Override
 	public void preGetOp(final ObserverContext<RegionCoprocessorEnvironment> e,
 			final Get get, final List<Cell> results) throws IOException {
-		// LOG.debug("Going to start get search ");
 
-		if (!env.getRegionInfo().getTable().toString().contains("hbase")) {
-			/*
-			 * System.out.println(searchConf.getPlayerID() +
-			 * " going to start search");
-			 */
-			RegionCoprocessorEnvironment xenv = e.getEnvironment();
-			System.out.println("table name is "
-					+ xenv.getRegionInfo().getTable().toString());
+		LOG.debug("start of preGetOp function");
+		String table = env.getRegion().getTableDesc().getNameAsString();
+
+		if (!table.contains("hbase")) {
+
+			LOG.debug("preGetOp evaluated on table " + table);
+
 			byte[] row = get.getRow();
+
 			try {
-				List<Cell> searchResults = secretGetSearch(row, get, EQUAL,
+
+				List<Cell> searchResults = secretGetSearch(row, get, Equal,
 						e.getEnvironment(), true);
-				// System.out.println("The filtered result found are: ");
-				/*
-				 * for (Cell cell : searchResults) {
-				 * System.out.println("ROW ID " + new
-				 * String(CellUtil.cloneRow(cell)));
-				 * System.out.println("Cell content is " + cell); }
-				 */
+
 				results.addAll(searchResults);
-
-				// for (Cell cell :searchResults) {
-				// results.add(cell);
-				// }
-
 				e.bypass();
 
 			} catch (ResultsLengthMissmatch ex) {
@@ -343,21 +326,20 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 		}
 	}
 
-	/**
-	 * 
-	 * @param c
-	 * @param scan
-	 * @param s
-	 * @return
-	 */
 	@Override
 	public RegionScanner postScannerOpen(
 			final ObserverContext<RegionCoprocessorEnvironment> c,
 			final Scan scan, final RegionScanner s) {
-		if (!env.getRegionInfo().getTable().toString().contains("hbase")) {
-			LOG.debug("Starting preScanner open");
+
+		LOG.debug("start of postScannerOpen function");
+
+		String table = env.getRegion().getTableDesc().getNameAsString();
+
+		if (!table.contains("hbase")) {
+			LOG.debug("postScannerOpen evaluated on " + table);
 
 			try {
+
 				byte[] startRow = scan.getStartRow();
 				byte[] endRow = scan.getStopRow();
 
@@ -373,20 +355,22 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 					LOG.debug("Ending row is " + new BigInteger(endRow));
 				}
 
-				LOG.debug("Going to return secret RegionScanner");
+				LOG.debug("Going to evalauate secretScanSearchr");
 
-				return secretScanSearch(startRow, endRow, scan,
-						c.getEnvironment(), scan.getFilter());
+				RegionCoprocessorEnvironment ev = c.getEnvironment();
+				Filter f = scan.getFilter();
+
+				return secretScanSearch(startRow, endRow, scan, ev, f);
+
 			} catch (ResultsLengthMissmatch ex) {
-				// LOG.debug("Result missmatch " + ex);
-				LOG.debug(ex);
+				LOG.error(ex);
 				throw new IllegalStateException(ex);
 			} catch (ResultsIdentifiersMissmatch ex) {
-				// System.out.println("ResultsIdentifiersMissmatch " + ex);
-				LOG.debug(ex);
+				LOG.error(ex);
 				throw new IllegalStateException(ex);
 			} catch (IOException ex) {
-				LOG.debug("Exception caught " + ex);
+				LOG.debug(ex);
+				throw new IllegalStateException(ex);
 			}
 		}
 		return s;

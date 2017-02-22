@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 import static junit.framework.TestCase.assertEquals;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
 import pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition;
 import pt.uminho.haslab.smcoprocessors.middleware.helpers.RegionServer;
@@ -16,6 +18,8 @@ import pt.uminho.haslab.smhbase.sharemindImp.SharemindSecret;
 
 public abstract class SecretSearchTest extends DoubleValueProtocolTest {
 
+	private static final Log LOG = LogFactory.getLog(SecretSearchTest.class
+			.getName());
 	public SecretSearchTest(List<Integer> nbits, List<BigInteger> valuesOne,
 			List<BigInteger> valuesTwo) throws IOException,
 			InvalidNumberOfBits, InvalidSecretValue {
@@ -50,10 +54,20 @@ public abstract class SecretSearchTest extends DoubleValueProtocolTest {
 				BigInteger secretOne = secretsOne.get(playerID).get(i);
 				BigInteger secretTwo = secretsTwo.get(playerID).get(i);
 
+				/**
+				 * Simulation of comparison of values inside hbase scan. The
+				 * second value is stored on the hbase the database. The first
+				 * value is request by the user to compare to the values stored
+				 * in the db. The comparison should be made as follows:
+				 * secretTwo == secretOne secretTwo >= secretOne secretTwo >
+				 * secretOne secretTwo < secretOne secretTwo <= SecretOne
+				 */
 				SearchCondition cond = getSearchCondition(valueNbits + 1,
-						secretOne.toByteArray(), 1);
+						secretTwo.toByteArray(), 1);
+
 				boolean searchRes = cond.evaluateCondition(
-						secretTwo.toByteArray(), reqID, player);
+						secretOne.toByteArray(), reqID, player);
+				LOG.debug("Expected result " + searchRes);
 				BigInteger result = BigInteger.ZERO;
 
 				if (searchRes) {
@@ -84,9 +98,9 @@ public abstract class SecretSearchTest extends DoubleValueProtocolTest {
 		for (int i = 0; i < nbits.size(); i++) {
 
 			// The results stored from all of the parties should be the same
-			System.out.println(protocolResults.get(0));
-			System.out.println(protocolResults.get(1));
-			System.out.println(protocolResults.get(2));
+			LOG.debug(protocolResults.get(0));
+			LOG.debug(protocolResults.get(1));
+			LOG.debug(protocolResults.get(2));
 			assertEquals(protocolResults.get(0), protocolResults.get(1));
 			assertEquals(protocolResults.get(1), protocolResults.get(2));
 

@@ -44,6 +44,7 @@ public class RequestIdentifier {
 		if (!Arrays.equals(this.requestID, other.requestID)) {
 			return false;
 		}
+
 		if (!Arrays.equals(this.regionID, other.regionID)) {
 			return false;
 		}

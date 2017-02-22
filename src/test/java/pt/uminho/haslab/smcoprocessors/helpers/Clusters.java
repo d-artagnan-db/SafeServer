@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.MiniHBaseCluster;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import pt.uminho.haslab.testingutils.ShareCluster;
@@ -28,15 +27,6 @@ public class Clusters extends ShareCluster {
 		}
 
 		return new TestClusterTables(configs, tbname);
-	}
-
-	@Override
-	public void tearDown() throws IOException {
-		for (MiniHBaseCluster cluster : clusters) {
-
-			cluster.shutdown();
-
-		}
 	}
 
 }

@@ -24,8 +24,7 @@ public class ComposedSearchValue extends AbstractSearchValue {
 
 	public boolean evaluateCondition(byte[] value, byte[] rowID,
 			SharemindPlayer p) {
-
-		System.out.println("Going to do a composedSearcValue for condition "
+		LOG.debug("Going to do a composedSearchValue for condition "
 				+ condition);
 		boolean res1 = val1.evaluateCondition(value, rowID, p);
 		boolean res2 = val2.evaluateCondition(value, rowID, p);

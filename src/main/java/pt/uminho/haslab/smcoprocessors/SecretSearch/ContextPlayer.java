@@ -94,7 +94,7 @@ public class ContextPlayer implements Player, SharemindPlayer {
 			relay.sendMessage(msg);
 			message.clear();
 		} catch (IOException ex) {
-			LOG.debug(ex);
+			LOG.error(ex);
 			throw new IllegalStateException(ex);
 		}
 
@@ -121,7 +121,7 @@ public class ContextPlayer implements Player, SharemindPlayer {
 					.addAllSecretID(bsIds).build();
 			relay.sendProtocolResults(msg);
 		} catch (IOException ex) {
-			LOG.debug(ex);
+			LOG.error(ex);
 			throw new IllegalStateException(ex);
 		}
 
@@ -153,7 +153,7 @@ public class ContextPlayer implements Player, SharemindPlayer {
 			}
 
 		} catch (IOException ex) {
-			LOG.debug(ex);
+			LOG.error(ex);
 			throw new IllegalStateException(ex);
 		}
 
@@ -205,6 +205,7 @@ public class ContextPlayer implements Player, SharemindPlayer {
 			}
 
 		} catch (InterruptedException ex) {
+			LOG.error(ex);
 			throw new IllegalArgumentException(ex.getMessage());
 		} finally {
 		}
@@ -252,12 +253,6 @@ public class ContextPlayer implements Player, SharemindPlayer {
 	}
 
 	public void cleanValues() {
-		/*
-		 * System.out.println(this.playerID + " received " +
-		 * relay.getNumberOfMessagesReceived());
-		 * System.out.println(this.playerID + " sent " +
-		 * relay.getNumberOfMessagesSent());
-		 */
 
 		broker.allMessagesRead(requestID);
 		broker.allResultsRead(requestID);

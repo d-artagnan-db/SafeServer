@@ -78,7 +78,6 @@ public class ProtocolResultsTest {
 			List<Thread> players = new ArrayList<Thread>();
 
 			for (int i = 0; i < playerDestIDs.size(); i++) {
-				// System.out.println(i);
 				ConcurrentPlayer p = new ConcurrentPlayer(playerID, i, relay,
 						broker);
 				players.add(p);
@@ -179,10 +178,6 @@ public class ProtocolResultsTest {
 							valuesToSend, ids));
 				} else {
 					peerResults = player.getProtocolResults();
-					/*
-					 * System.out.println("Received peerResults " +
-					 * peerResults.size());
-					 */
 					player.cleanValues();
 				}
 

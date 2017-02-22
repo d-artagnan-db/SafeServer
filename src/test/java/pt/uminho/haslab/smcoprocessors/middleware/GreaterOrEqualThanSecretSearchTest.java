@@ -3,9 +3,9 @@ package pt.uminho.haslab.smcoprocessors.middleware;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
-import static org.apache.hadoop.hbase.filter.CompareFilter.CompareOp.GREATER_OR_EQUAL;
 import pt.uminho.haslab.smcoprocessors.SecretSearch.AbstractSearchValue;
 import pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition;
+import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.GreaterOrEqualThan;
 import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
 import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
 
@@ -20,7 +20,7 @@ public class GreaterOrEqualThanSecretSearchTest extends SecretSearchTest {
 	@Override
 	protected SearchCondition getSearchCondition(int valueNBits, byte[] value,
 			int targetPlayer) {
-		return AbstractSearchValue.conditionTransformer(GREATER_OR_EQUAL,
+		return AbstractSearchValue.conditionTransformer(GreaterOrEqualThan,
 				valueNBits, value, targetPlayer);
 	}
 

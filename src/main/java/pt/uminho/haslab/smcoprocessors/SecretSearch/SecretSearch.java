@@ -50,9 +50,7 @@ public class SecretSearch {
 		RegionScanner scanner = env.getRegion().getScanner(scan);
 		List<Cell> results = new ArrayList<Cell>();
 
-		// int it=0;
 		do {
-			// System.out.println("Iteration "+it);
 
 			hasMore = scanner.next(results);
 			/**
@@ -60,14 +58,10 @@ public class SecretSearch {
 			 * looking at a single column;
 			 */
 			Cell cell = results.get(0);
-			// byte[] cf = CellUtil.cloneFamily(cell);
-			// byte[] cq = CellUtil.cloneQualifier(cell);
-			// Column col = new Column(cf, cq);
+
 			byte[] row = CellUtil.cloneRow(cell);
 			byte[] value = CellUtil.cloneValue(cell);
-			String index = new String(row);
-			// BigInteger val = new BigInteger(value);
-			// System.out.println("Cell list size "+ results.size());
+
 			SharemindPlayer splayer = (SharemindPlayer) player;
 			boolean result = searchValue.evaluateCondition(value, row, splayer);
 			rows.add(row);
@@ -75,11 +69,9 @@ public class SecretSearch {
 			if (result && stopOnMatch) {
 				hasMore = false;
 			}
-			// it+=1;
 			results.clear();
 		} while (hasMore);
 		scanner.close();
-		// System.out.println("Results size is "+ secrets.size());
 		return rows;
 	}
 

@@ -50,12 +50,12 @@ public class SearchResults {
 	}
 
 	public void printALl(int playerID) {
-		// System.out.println(playerID + " printing all searchResults");
+		System.out.println(playerID + " printing all searchResults");
 		for (int i = 0; i < secrets.size(); i++) {
 			String ident = new String(identifiers.get(i));
 			BigInteger secret = new BigInteger(secrets.get(i));
-			// System.out.println("pres "+ playerID+ " "+ident + " - " +secret
-			// );
+			System.out.println("pres " + playerID + " " + ident + " - "
+					+ secret);
 
 		}
 	}

@@ -13,16 +13,9 @@ public interface SearchCondition {
 	 * !GreaterOrEqualThan LesserOrEqualThan = !GreaterOrEqualThan && Equal
 	 */
 	public enum Condition {
-		Equal, GreaterOrEqualThan, And, Or, Not, Nop
+		Equal, GreaterOrEqualThan, Greater, Less, LessOrEqualThan, NotEqual, And, Or, Not, Nop
 	}
 
-	/**
-	 * 
-	 * @param value
-	 * @param rowID
-	 * @param p
-	 * @return
-	 */
 	public boolean evaluateCondition(byte[] value, byte[] rowID,
 			SharemindPlayer p);
 

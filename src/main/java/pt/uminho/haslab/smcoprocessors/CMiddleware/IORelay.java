@@ -41,7 +41,6 @@ public class IORelay implements Relay {
 	private void connectToTarget() {
 
 		try {
-			// System.out.println(this.server.getBindingPort()+" Going to connect to targets");
 			firstClient.connectToTarget();
 			secondClient.connectToTarget();
 			firstClient.start();
@@ -117,9 +116,10 @@ public class IORelay implements Relay {
 			this.server.waitPlayersToConnect();
 			LOG.info(bp + " completed booting phase");
 		} catch (IOException ex) {
-			// System.out.println("1-Aqui está o erro" + ex);
+			LOG.error(ex);
 			throw new IllegalStateException(ex);
 		} catch (InterruptedException ex) {
+			LOG.error(ex);
 			throw new IllegalStateException(ex);
 		}
 

@@ -34,28 +34,21 @@ public class SearchValue extends AbstractSearchValue {
 		return condition;
 	}
 
-	/**
-	 * @param value
-	 * @param rowID
-	 * @param player
-	 * @return
-	 */
 	public boolean evaluateCondition(byte[] value, byte[] rowID,
 			SharemindPlayer player) {
-		System.out.println("Going to evaluate SearchValue ");
+		LOG.debug("Going to evaluate function evaluateCondition");
 		FilteredIndexes filtIndex;
-		// System.out.println("The number of bits are " + nBits);
+
 		try {
 			Secret result;
 
 			BigInteger bOrigValue = new BigInteger(this.value);
 			BigInteger bCmpValue = new BigInteger(value);
-			System.out.println("Row id " + new String(rowID));
-			System.out.println("First Value " + bOrigValue);
-			System.out.println("Second Value " + bCmpValue);
+
 			Secret originalSecret = generateSecret(nBits, bOrigValue, player);
 			Secret cmpSecret = generateSecret(nBits, bCmpValue, player);
-			System.out.println("Going to run protocol " + condition);
+
+			LOG.debug("Going to run protocol " + condition);
 
 			if (condition == Equal) {
 				result = originalSecret.equal(cmpSecret);
@@ -63,11 +56,10 @@ public class SearchValue extends AbstractSearchValue {
 				result = cmpSecret.greaterOrEqualThan(originalSecret);
 			}
 
-			System.out.println("protocol executed");
-			System.out.println("Player is targetPlayer "
-					+ player.isTargetPlayer());
+			LOG.debug("Protocol completed");
+			LOG.debug("Is targetPlayer " + player.isTargetPlayer());
 			if (player.isTargetPlayer()) {
-				System.out.println("Going to search for a matching index");
+				LOG.debug("Going to search for a matching index");
 
 				// At this point the size of the list identifiers must be 2.
 				List<DataIdentifiers> identifiers = player.getProtocolResults();
@@ -95,26 +87,26 @@ public class SearchValue extends AbstractSearchValue {
 
 			}
 
-			System.out.println("Going to clean results ");
+			LOG.debug("Going to clean results ");
 
 			player.cleanResultsMatch();
 			if (!filtIndex.isEmpty()) {
-				System.out.println("Protocol result is true");
+				LOG.debug("Protocol result is true");
 				return true;
 			}
 
 		} catch (InvalidSecretValue ex) {
-			LOG.debug(ex);
+			LOG.error(ex);
 			throw new IllegalStateException(ex);
 		} catch (ResultsLengthMissmatch ex) {
-			LOG.debug(ex);
+			LOG.error(ex);
 			throw new IllegalStateException(ex);
 		} catch (ResultsIdentifiersMissmatch ex) {
-			LOG.debug(ex);
+			LOG.error(ex);
 			throw new IllegalStateException(ex);
 		}
 
-		System.out.println("Protocol result is false");
+		LOG.debug("Function evaluateCondition returns default false");
 
 		return false;
 	}
