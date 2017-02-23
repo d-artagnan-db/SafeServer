@@ -126,8 +126,7 @@ public class TestClusterTables extends ClusterTables {
 	private List<Scan> getScans(Dealer dealer, byte[] startRow, byte[] stopRow)
 			throws InvalidSecretValue {
 		List<Scan> scans = new ArrayList<Scan>();
-		LOG.debug("0-Start row are " + new BigInteger(startRow) + " / "
-				+ new BigInteger(stopRow));
+		LOG.debug("0-Start row are " + startRow + " / " + stopRow);
 
 		if (startRow != null && stopRow != null) {
 			scanWithStartAndStopRow(dealer, scans, startRow, stopRow);
@@ -151,8 +150,7 @@ public class TestClusterTables extends ClusterTables {
 			InvalidSecretValue {
 
 		int playerID = 1;
-		LOG.debug("Start row are " + new BigInteger(startRow) + " / "
-				+ new BigInteger(stopRow));
+		LOG.debug("Start row are " + startRow + " / " + stopRow);
 		List<Scan> scans = getScans(dealer, startRow, stopRow);
 
 		byte[] requestIDba = ("" + requestID).getBytes();
@@ -173,7 +171,7 @@ public class TestClusterTables extends ClusterTables {
 
 		if (!results.notEmpty()) {
 			LOG.debug("Results are empty");
-			return null;
+			return new ArrayList<Result>();
 		}
 
 		results.setColumnFamily(config.getSecretFamily());

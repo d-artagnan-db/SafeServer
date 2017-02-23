@@ -51,7 +51,9 @@ public abstract class TestRegionServer extends Thread implements RegionServer {
 
 			broker.waitRelayStart();
 			doComputation();
+
 			relay.stopRelay();
+			Thread.sleep(1000);
 
 		} catch (InterruptedException ex) {
 			runStatus = false;

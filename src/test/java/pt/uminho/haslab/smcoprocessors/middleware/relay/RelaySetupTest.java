@@ -21,8 +21,8 @@ public class RelaySetupTest {
 	}
 	@Test
 	public void connectRegionServers() throws InterruptedException, IOException {
-        RegionServer a = new RegionServerImpl(0);
-        RegionServer b = new RegionServerImpl(1);
+		RegionServer a = new RegionServerImpl(0);
+		RegionServer b = new RegionServerImpl(1);
 		RegionServer c = new RegionServerImpl(2);
 
 		a.startRegionServer();

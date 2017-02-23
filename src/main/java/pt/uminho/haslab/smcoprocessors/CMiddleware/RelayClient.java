@@ -117,6 +117,16 @@ public class RelayClient extends Thread {
 
 	}
 
+	public void forceShutdown() throws IOException {
+		LOG.debug(this.bindingPort
+				+ " is going to force shutdown connection to " + targetAddress
+				+ ":" + targetPort);
+		sendShutdown();
+
+		out.close();
+		in.close();
+	}
+
 	@Override
 	public void run() {
 		LOG.debug(this.bindingPort + " is going to start relay client thread");

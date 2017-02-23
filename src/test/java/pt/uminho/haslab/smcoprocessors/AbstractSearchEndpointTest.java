@@ -48,6 +48,7 @@ public abstract class AbstractSearchEndpointTest {
 
 	@After
 	public void tearDown() throws IOException, InterruptedException {
+		System.out.println("TearDown invocked");
 		clusters.tearDown();
 		// Wait for ports to be free for next tests
 		Thread.sleep(1000);
