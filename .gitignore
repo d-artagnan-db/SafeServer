@@ -27,3 +27,8 @@ buildNumber.properties
 log/
 # Exclude maven wrapper
 !/.mvn/wrapper/maven-wrapper.jar
+
+#inteij ignore
+
+.idea
+*.iml
