@@ -42,8 +42,8 @@ public class Client extends Thread {
 	}
 
 	private void handleMessage(int type, byte[] message) throws IOException {
-		LOG.debug("Handle message with type " + type + " and size "
-				+ message.length);
+		/*LOG.debug("Handle message with type " + type + " and size "
+				+ message.length);*/
 		switch (type) {
 
 			case 0 : {

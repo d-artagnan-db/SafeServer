@@ -17,10 +17,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.coprocessor.BaseRegionObserver;
 import org.apache.hadoop.hbase.coprocessor.ObserverContext;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
-import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.filter.Filter;
-import org.apache.hadoop.hbase.filter.RowFilter;
-import org.apache.hadoop.hbase.filter.WhileMatchFilter;
 import org.apache.hadoop.hbase.regionserver.RegionScanner;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.MessageBroker;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.Relay;
@@ -188,7 +185,6 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 
 		Column col = new Column(this.searchConf.getSecretFamily(),
 				this.searchConf.getSecretQualifier());
-
 		byte[] requestID = op.getAttribute("requestID");
 		byte[] regionID = env.getRegion().getStartKey();
 		RequestIdentifier ident = new RequestIdentifier(requestID, regionID);
@@ -294,6 +290,12 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 
 	}
 
+    private List<Cell> getRowWithoutSearch(byte[] rowID) throws IOException{
+        // Get that bypasses this observer or it will call preGetOP again.
+        Get get = new Get(rowID);
+        List<Cell> cells = env.getRegion().get(get, false);
+        return cells;
+    }
 	@Override
 	public void preGetOp(final ObserverContext<RegionCoprocessorEnvironment> e,
 			final Get get, final List<Cell> results) throws IOException {
@@ -308,11 +310,18 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 			byte[] row = get.getRow();
 
 			try {
+                byte[] cachedID = get.getAttribute("cachedID");
+                if(cachedID == null){
+                    LOG.debug("Going to performe a secret search on data");
+                    List<Cell> searchResults = secretGetSearch(row, get, Equal,
+                        	e.getEnvironment(), true);
 
-				List<Cell> searchResults = secretGetSearch(row, get, Equal,
-						e.getEnvironment(), true);
-
-				results.addAll(searchResults);
+                    results.addAll(searchResults);   
+                }else{
+                    LOG.debug("Going to direct row access");
+                    List<Cell> res = getRowWithoutSearch(cachedID);
+                    results.addAll(res);
+                }
 				e.bypass();
 
 			} catch (ResultsLengthMissmatch ex) {

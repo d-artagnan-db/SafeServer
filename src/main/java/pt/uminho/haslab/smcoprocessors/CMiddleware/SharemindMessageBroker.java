@@ -128,6 +128,7 @@ public class SharemindMessageBroker implements MessageBroker {
 
 			// While there arent messages for this request wait.
 			while (!messagesReceived.containsKey(requestId)) {
+                LOG.debug("Waiting on messages");
 				protocolMessagesLocks.awaitForWrite(requestId);
 			}
 
