@@ -1,7 +1,6 @@
 package pt.uminho.haslab.smcoprocessors.SecretSearch;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,6 +19,8 @@ import pt.uminho.haslab.smhbase.interfaces.Player;
 public class SecureRegionScanner implements RegionScanner {
 	static final Log LOG = LogFactory.getLog(SecureRegionScanner.class
 			.getName());
+    
+    static final Log TIMES = LogFactory.getLog("protoLatency");
 
 	private final RegionCoprocessorEnvironment env;
 
@@ -116,9 +117,12 @@ public class SecureRegionScanner implements RegionScanner {
 			}
 
 			SharemindPlayer splayer = (SharemindPlayer) player;
-
+            long start = System.nanoTime();
 			matchFound = searchValue.evaluateCondition(protectedValue, rowID,
 					splayer);
+            long stop = System.nanoTime();
+            long elapsed = stop-start;
+            TIMES.info(player.getPlayerID()+ ", "+searchValue.getCondition()+", "+elapsed);
 
 		} while (hasMore & !matchFound);
 
