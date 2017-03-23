@@ -3,6 +3,7 @@ package pt.uminho.haslab.smcoprocessors;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -187,13 +188,17 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 				this.searchConf.getSecretQualifier());
 		byte[] requestID = op.getAttribute("requestID");
 		byte[] regionID = env.getRegion().getStartKey();
+		LOG.debug("RequestID " + Arrays.toString(requestID));
+		LOG.debug("RegionID " + Arrays.toString(regionID));
 		RequestIdentifier ident = new RequestIdentifier(requestID, regionID);
 		Player player = getPlayer(ident);
 		int nbits = this.searchConf.getnBits();
 		String targetPlayerS = new String(op.getAttribute("targetPlayer"));
+		LOG.debug("TargetPlayer " + targetPlayerS);
 		int targetPlayer = Integer.parseInt(targetPlayerS);
 
 		if (this.searchConf.getPlayerID() == targetPlayer) {
+			LOG.debug("Is target player");
 			((SharemindPlayer) player).setTargetPlayer();
 		}
 		SearchCondition searchCondition = AbstractSearchValue
@@ -218,14 +223,18 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 		byte[] requestID = op.getAttribute("requestID");
 		byte[] regionID = env.getRegion().getStartKey();
 
+		LOG.debug("RequestID is " + Arrays.toString(requestID));
+		LOG.debug("RegionID is " + Arrays.toString(regionID));
+
 		RequestIdentifier ident = new RequestIdentifier(requestID, regionID);
 		Player player = getPlayer(ident);
 
 		int nbits = this.searchConf.getnBits();
 		String targetPlayerS = new String(op.getAttribute("targetPlayer"));
 		int targetPlayer = Integer.parseInt(targetPlayerS);
-
+		LOG.debug("Is target player " + targetPlayer);
 		if (this.searchConf.getPlayerID() == targetPlayer) {
+			LOG.debug("Is going to set target Player");
 			((SharemindPlayer) player).setTargetPlayer();
 		}
 
