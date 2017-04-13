@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.Socket;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
 import pt.uminho.haslab.protocommunication.Search.ShareMessage;
@@ -60,6 +61,10 @@ public class Client extends Thread {
 				new FilterIndexHandler(message).handle();
 				break;
 			}
+            case 3: {
+                new BatchShareHandler(message).handle();
+                break;
+            }
 			case 99 : {
 				toClose = true;
 				break;
@@ -184,6 +189,26 @@ public class Client extends Thread {
 				LOG.debug(ex);
 				throw new IllegalStateException(ex);
 			}
+		}
+	}
+    
+	private class BatchShareHandler extends MessageHandler {
+
+		public BatchShareHandler(byte[] msg) {
+			super(msg);
+		}
+
+		@Override
+		public void handle() {
+			try {
+				BatchShareMessage message = BatchShareMessage.parseFrom(msg);
+				broker.receiveBatchMessage(message);
+			} catch (InvalidProtocolBufferException ex) {
+				LOG.debug(ex);
+				throw new IllegalStateException(ex);
+
+			}
+
 		}
 
 	}

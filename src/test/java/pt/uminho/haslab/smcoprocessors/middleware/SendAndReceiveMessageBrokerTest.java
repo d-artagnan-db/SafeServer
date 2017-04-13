@@ -22,6 +22,7 @@ public class SendAndReceiveMessageBrokerTest {
 	private final List<BigInteger> peerTwo;
 
 	private final List<BigInteger> peerThree;
+    
 	@Parameterized.Parameters
 	public static Collection nbitsValues() {
 		return ValuesGenerator.SendAndReceiveMessageBrokerTest2();

@@ -3,6 +3,7 @@ package pt.uminho.haslab.smcoprocessors.CMiddleware;
 import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import pt.uminho.haslab.protocommunication.Search;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
 import pt.uminho.haslab.protocommunication.Search.ShareMessage;
@@ -142,6 +143,14 @@ public class IORelay implements Relay {
 
 		getTargetClient(target).sendMessage(msg);
 	}
+    
+    public void sendBatchMessages(Search.BatchShareMessage msg) throws IOException {
+		int target = calculateDestPlayer(msg.getPlayerSource(),
+				msg.getPlayerDest());
+        
+        getTargetClient(target).sendBatchMessages(msg);
+    }
+
 
 	@Override
 	public synchronized void sendProtocolResults(ResultsMessage msg)
@@ -194,5 +203,4 @@ public class IORelay implements Relay {
 		/* This does nothing, it just helps netbeans not show a warning */
 		return -1;
 	}
-
 }

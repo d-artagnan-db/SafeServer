@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
 import pt.uminho.haslab.protocommunication.Search.ShareMessage;
@@ -67,6 +68,11 @@ public class RelayClient extends Thread {
 		messagesAskedToSend.addAndGet(1);
 		sendToClient(0, msg.toByteArray());
 	}
+    
+    public void sendBatchMessages(BatchShareMessage msgs) throws IOException{
+        messagesAskedToSend.addAndGet(1);
+		sendToClient(3, msgs.toByteArray());
+    }
 
 	public void sendProtocolResults(ResultsMessage msg) throws IOException {
 		messagesAskedToSend.addAndGet(1);

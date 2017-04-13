@@ -27,12 +27,18 @@ public class TestPlayer implements SharemindPlayer {
 
 	private final ContextPlayer player;
 
+    private final Map<Integer, List<List<byte[]>>> batchMessagesSent;
+    
+    private final Map<Integer, List<List<byte[]>>> batchMessagesReceived;
+    
 	public TestPlayer(Relay relay, RequestIdentifier requestID, int playerID,
 			MessageBroker broker) {
 		player = new ContextPlayer(relay, requestID, playerID, broker);
 		messagesSent = new HashMap<Integer, List<BigInteger>>();
 		messagesReceived = new HashMap<Integer, List<BigInteger>>();
-
+        
+        batchMessagesSent = new HashMap<Integer, List<List<byte[]>>>();
+        batchMessagesReceived = new HashMap<Integer, List<List<byte[]>>>();
 	}
 
 	@Override
@@ -110,4 +116,29 @@ public class TestPlayer implements SharemindPlayer {
 		player.cleanResultsMatch();
 	}
 
+    public void storeValues(Integer playerDest, Integer playerSource, List<byte[]> values) {
+
+    }
+
+    public void sendValueToPlayer(Integer destPlayer, List<byte[]> values) {
+        
+        if (!batchMessagesSent.containsKey(destPlayer)) {
+			batchMessagesSent.put(destPlayer, new ArrayList<List<byte[]>>());
+		}
+
+		batchMessagesSent.get(destPlayer).add(values);
+
+		player.sendValueToPlayer(destPlayer, values);
+    }
+
+    public List<byte[]> getValues(Integer originPlayerID) {
+		List<byte[]> res = player.getValues(originPlayerID);
+
+		if (!batchMessagesReceived.containsKey(originPlayerID)) {
+			batchMessagesReceived.put(originPlayerID, new ArrayList<List<byte[]>>());
+		}
+		batchMessagesReceived.get(originPlayerID).add(res);
+        
+        return res;
+    }
 }

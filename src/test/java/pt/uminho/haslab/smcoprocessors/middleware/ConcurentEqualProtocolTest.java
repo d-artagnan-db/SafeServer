@@ -38,6 +38,18 @@ public class ConcurentEqualProtocolTest extends ConcurrentProtocolTest {
 			return (SharemindSecret) originalSecret.equal(cmpSecret);
 		}
 
+        public void storeValues(Integer playerDest, Integer playerSource, List<byte[]> values) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        public void sendValueToPlayer(Integer playerID, List<byte[]> values) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        public List<byte[]> getValues(Integer rec) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
 	}
 
 	@Override
