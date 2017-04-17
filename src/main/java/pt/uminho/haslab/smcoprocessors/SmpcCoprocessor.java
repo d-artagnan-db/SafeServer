@@ -201,8 +201,11 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 			LOG.debug("Is target player");
 			((SharemindPlayer) player).setTargetPlayer();
 		}
+		List<byte[]> secrets = new ArrayList<byte[]>();
+		secrets.add(secret);
+
 		SearchCondition searchCondition = AbstractSearchValue
-				.conditionTransformer(cond, nbits, secret, targetPlayer);
+				.conditionTransformer(cond, nbits, secrets, targetPlayer);
 		SecureRegionScanner search = new SecureRegionScanner(searchCondition,
 				env, player, this.searchConf, stopOnMatch, col);
 		List<Cell> results = new ArrayList<Cell>();
@@ -242,14 +245,19 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 		SearchCondition endKeySearch = null;
 
 		if (startRow.length != 0) {
-			startKeySearch = AbstractSearchValue.conditionTransformer(
-					GreaterOrEqualThan, nbits, startRow, targetPlayer);
+			List<byte[]> startRows = new ArrayList<byte[]>();
+			startRows.add(startRow);
 
+			startKeySearch = AbstractSearchValue.conditionTransformer(
+					GreaterOrEqualThan, nbits, startRows, targetPlayer);
 		}
 
 		if (stopRow.length != 0) {
+			List<byte[]> stopRows = new ArrayList<byte[]>();
+			stopRows.add(stopRow);
+
 			endKeySearch = AbstractSearchValue.conditionTransformer(Less,
-					nbits, stopRow, targetPlayer);
+					nbits, stopRows, targetPlayer);
 		}
 
 		SearchCondition keySearch = null;

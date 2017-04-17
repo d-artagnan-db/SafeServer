@@ -1,5 +1,7 @@
 package pt.uminho.haslab.smcoprocessors.SecretSearch;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.And;
@@ -22,19 +24,27 @@ public class ComposedSearchValue extends AbstractSearchValue {
 		this.val2 = val2;
 	}
 
-	public boolean evaluateCondition(byte[] value, byte[] rowID,
-			SharemindPlayer p) {
+	public List<Boolean> evaluateCondition(List<byte[]> value,
+			List<byte[]> rowID, SharemindPlayer p) {
 		LOG.debug("Going to do a composedSearchValue for condition "
 				+ condition);
-		boolean res1 = val1.evaluateCondition(value, rowID, p);
-		boolean res2 = val2.evaluateCondition(value, rowID, p);
+		List<Boolean> res1s = val1.evaluateCondition(value, rowID, p);
+		List<Boolean> res2s = val2.evaluateCondition(value, rowID, p);
+		List<Boolean> result = new ArrayList<Boolean>();
 
-		if (condition == And) {
-			return res1 && res2;
-		} else if (condition == Or) {
-			return res1 || res2;
+		for (int i = 0; i < res1s.size(); i++) {
+			Boolean res1 = res1s.get(i);
+			Boolean res2 = res2s.get(i);
+			Boolean res = Boolean.TRUE;
+
+			if (condition == And) {
+				res = res1 && res2;
+			} else if (condition == Or) {
+				res = res1 || res2;
+			}
+			result.add(res);
 		}
-		return false;
+		return result;
 
 	}
 

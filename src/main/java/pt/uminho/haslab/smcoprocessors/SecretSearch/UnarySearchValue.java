@@ -1,5 +1,7 @@
 package pt.uminho.haslab.smcoprocessors.SecretSearch;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition;
@@ -19,13 +21,25 @@ public class UnarySearchValue extends AbstractSearchValue {
 	}
 
 	@Override
-	public boolean evaluateCondition(byte[] value, byte[] rowID,
-			SharemindPlayer p) {
+	public List<Boolean> evaluateCondition(List<byte[]> value,
+			List<byte[]> rowID, SharemindPlayer p) {
+		List<Boolean> results = new ArrayList<Boolean>();
+
 		if (condition == Not) {
-			return !searchCondition.evaluateCondition(value, rowID, p);
+			List<Boolean> vals = searchCondition.evaluateCondition(value,
+					rowID, p);
+
+			for (Boolean val : vals) {
+				results.add(!val);
+			}
+			// return !searchCondition.evaluateCondition(value, rowID, p);
+		} else {
+			for (byte[] value1 : value) {
+				results.add(Boolean.FALSE);
+			}
 		}
 
-		return false;
+		return results;
 	}
 
 	public Condition getCondition() {

@@ -18,6 +18,8 @@ public class SearchResults {
 
 	public SearchResults(List<byte[]> secrets, List<byte[]> identifiers)
 			throws ResultsLengthMissmatch {
+		// System.out.println("SearchResults secrets "+ secrets.size());
+		// System.out.println("SearchResults identifiers "+ identifiers.size());
 		if (secrets.size() != identifiers.size()) {
 			throw new ResultsLengthMissmatch();
 		}
@@ -31,6 +33,11 @@ public class SearchResults {
 
 	public List<byte[]> getIdentifiers() {
 		return identifiers;
+	}
+
+	public void printSize() {
+		System.out.println("Secrets " + secrets.size() + " ident "
+				+ identifiers.size());
 	}
 
 	public DataIdentifiers toDataIdentifier() throws ResultsLengthMissmatch {

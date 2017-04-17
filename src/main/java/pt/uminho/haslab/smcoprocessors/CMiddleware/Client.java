@@ -61,10 +61,10 @@ public class Client extends Thread {
 				new FilterIndexHandler(message).handle();
 				break;
 			}
-            case 3: {
-                new BatchShareHandler(message).handle();
-                break;
-            }
+			case 3 : {
+				new BatchShareHandler(message).handle();
+				break;
+			}
 			case 99 : {
 				toClose = true;
 				break;
@@ -191,7 +191,7 @@ public class Client extends Thread {
 			}
 		}
 	}
-    
+
 	private class BatchShareHandler extends MessageHandler {
 
 		public BatchShareHandler(byte[] msg) {

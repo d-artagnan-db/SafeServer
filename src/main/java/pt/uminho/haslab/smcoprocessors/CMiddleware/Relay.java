@@ -9,8 +9,8 @@ import pt.uminho.haslab.protocommunication.Search.ShareMessage;
 public interface Relay {
 
 	public void sendMessage(ShareMessage msg) throws IOException;
-    
-    public void sendBatchMessages(BatchShareMessage msg) throws IOException;
+
+	public void sendBatchMessages(BatchShareMessage msg) throws IOException;
 
 	public void sendProtocolResults(ResultsMessage msg) throws IOException;
 

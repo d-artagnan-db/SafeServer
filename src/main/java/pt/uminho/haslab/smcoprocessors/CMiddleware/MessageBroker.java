@@ -38,14 +38,16 @@ public interface MessageBroker {
 	public void allIndexesMessagesRead(RequestIdentifier requestID);
 
 	public void indexeMessageRead(RequestIdentifier requestID);
-    
-    public void receiveBatchMessage(BatchShareMessage message);
-	
-    public Queue<BatchShareMessage> getReceivedBatchMessages(RequestIdentifier requestId);
-    
-   public void waitNewBatchMessage(RequestIdentifier requestID) throws InterruptedException;
- 
-   	public void allBatchMessagesRead(RequestIdentifier requestID);
-    
-    public void readBatchMessages(RequestIdentifier requestID);
+
+	public void receiveBatchMessage(BatchShareMessage message);
+
+	public Queue<BatchShareMessage> getReceivedBatchMessages(
+			RequestIdentifier requestId);
+
+	public void waitNewBatchMessage(RequestIdentifier requestID)
+			throws InterruptedException;
+
+	public void allBatchMessagesRead(RequestIdentifier requestID);
+
+	public void readBatchMessages(RequestIdentifier requestID);
 }

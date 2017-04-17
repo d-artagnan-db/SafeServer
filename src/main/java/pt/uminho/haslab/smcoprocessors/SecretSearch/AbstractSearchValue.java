@@ -1,6 +1,5 @@
 package pt.uminho.haslab.smcoprocessors.SecretSearch;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.And;
@@ -8,18 +7,15 @@ import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condi
 import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.GreaterOrEqualThan;
 import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.Not;
 import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.Or;
-import pt.uminho.haslab.smcoprocessors.SharemindPlayer;
 import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMissmatch;
 import pt.uminho.haslab.smcoprocessors.protocolresults.SearchResults;
-import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
-import pt.uminho.haslab.smhbase.interfaces.Player;
 import pt.uminho.haslab.smhbase.interfaces.Secret;
 import pt.uminho.haslab.smhbase.sharemindImp.SharemindSecret;
 
 public abstract class AbstractSearchValue implements SearchCondition {
 
 	public static SearchCondition conditionTransformer(Condition op, int nBits,
-			byte[] value, int targetPlayer) {
+			List<byte[]> value, int targetPlayer) {
 		switch (op) {
 			case Equal :
 				return new SearchValue(nBits, value, Equal, targetPlayer);
@@ -68,12 +64,6 @@ public abstract class AbstractSearchValue implements SearchCondition {
 		return condition;
 	}
 
-	protected Secret generateSecret(int nBits, BigInteger value,
-			SharemindPlayer player) throws InvalidSecretValue {
-		BigInteger bMod = BigInteger.valueOf(2).pow(nBits);
-		return new SharemindSecret(nBits, bMod, value, (Player) player);
-	}
-
 	protected SearchResults createSearchResults(Secret secret, byte[] id)
 			throws ResultsLengthMissmatch {
 		List<byte[]> secrets = new ArrayList<byte[]>();
@@ -86,7 +76,10 @@ public abstract class AbstractSearchValue implements SearchCondition {
 
 	}
 
-	public abstract boolean evaluateCondition(byte[] value, byte[] rowID,
-			SharemindPlayer p);
+	protected SearchResults createBatchSearchResults(List<byte[]> secrets,
+			List<byte[]> ids) throws ResultsLengthMissmatch {
+		return new SearchResults(secrets, ids);
+
+	}
 
 }

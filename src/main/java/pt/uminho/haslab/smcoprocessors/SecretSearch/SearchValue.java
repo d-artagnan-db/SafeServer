@@ -7,23 +7,24 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.Equal;
 import pt.uminho.haslab.smcoprocessors.SharemindPlayer;
-import pt.uminho.haslab.smcoprocessors.protocolresults.DataIdentifiers;
 import pt.uminho.haslab.smcoprocessors.protocolresults.FilteredIndexes;
 import pt.uminho.haslab.smcoprocessors.protocolresults.PlayerResults;
 import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsIdentifiersMissmatch;
 import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMissmatch;
+import pt.uminho.haslab.smcoprocessors.protocolresults.SearchResults;
+import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
 import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
-import pt.uminho.haslab.smhbase.interfaces.Secret;
+import pt.uminho.haslab.smhbase.sharemindImp.SharemindSecretFunctions;
 
 public class SearchValue extends AbstractSearchValue {
 
 	static final Log LOG = LogFactory.getLog(SearchValue.class.getName());
 
-	protected final byte[] value;
+	protected final List<byte[]> value;
 
 	protected final int nBits;
 
-	public SearchValue(int nBits, byte[] value, Condition condition,
+	public SearchValue(int nBits, List<byte[]> value, Condition condition,
 			int targetPlayer) {
 		super(condition, targetPlayer);
 		this.value = value;
@@ -34,66 +35,93 @@ public class SearchValue extends AbstractSearchValue {
 		return condition;
 	}
 
-	public boolean evaluateCondition(byte[] value, byte[] rowID,
-			SharemindPlayer player) {
+	public List<Boolean> evaluateCondition(List<byte[]> cmpValues,
+			List<byte[]> rowID, SharemindPlayer player) {
 		LOG.debug("Going to evaluate function evaluateCondition");
-		FilteredIndexes filtIndex;
-
+		List<Boolean> fIndex;
 		try {
-			Secret result;
-
-			BigInteger bOrigValue = new BigInteger(this.value);
-			BigInteger bCmpValue = new BigInteger(value);
-
-			Secret originalSecret = generateSecret(nBits, bOrigValue, player);
-			Secret cmpSecret = generateSecret(nBits, bCmpValue, player);
+			List<byte[]> result;
 
 			LOG.debug("Going to run protocol " + condition);
+			BigInteger bMod = BigInteger.valueOf(2).pow(nBits);
 
-			if (condition == Equal) {
-				result = originalSecret.equal(cmpSecret);
+			SharemindSecretFunctions ssf = new SharemindSecretFunctions(nBits,
+					bMod);
+
+			List<byte[]> values = new ArrayList<byte[]>();
+
+			// System.out.println("EvaluateConfition "+ value.size());
+			// System.out.println("EvaluateCondition "+ cmpValues.size());
+			/**
+			 * Batch protocol comparison protocols require that the array of
+			 * values being compared have the same size. As the value to be
+			 * compared is always the same, it is created a list with the same
+			 * size as the values being compared.
+			 * 
+			 * e.g: Values = [val1, val1, val1] cmpValues = [val2, val3, val4]
+			 * In this example val1 is compared to every other value.
+			 */
+			if (value.size() == 1) {
+				// If there is only a single value replica-te it
+				for (int i = 0; i < cmpValues.size(); i++) {
+					values.add(value.get(0));
+				}
+			} else if (value.size() == cmpValues.size()) {
+				values = value;
 			} else {
-				result = cmpSecret.greaterOrEqualThan(originalSecret);
+				LOG.debug("The size of values list being compared is invalid");
+				throw new IllegalStateException(
+						"The size of values list being compared is invalid");
 			}
 
+			// System.out.println("Values size "+ values.size());
+			if (condition == Equal) {
+				result = ssf.equal(values, cmpValues, player);
+			} else {
+				result = ssf.greaterOrEqualThan(cmpValues, values, player);
+			}
+			// System.out.println("Values size "+ values.size());
+			// System.out.println("Cmp value size "+ cmpValues.size());
+			// System.out.println("Results size "+ result.size());
 			LOG.debug("Protocol completed");
 			LOG.debug("Is targetPlayer " + player.isTargetPlayer());
 			if (player.isTargetPlayer()) {
 				LOG.debug("Going to search for a matching index");
 
 				// At this point the size of the list identifiers must be 2.
-				List<DataIdentifiers> identifiers = player.getProtocolResults();
-				identifiers.add(createSearchResults(result, rowID)
-						.toDataIdentifier());
+				List<SearchResults> identifiers = player.getProtocolResults();
+				// System.out.println("Identifiers size "+identifiers.size());
+				identifiers.add(createBatchSearchResults(result, rowID));
 				PlayerResults playerResults = new PlayerResults(identifiers,
-						condition);
-				BigInteger index = playerResults.findCorrespondingIndex();
-				List<byte[]> indexes = new ArrayList<byte[]>();
-				// In here an exception should be thrown
-				if (index != null) {
-					indexes.add(index.toByteArray());
-				}
+						condition, nBits);
+				fIndex = playerResults.declassify();
+
 				/**
-				 * if no matching element was found, index is null and an empty
-				 * list is sent. When the other players receives an empty list,
-				 * it knows that no index was found.
+				 * if no matching element was found, an empty list is sent. When
+				 * the other players receives an empty list, it knows that no
+				 * index was found.
 				 */
-				filtIndex = new FilteredIndexes(indexes);
+				List<byte[]> toSend = new ArrayList<byte[]>();
+				for (Boolean b : fIndex) {
+					toSend.add(b.toString().getBytes());
+				}
+				FilteredIndexes filtIndex = new FilteredIndexes(toSend);
 				player.sendFilteredIndexes(filtIndex);
 			} else {
 				player.sendProtocolResults(targetPlayer,
-						createSearchResults(result, rowID));
-				filtIndex = player.getFilterIndexes();
+						createBatchSearchResults(result, rowID));
+				List<byte[]> res = player.getFilterIndexes().getIndexes();
+				fIndex = new ArrayList<Boolean>();
+
+				for (byte[] val : res) {
+					fIndex.add(Boolean.parseBoolean(new String(val)));
+				}
 
 			}
 
 			LOG.debug("Going to clean results ");
 
 			player.cleanResultsMatch();
-			if (!filtIndex.isEmpty()) {
-				LOG.debug("Protocol result is true");
-				return true;
-			}
 
 		} catch (InvalidSecretValue ex) {
 			LOG.error(ex);
@@ -104,11 +132,14 @@ public class SearchValue extends AbstractSearchValue {
 		} catch (ResultsIdentifiersMissmatch ex) {
 			LOG.error(ex);
 			throw new IllegalStateException(ex);
+		} catch (InvalidNumberOfBits ex) {
+			LOG.error(ex);
+			throw new IllegalStateException(ex);
 		}
 
-		LOG.debug("Function evaluateCondition returns default false");
+		LOG.debug("Function evaluateCondition returns " + fIndex.size());
 
-		return false;
+		return fIndex;
 	}
 
 }

@@ -28,14 +28,13 @@ public class SharemindMessageBroker implements MessageBroker {
 	private final RequestsLocks protocolResultsLocks;
 
 	private final RequestsLocks filterIndexLocks;
-    
-    private final RequestsLocks protocolBatchMessagesLocks;
+
+	private final RequestsLocks protocolBatchMessagesLocks;
 
 	// protocol messages received
 	private final Map<RequestIdentifier, Queue<ShareMessage>> messagesReceived;
-    
-    private final Map<RequestIdentifier, Queue<BatchShareMessage>> batchMessagesReceived;
-    
+
+	private final Map<RequestIdentifier, Queue<BatchShareMessage>> batchMessagesReceived;
 
 	// protocol resuts messages received
 	private final Map<RequestIdentifier, Queue<ResultsMessage>> protocolResults;
@@ -48,8 +47,8 @@ public class SharemindMessageBroker implements MessageBroker {
 		protocolMessagesLocks = new RequestsLocks();
 		protocolResultsLocks = new RequestsLocks();
 		filterIndexLocks = new RequestsLocks();
-        
-        protocolBatchMessagesLocks = new RequestsLocks();
+
+		protocolBatchMessagesLocks = new RequestsLocks();
 
 		relayStarted = new CountDownLatch(1);
 		lock = new ReentrantLock();
@@ -57,8 +56,8 @@ public class SharemindMessageBroker implements MessageBroker {
 		messagesReceived = new ConcurrentHashMap<RequestIdentifier, Queue<ShareMessage>>();
 		protocolResults = new ConcurrentHashMap<RequestIdentifier, Queue<ResultsMessage>>();
 		filterIndex = new ConcurrentHashMap<RequestIdentifier, FilterIndexMessage>();
-        
-        batchMessagesReceived = new ConcurrentHashMap<RequestIdentifier, Queue<BatchShareMessage>>();
+
+		batchMessagesReceived = new ConcurrentHashMap<RequestIdentifier, Queue<BatchShareMessage>>();
 
 	}
 
@@ -86,12 +85,12 @@ public class SharemindMessageBroker implements MessageBroker {
 		}
 
 	}
-    
-    public void receiveBatchMessage(BatchShareMessage message){
-        lock.lock();
-        RequestIdentifier requestID = new RequestIdentifier(message
-        .getRequestID().toByteArray(), message.getRegionID()
-        .toByteArray());
+
+	public void receiveBatchMessage(BatchShareMessage message) {
+		lock.lock();
+		RequestIdentifier requestID = new RequestIdentifier(message
+				.getRequestID().toByteArray(), message.getRegionID()
+				.toByteArray());
 		try {
 			protocolBatchMessagesLocks.lockOnRequest(requestID);
 			lock.unlock();
@@ -109,7 +108,7 @@ public class SharemindMessageBroker implements MessageBroker {
 		} finally {
 			protocolBatchMessagesLocks.unlockOnRequest(requestID);
 		}
-    }
+	}
 
 	@Override
 	public void receiveProtocolResults(ResultsMessage message) {
@@ -174,8 +173,9 @@ public class SharemindMessageBroker implements MessageBroker {
 		}
 	}
 
-    @Override
-	public Queue<BatchShareMessage> getReceivedBatchMessages(RequestIdentifier requestId) {
+	@Override
+	public Queue<BatchShareMessage> getReceivedBatchMessages(
+			RequestIdentifier requestId) {
 		lock.lock();
 
 		try {
@@ -255,32 +255,33 @@ public class SharemindMessageBroker implements MessageBroker {
 		protocolMessagesLocks.removeLock(requestID);
 		messagesReceived.remove(requestID);
 	}
-    
-    @Override
+
+	@Override
 	public void allBatchMessagesRead(RequestIdentifier requestID) {
 		protocolBatchMessagesLocks.removeLock(requestID);
 		batchMessagesReceived.remove(requestID);
 	}
-    
+
 	@Override
 	public void readMessages(RequestIdentifier requestID) {
 		protocolMessagesLocks.unlockOnRequest(requestID);
 	}
-    
-    public void readBatchMessages(RequestIdentifier requestID) {
-        protocolBatchMessagesLocks.unlockOnRequest(requestID);
-    }
+
+	public void readBatchMessages(RequestIdentifier requestID) {
+		protocolBatchMessagesLocks.unlockOnRequest(requestID);
+	}
 
 	@Override
 	public void waitNewMessage(RequestIdentifier requestID)
 			throws InterruptedException {
 		protocolMessagesLocks.awaitForWrite(requestID);
 	}
-    
-    public void waitNewBatchMessage(RequestIdentifier requestID) throws InterruptedException {
+
+	public void waitNewBatchMessage(RequestIdentifier requestID)
+			throws InterruptedException {
 		protocolBatchMessagesLocks.awaitForWrite(requestID);
-        
-    }
+
+	}
 
 	@Override
 	public void allResultsRead(RequestIdentifier requestID) {

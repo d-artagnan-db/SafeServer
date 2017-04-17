@@ -143,14 +143,14 @@ public class IORelay implements Relay {
 
 		getTargetClient(target).sendMessage(msg);
 	}
-    
-    public void sendBatchMessages(Search.BatchShareMessage msg) throws IOException {
+
+	public void sendBatchMessages(Search.BatchShareMessage msg)
+			throws IOException {
 		int target = calculateDestPlayer(msg.getPlayerSource(),
 				msg.getPlayerDest());
-        
-        getTargetClient(target).sendBatchMessages(msg);
-    }
 
+		getTargetClient(target).sendBatchMessages(msg);
+	}
 
 	@Override
 	public synchronized void sendProtocolResults(ResultsMessage msg)
