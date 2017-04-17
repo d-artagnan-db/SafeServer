@@ -11,83 +11,79 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
 import pt.uminho.haslab.smcoprocessors.SecretSearch.ContextPlayer;
-import pt.uminho.haslab.smcoprocessors.middleware.helpers.TestRegionServer;
+import pt.uminho.haslab.smcoprocessors.benchmarks.TestRegionServer;
 import pt.uminho.haslab.testingutils.ValuesGenerator;
 
 @RunWith(Parameterized.class)
 public class SendAndReceiveBatchMessageBrokerTest {
-    
-    
-    private final List<List<BigInteger>> peerOne;
-    
-    private final List<List<BigInteger>> peerTwo;
-    
-    private final List<List<BigInteger>> peerThree;
-    
-    	@Parameterized.Parameters
+
+	private final List<List<BigInteger>> peerOne;
+
+	private final List<List<BigInteger>> peerTwo;
+
+	private final List<List<BigInteger>> peerThree;
+
+	@Parameterized.Parameters
 	public static Collection nbitsValues() {
 		return ValuesGenerator.SendAndReceiveBatchMessageBrokerTest2();
 	}
-    public SendAndReceiveBatchMessageBrokerTest(List<List<BigInteger>> peerOne,
+	public SendAndReceiveBatchMessageBrokerTest(List<List<BigInteger>> peerOne,
 			List<List<BigInteger>> peerTwo, List<List<BigInteger>> peerThree) {
-        this.peerOne = peerOne;
-        this.peerTwo = peerTwo;
-        this.peerThree = peerThree;
-    }
-    
-    
-    private class RegionServer extends TestRegionServer{
+		this.peerOne = peerOne;
+		this.peerTwo = peerTwo;
+		this.peerThree = peerThree;
+	}
 
-        private final List<List<BigInteger>> toSend;
-        
-        private final List<List<BigInteger>> recVal;
-        
-        public int playerSource;
-        public int playerDest;
-        
-        
-        public RegionServer(int playerID, List<List<BigInteger>> toSend,
+	private class RegionServer extends TestRegionServer {
+
+		private final List<List<BigInteger>> toSend;
+
+		private final List<List<BigInteger>> recVal;
+
+		public int playerSource;
+		public int playerDest;
+
+		public RegionServer(int playerID, List<List<BigInteger>> toSend,
 				int playerDest, int playerSource) throws IOException {
-            super(playerID);
-            this.toSend = toSend;
-            this.playerSource = playerSource;
-            this.playerDest = playerDest;
-            recVal = new ArrayList<List<BigInteger>>();
-            
-            
-        }
+			super(playerID);
+			this.toSend = toSend;
+			this.playerSource = playerSource;
+			this.playerDest = playerDest;
+			recVal = new ArrayList<List<BigInteger>>();
 
-        @Override
-        public void doComputation() {
-            long contextID = 0;
-            
-            for(List<BigInteger> vals: toSend){
-                
-                List<byte[]> bvals = new ArrayList<byte[]>();
-                
-                for(BigInteger val: vals){
-                    bvals.add(val.toByteArray());
-                }
+		}
+
+		@Override
+		public void doComputation() {
+			long contextID = 0;
+
+			for (List<BigInteger> vals : toSend) {
+
+				List<byte[]> bvals = new ArrayList<byte[]>();
+
+				for (BigInteger val : vals) {
+					bvals.add(val.toByteArray());
+				}
 				byte[] reqID = ("" + contextID).getBytes();
 				byte[] regionID = "1".getBytes();
 				RequestIdentifier ident = new RequestIdentifier(reqID, regionID);
 				ContextPlayer r = new ContextPlayer(relay, ident, playerID,
 						broker);
 				r.sendValueToPlayer(playerDest, bvals);
-                
-                List<byte[]> receivedbValues = r.getValues(playerSource);
-                List<BigInteger> recValues = new ArrayList<BigInteger>();
-                
-                for(byte[] recval: receivedbValues){
-                    recValues.add(new BigInteger(recval));
-                }
-                recVal.add(recValues);
-				//recVal.add(r.getValue(playerSource));
+
+				List<byte[]> receivedbValues = r.getValues(playerSource);
+				List<BigInteger> recValues = new ArrayList<BigInteger>();
+
+				for (byte[] recval : receivedbValues) {
+					recValues.add(new BigInteger(recval));
+				}
+				recVal.add(recValues);
+				// recVal.add(r.getValue(playerSource));
 				contextID++;
-            }
-        }
-    }
-    @Test
+			}
+		}
+	}
+	@Test
 	public void testMessageRightRotate() throws IOException,
 			InterruptedException {
 
@@ -108,8 +104,8 @@ public class SendAndReceiveBatchMessageBrokerTest {
 		// Wait some time before next test
 		Thread.sleep(10000);
 	}
-    
-@Test
+
+	@Test
 	public void testMessageLeftRotate() throws IOException,
 			InterruptedException {
 
@@ -130,43 +126,42 @@ public class SendAndReceiveBatchMessageBrokerTest {
 		// Wait some time before next test
 		Thread.sleep(5000);
 	}
-    
-    
-    private void validateMessageRightRotate(RegionServer a,
-                                            RegionServer b,
-                                            RegionServer c) {
+
+	private void validateMessageRightRotate(RegionServer a, RegionServer b,
+			RegionServer c) {
 
 		assertEquals(a.recVal.size(), peerThree.size());
 		assertEquals(b.recVal.size(), peerOne.size());
 		assertEquals(c.recVal.size(), peerTwo.size());
 
 		for (int i = 0; i < a.recVal.size(); i++) {
-            
-            for(int j = 0; j <  peerOne.get(i).size(); j++ ){
-                assertEquals(peerOne.get(i).get(j), b.recVal.get(i).get(j));
-                assertEquals(peerThree.get(i).get(j), a.recVal.get(i).get(j));
-                assertEquals(peerTwo.get(i).get(j), c.recVal.get(i).get(j));
-            }
+
+			for (int j = 0; j < peerOne.get(i).size(); j++) {
+				assertEquals(peerOne.get(i).get(j), b.recVal.get(i).get(j));
+				assertEquals(peerThree.get(i).get(j), a.recVal.get(i).get(j));
+				assertEquals(peerTwo.get(i).get(j), c.recVal.get(i).get(j));
+			}
 
 		}
 	}
-    
-	private void validateMessageLeftRotate(RegionServer a, RegionServer b, RegionServer c) {
+
+	private void validateMessageLeftRotate(RegionServer a, RegionServer b,
+			RegionServer c) {
 
 		assertEquals(a.recVal.size(), peerTwo.size());
 		assertEquals(b.recVal.size(), peerThree.size());
 		assertEquals(c.recVal.size(), peerOne.size());
 
 		for (int i = 0; i < a.recVal.size(); i++) {
-            
-            for(int j = 0; j <  peerOne.get(i).size(); j++ ){
 
-                assertEquals(peerOne.get(i).get(j), c.recVal.get(i).get(j));
-                assertEquals(peerThree.get(i).get(j), b.recVal.get(i).get(j));
-                assertEquals(peerTwo.get(i).get(j), a.recVal.get(i).get(j));
-            }
+			for (int j = 0; j < peerOne.get(i).size(); j++) {
+
+				assertEquals(peerOne.get(i).get(j), c.recVal.get(i).get(j));
+				assertEquals(peerThree.get(i).get(j), b.recVal.get(i).get(j));
+				assertEquals(peerTwo.get(i).get(j), a.recVal.get(i).get(j));
+			}
 
 		}
 	}
-    
+
 }
