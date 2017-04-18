@@ -11,9 +11,10 @@ import static org.junit.Assert.assertEquals;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
-import pt.uminho.haslab.smcoprocessors.benchmarks.TestPlayer;
-import pt.uminho.haslab.smcoprocessors.benchmarks.TestRegionServer;
 import pt.uminho.haslab.smcoprocessors.middleware.TestLinkedRegions;
+import pt.uminho.haslab.smcoprocessors.middleware.helpers.RegionServer;
+import pt.uminho.haslab.smcoprocessors.middleware.helpers.TestPlayer;
+import pt.uminho.haslab.smcoprocessors.middleware.helpers.TestRegionServer;
 import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
 import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
 import pt.uminho.haslab.smhbase.interfaces.Dealer;
@@ -181,8 +182,7 @@ public abstract class DoubleBatchValueProtocolTest extends TestLinkedRegions {
 	}
 
 	@Override
-	protected TestRegionServer createRegionServer(int playerID)
-			throws IOException {
+	protected RegionServer createRegionServer(int playerID) throws IOException {
 		return new RSImpl(playerID);
 	}
 

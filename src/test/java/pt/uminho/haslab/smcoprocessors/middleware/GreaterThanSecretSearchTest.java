@@ -2,6 +2,7 @@ package pt.uminho.haslab.smcoprocessors.middleware;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import pt.uminho.haslab.smcoprocessors.SecretSearch.AbstractSearchValue;
 import pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition;
@@ -20,8 +21,10 @@ public class GreaterThanSecretSearchTest extends SecretSearchTest {
 	@Override
 	protected SearchCondition getSearchCondition(int valueNBits, byte[] value,
 			int targetPlayer) {
+		List<byte[]> values = new ArrayList<byte[]>();
+		values.add(value);
 		return AbstractSearchValue.conditionTransformer(Greater, valueNBits,
-				value, targetPlayer);
+				values, targetPlayer);
 
 	}
 
