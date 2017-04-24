@@ -69,7 +69,8 @@ public class RelayClient extends Thread {
 		sendToClient(0, msg.toByteArray());
 	}
 
-	public void sendBatchMessages(BatchShareMessage msgs) throws IOException {
+	public synchronized void sendBatchMessages(BatchShareMessage msgs)
+			throws IOException {
 		messagesAskedToSend.addAndGet(1);
 		sendToClient(3, msgs.toByteArray());
 	}

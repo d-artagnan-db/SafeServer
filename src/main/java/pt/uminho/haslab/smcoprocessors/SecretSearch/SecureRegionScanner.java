@@ -1,6 +1,7 @@
 package pt.uminho.haslab.smcoprocessors.SecretSearch;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -85,6 +86,7 @@ public class SecureRegionScanner implements RegionScanner {
 		scanner = env.getRegion().getScanner(scan);
 		batcher = new Batcher(config);
 		resultsCache = new BatchCache();
+		hasMore = false;
 	}
 
 	public HRegionInfo getRegionInfo() {
@@ -171,17 +173,22 @@ public class SecureRegionScanner implements RegionScanner {
 
 	private BatchGetResult loadBatch() throws IOException {
 		int batchSize = batcher.batchSize();
+		LOG.debug("BatchSize " + batchSize);
 		List<byte[]> rowIDS = new ArrayList<byte[]>();
 		List<byte[]> protectedValues = new ArrayList<byte[]>();
 		List<List<Cell>> localCells = new ArrayList<List<Cell>>();
 		int counter = 0;
 
+		LOG.debug("Going to load cells");
 		do {
 			List<Cell> localResults = new ArrayList<Cell>();
 			hasMore = scanner.next(localResults);
 
 			// Return case when there are no records in the table;
+			// LOG.debug("hasMore? "+hasMore);
+			// LOG.debug("localResults empty? "+ localResults.isEmpty());
 			if (hasMore == false && localResults.isEmpty()) {
+				// LOG.debug("Going to return new empty BatchGetResult");
 				return new BatchGetResult();
 			}
 
@@ -197,12 +204,17 @@ public class SecureRegionScanner implements RegionScanner {
 				}
 
 			}
+			LOG.debug(player.getPlayerID() + " found row with id "
+					+ new String(rowID) + " -> "
+					+ new BigInteger(protectedValue));
 			rowIDS.add(rowID);
 			protectedValues.add(protectedValue);
 			localCells.add(localResults);
 			counter += 1;
+			// LOG.debug("Counter is "+counter);
+			// LOG.debug("hasMore? "+hasMore);
 		} while (counter < batchSize && hasMore);
-
+		LOG.debug("Cells loaded");
 		return new BatchGetResult(rowIDS, protectedValues, localCells);
 	}
 
@@ -211,10 +223,11 @@ public class SecureRegionScanner implements RegionScanner {
 
 		List<byte[]> procVals = bRes.getProtectedValues();
 		List<byte[]> rowIDS = bRes.getRowIDS();
-		List<List<Cell>> filtredRes = new ArrayList<List<Cell>>();
+		List<List<Cell>> localCells = bRes.getLocalCells();
+		List<List<Cell>> filtredCells = new ArrayList<List<Cell>>();
 
+		LOG.debug("Going to evaluate condition");
 		long start = System.nanoTime();
-
 		List<Boolean> condResults = searchValue.evaluateCondition(procVals,
 				rowIDS, splayer);
 
@@ -222,49 +235,63 @@ public class SecureRegionScanner implements RegionScanner {
 		long elapsed = stop - start;
 		TIMES.info(player.getPlayerID() + ", " + searchValue.getCondition()
 				+ ", " + elapsed);
+		LOG.debug("Condition evaluated in " + player.getPlayerID() + ", "
+				+ searchValue.getCondition() + ", " + elapsed);
 
+		LOG.debug("Results size " + condResults.size());
+		LOG.debug("rowIDS size " + rowIDS.size());
 		if (condResults.size() != rowIDS.size()) {
 			throw new IllegalStateException();
 		}
+		LOG.debug("Going to filter results");
 		for (int i = 0; i < condResults.size(); i++) {
-
+			LOG.debug("Loop index " + i + " of " + condResults.size());
+			LOG.debug(player.getPlayerID() + " ID is "
+					+ new String(rowIDS.get(i)) + " and has result "
+					+ condResults.get(i));
 			if (condResults.get(i).equals(Boolean.TRUE)) {
-				resultsCache.addCells(filtredRes.get(i));
+				filtredCells.add(localCells.get(i));
 			}
 		}
-		return filtredRes;
+		LOG.debug("Filtered Cells size is " + filtredCells.size());
+		return filtredCells;
 	}
 
 	public boolean next(List<Cell> results) throws IOException {
 		LOG.debug("Next in SecureRegionScanner was issued ");
 
+		LOG.debug("ResultsCach empty? " + resultsCache.isBatchEmpty());
 		if (resultsCache.isBatchEmpty()) {
 			List<List<Cell>> fRows = new ArrayList<List<Cell>>();
 
 			do {
 				BatchGetResult bRes = loadBatch();
 
+				LOG.debug("bRes empty? " + bRes.isEmpty());
+
 				if (!bRes.isEmpty()) {
 					// Only returns rows that satisfy the protocol
 					fRows = searchBatch(bRes);
 				}
+				LOG.debug("hasMore? " + hasMore + " fRows " + fRows.isEmpty());
 			} while (hasMore && fRows.isEmpty());
 
+			LOG.debug("Going to add  cells");
 			resultsCache.addListCells(fRows);
 
 		}
 
+		LOG.debug("hasMore? " + hasMore + " resultsCache? "
+				+ resultsCache.isBatchEmpty());
 		if (hasMore == false && resultsCache.isBatchEmpty()) {
 			results.addAll(new ArrayList<Cell>());
 			return false;
 		}
 
-		if (this.stopOnMatch) {
-			hasMore = false;
-		}
+		LOG.debug("StopOnMatch " + stopOnMatch);
 
 		results.addAll(resultsCache.getNext());
-		return hasMore;
+		return !(resultsCache.isBatchEmpty() || this.stopOnMatch);
 
 	}
 

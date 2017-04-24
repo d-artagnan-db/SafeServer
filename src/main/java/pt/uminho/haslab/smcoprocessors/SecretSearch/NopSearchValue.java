@@ -15,7 +15,7 @@ public class NopSearchValue extends AbstractSearchValue {
 			List<byte[]> rowID, SharemindPlayer p) {
 		List<Boolean> vals = new ArrayList<Boolean>();
 
-		for (int i = 0; i < value.size(); i++) {
+		for (byte[] value1 : value) {
 			vals.add(Boolean.TRUE);
 		}
 

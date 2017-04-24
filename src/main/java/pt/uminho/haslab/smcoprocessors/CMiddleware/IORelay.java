@@ -144,7 +144,7 @@ public class IORelay implements Relay {
 		getTargetClient(target).sendMessage(msg);
 	}
 
-	public void sendBatchMessages(Search.BatchShareMessage msg)
+	public synchronized void sendBatchMessages(Search.BatchShareMessage msg)
 			throws IOException {
 		int target = calculateDestPlayer(msg.getPlayerSource(),
 				msg.getPlayerDest());

@@ -49,7 +49,6 @@ public class PlayerResults {
 		List<Boolean> resultIDS = new ArrayList<Boolean>();
 
 		for (int i = 0; i < nIdentifiers; i++) {
-
 			byte[] bFirstIdent = results.get(0).getIdentifiers().get(i);
 			byte[] bSecondIdent = results.get(1).getIdentifiers().get(i);
 			byte[] bThirdIdent = results.get(2).getIdentifiers().get(i);
@@ -88,8 +87,8 @@ public class PlayerResults {
 
 				int result = secretResult.unshare().intValue();
 
-				// System.out.println("Result is " + result + " for NBits " +
-				// nBits);
+				// System.out.println("Result is " + result + " for NBits "
+				// +nBits);
 
 				if (result == 0) {
 					resultIDS.add(Boolean.TRUE);

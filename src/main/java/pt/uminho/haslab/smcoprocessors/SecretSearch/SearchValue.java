@@ -44,7 +44,6 @@ public class SearchValue extends AbstractSearchValue {
 
 			LOG.debug("Going to run protocol " + condition);
 			BigInteger bMod = BigInteger.valueOf(2).pow(nBits);
-
 			SharemindSecretFunctions ssf = new SharemindSecretFunctions(nBits,
 					bMod);
 
