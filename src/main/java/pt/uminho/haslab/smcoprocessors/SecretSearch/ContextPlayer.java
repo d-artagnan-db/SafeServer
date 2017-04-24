@@ -15,15 +15,15 @@ import com.google.protobuf.ByteString;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import pt.uminho.haslab.smcoprocessors.protocolresults.DataIdentifiers;
+import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
 import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMissmatch;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
-import pt.uminho.haslab.protocommunication.Search.ShareMessage.Builder;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
 import pt.uminho.haslab.smcoprocessors.SharemindPlayer;
 import pt.uminho.haslab.smcoprocessors.protocolresults.FilteredIndexes;
 import pt.uminho.haslab.smcoprocessors.protocolresults.SearchResults;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
+import pt.uminho.haslab.protocommunication.Search.ShareByteMessage;
 
 /**
  * A PlayerRequest is what SharemindValue interacts with, to him it is the
@@ -67,7 +67,12 @@ public class ContextPlayer implements Player, SharemindPlayer {
 	 */
 	private final Map<Integer, Queue<BigInteger>> playerMessages;
 
-	private final Builder message;
+	private final Map<Integer, Queue<List<byte[]>>> playerBatchMessages;
+
+	private final ShareMessage.Builder message;
+	private final ShareByteMessage.Builder sbmBuilder;
+	private final BatchShareMessage.Builder bmBuilder;
+
 	public ContextPlayer(Relay relay, RequestIdentifier requestID,
 			int playerID, MessageBroker broker) {
 
@@ -76,16 +81,25 @@ public class ContextPlayer implements Player, SharemindPlayer {
 		this.playerID = playerID;
 		this.broker = broker;
 		playerMessages = new HashMap<Integer, Queue<BigInteger>>();
+		playerBatchMessages = new HashMap<Integer, Queue<List<byte[]>>>();
 
 		int[] players = getPlayerSources();
 		playerMessages.put(players[0], new LinkedList<BigInteger>());
 		playerMessages.put(players[1], new LinkedList<BigInteger>());
+
+		playerBatchMessages.put(players[0], new LinkedList<List<byte[]>>());
+		playerBatchMessages.put(players[1], new LinkedList<List<byte[]>>());
+
 		message = ShareMessage.newBuilder();
+		sbmBuilder = ShareByteMessage.newBuilder();
+		bmBuilder = BatchShareMessage.newBuilder();
+
 	}
 
 	public void sendValueToPlayer(int destPlayer, BigInteger value) {
 		try {
 			ByteString bsVal = ByteString.copyFrom(value.toByteArray());
+
 			ShareMessage msg = message
 					.setPlayerSource(this.playerID)
 					.setRequestID(ByteString.copyFrom(requestID.getRequestID()))
@@ -99,6 +113,39 @@ public class ContextPlayer implements Player, SharemindPlayer {
 		}
 
 	}
+	public void sendValueToPlayer(Integer destPlayer, List<byte[]> values) {
+		try {
+			/*
+			 * List<ShareByteMessage> bsVals = new
+			 * ArrayList<ShareByteMessage>();
+			 * 
+			 * for(byte[] val: values){ ByteString bsVal =
+			 * ByteString.copyFrom(val); ShareByteMessage sbMessage =
+			 * sbmBuilder.setValue(bsVal).build(); bsVals.add(sbMessage);
+			 * sbmBuilder.clear(); }
+			 */
+			BatchShareMessage.Builder bsm = bmBuilder
+					.setPlayerSource(this.playerID)
+					.setRequestID(ByteString.copyFrom(requestID.getRequestID()))
+					.setRegionID(ByteString.copyFrom(requestID.getRegionID()))
+					.setPlayerDest(destPlayer);
+
+			for (byte[] val : values) {
+				ByteString bsVal = ByteString.copyFrom(val);
+				bsm.addValues(bsVal);
+			}
+			// .addAllValues(bsVals).build();
+
+			relay.sendBatchMessages(bsm.build());
+			bmBuilder.clear();
+
+		} catch (IOException ex) {
+			LOG.error(ex);
+			throw new IllegalStateException(ex);
+		}
+
+	}
+
 	public void sendProtocolResults(int destPlayer, SearchResults res) {
 		try {
 			List<ByteString> bsValues = new ArrayList<ByteString>();
@@ -158,6 +205,7 @@ public class ContextPlayer implements Player, SharemindPlayer {
 		}
 
 	}
+
 	/**
 	 * This method has to be synchronized because the message broker might be
 	 * storing a value on the queues. Since it is synchronized it blocks until
@@ -210,27 +258,83 @@ public class ContextPlayer implements Player, SharemindPlayer {
 		} finally {
 		}
 	}
+
+	/**
+	 * This method has to be synchronized because the message broker might be
+	 * storing a value on the queues. Since it is synchronized it blocks until
+	 * the message broker has inserted the value.
+	 * 
+	 * @param originPlayerId
+	 * @return BigInteger of the value sent from originPlayerId.
+	 */
+	public List<byte[]> getValues(Integer originPlayerId) {
+		// LOG.debug("Going to call getValue");
+		/**
+		 * First check for messages already stored when reading another value.
+		 * Since values are not received in order, the player may read a value
+		 * from another player besides the one it is expecting from. When this
+		 * happens it stores in playersMessages variable.
+		 */
+		if (!playerBatchMessages.get(originPlayerId).isEmpty()) {
+
+			return playerBatchMessages.get(originPlayerId).poll();
+		}
+
+		try {
+			Queue<BatchShareMessage> messages = broker
+					.getReceivedBatchMessages(requestID);
+
+			while (messages.peek() == null) {
+				broker.waitNewBatchMessage(requestID);
+			}
+
+			BatchShareMessage shareMessage = messages.poll();
+			broker.readBatchMessages(requestID);
+
+			List<byte[]> recMessages = new ArrayList<byte[]>();
+			List<ByteString> recbMessages = shareMessage.getValuesList();
+
+			for (ByteString bs : recbMessages) {
+				recMessages.add(bs.toByteArray());
+			}
+
+			if (shareMessage.getPlayerSource() != originPlayerId) {
+				// LOG.debug("Going to call again getValue");
+				playerBatchMessages.get(shareMessage.getPlayerSource()).add(
+						recMessages);
+				return this.getValues(originPlayerId);
+			} else {
+				return recMessages;
+			}
+
+		} catch (InterruptedException ex) {
+			LOG.error(ex);
+			throw new IllegalArgumentException(ex.getMessage());
+		} finally {
+		}
+	}
+
 	/**
 	 * The output should be SearchResults and not DataIdentifiers. That way the
 	 * result would be consistent with the output of SecretSearch.
 	 */
-	public List<DataIdentifiers> getProtocolResults()
+	public List<SearchResults> getProtocolResults()
 			throws ResultsLengthMissmatch {
 		Queue<ResultsMessage> messages = broker.getProtocolResults(requestID);
-		List<DataIdentifiers> results = new ArrayList<DataIdentifiers>();
+		List<SearchResults> results = new ArrayList<SearchResults>();
 
 		for (ResultsMessage msg : messages) {
-			List<BigInteger> identifiers = new ArrayList<BigInteger>();
-			List<BigInteger> values = new ArrayList<BigInteger>();
+			List<byte[]> identifiers = new ArrayList<byte[]>();
+			List<byte[]> values = new ArrayList<byte[]>();
 
 			for (ByteString ident : msg.getSecretIDList()) {
-				identifiers.add(new BigInteger(ident.toByteArray()));
+				identifiers.add(ident.toByteArray());
 			}
 
 			for (ByteString val : msg.getValuesList()) {
-				values.add(new BigInteger(val.toByteArray()));
+				values.add(val.toByteArray());
 			}
-			results.add(new DataIdentifiers(values, identifiers));
+			results.add(new SearchResults(values, identifiers));
 		}
 
 		broker.protocolResultsRead(requestID);
@@ -298,7 +402,22 @@ public class ContextPlayer implements Player, SharemindPlayer {
 
 	public void cleanResultsMatch() {
 		broker.allResultsRead(requestID);
+		broker.allMessagesRead(requestID);
 		broker.allIndexesMessagesRead(requestID);
+	}
+
+	public void storeValues(Integer playerDest, Integer playerSource,
+			List<byte[]> values) {
+		throw new UnsupportedOperationException("Not supported yet."); // To
+																		// change
+																		// body
+																		// of
+																		// generated
+																		// methods,
+																		// choose
+																		// Tools
+																		// |
+																		// Templates.
 	}
 
 }

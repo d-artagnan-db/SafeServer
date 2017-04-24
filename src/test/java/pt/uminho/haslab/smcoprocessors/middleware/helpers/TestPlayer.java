@@ -81,7 +81,7 @@ public class TestPlayer implements SharemindPlayer {
 		player.sendProtocolResults(destPlayer, res);
 	}
 
-	public List<DataIdentifiers> getProtocolResults()
+	public List<SearchResults> getProtocolResults()
 			throws ResultsLengthMissmatch {
 		return player.getProtocolResults();
 	}
@@ -108,6 +108,19 @@ public class TestPlayer implements SharemindPlayer {
 
 	public void cleanResultsMatch() {
 		player.cleanResultsMatch();
+	}
+
+	public void storeValues(Integer playerDest, Integer playerSource,
+			List<byte[]> values) {
+		player.storeValues(playerDest, playerSource, values);
+	}
+
+	public void sendValueToPlayer(Integer playerID, List<byte[]> values) {
+		player.sendValueToPlayer(playerID, values);
+	}
+
+	public List<byte[]> getValues(Integer rec) {
+		return player.getValues(rec);
 	}
 
 }

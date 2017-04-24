@@ -79,6 +79,18 @@ public abstract class ConcurrentTestPlayer extends Thread implements Player {
 		player.sendValueToPlayer(destPlayer, value);
 	}
 
+	public void storeValues(Integer playerDest, Integer playerSource,
+			List<byte[]> values) {
+		player.storeValues(playerDest, playerSource, values);
+	}
+
+	public void sendValueToPlayer(Integer playerID, List<byte[]> values) {
+		player.sendValueToPlayer(playerID, values);
+	}
+
+	public List<byte[]> getValues(Integer rec) {
+		return player.getValues(rec);
+	}
 	public Map<Integer, List<BigInteger>> getMessagesSent() {
 		return messagesSent;
 	}

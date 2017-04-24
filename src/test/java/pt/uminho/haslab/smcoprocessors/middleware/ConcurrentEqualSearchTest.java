@@ -2,6 +2,7 @@ package pt.uminho.haslab.smcoprocessors.middleware;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,8 +24,10 @@ public class ConcurrentEqualSearchTest extends ConcurrentSecretSearchTest {
 	@Override
 	protected SearchCondition getSearchCondition(int nBits,
 			byte[] firstValueSecret, int i) {
-		return AbstractSearchValue.conditionTransformer(Equal, nBits + 1,
-				firstValueSecret, i);
+		List<byte[]> vals = new ArrayList<byte[]>();
+		vals.add(firstValueSecret);
+		return AbstractSearchValue.conditionTransformer(Equal, nBits + 1, vals,
+				i);
 	}
 
 	@Override

@@ -32,3 +32,4 @@ log/
 nbproject
 .idea
 *.iml
+/nbproject/

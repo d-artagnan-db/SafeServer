@@ -1,6 +1,7 @@
 package pt.uminho.haslab.smcoprocessors.CMiddleware;
 
 import java.util.Queue;
+import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
 import pt.uminho.haslab.protocommunication.Search.ShareMessage;
@@ -38,4 +39,15 @@ public interface MessageBroker {
 
 	public void indexeMessageRead(RequestIdentifier requestID);
 
+	public void receiveBatchMessage(BatchShareMessage message);
+
+	public Queue<BatchShareMessage> getReceivedBatchMessages(
+			RequestIdentifier requestId);
+
+	public void waitNewBatchMessage(RequestIdentifier requestID)
+			throws InterruptedException;
+
+	public void allBatchMessagesRead(RequestIdentifier requestID);
+
+	public void readBatchMessages(RequestIdentifier requestID);
 }

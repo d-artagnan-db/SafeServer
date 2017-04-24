@@ -3,6 +3,7 @@ package pt.uminho.haslab.smcoprocessors.benchmarks;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
@@ -28,8 +29,10 @@ public class RegionServerSim extends TestRegionServer {
 
 	private SearchCondition getSearchCondition(Condition cond, int nBits,
 			byte[] secTwo) {
+		List<byte[]> secTwos = new ArrayList<byte[]>();
+		secTwos.add(secTwo);
 		return AbstractSearchValue.conditionTransformer(cond, nBits + 1,
-				secTwo, 1);
+				secTwos, 1);
 	}
 
 	public int getMSent(TestPlayer player) {
@@ -76,10 +79,15 @@ public class RegionServerSim extends TestRegionServer {
 
 					BigInteger valOne = new BigInteger(nbit, generator);
 					BigInteger valTwo = new BigInteger(nbit, generator);
+
+					List<byte[]> valsOne = new ArrayList<byte[]>();
+					List<byte[]> ids = new ArrayList<byte[]>();
+					valsOne.add(valOne.toByteArray());
+					ids.add(breqID);
 					SearchCondition scond = getSearchCondition(cond, nbit,
 							valTwo.toByteArray());
-					scond.evaluateCondition(valOne.toByteArray(), breqID,
-							player);
+
+					scond.evaluateCondition(valsOne, ids, player);
 					reqID += 1;
 					regionID += 1;
 					long stop = System.nanoTime();

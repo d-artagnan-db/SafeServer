@@ -2,6 +2,7 @@ package pt.uminho.haslab.smcoprocessors.middleware;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import static junit.framework.TestCase.assertEquals;
 import org.apache.commons.logging.Log;
@@ -65,12 +66,16 @@ public abstract class SecretSearchTest extends DoubleValueProtocolTest {
 				SearchCondition cond = getSearchCondition(valueNbits + 1,
 						secretTwo.toByteArray(), 1);
 
-				boolean searchRes = cond.evaluateCondition(
-						secretOne.toByteArray(), reqID, player);
-				LOG.debug("Expected result " + searchRes);
+				List<byte[]> cmpVal = new ArrayList<byte[]>();
+				cmpVal.add(secretOne.toByteArray());
+				List<byte[]> ids = new ArrayList<byte[]>();
+				ids.add(reqID);
+				List<Boolean> searchRes = cond.evaluateCondition(cmpVal, ids,
+						player);
+				LOG.debug("Expected result " + searchRes.get(0));
 				BigInteger result = BigInteger.ZERO;
 
-				if (searchRes) {
+				if (searchRes.get(0)) {
 					result = BigInteger.ONE;
 				}
 

@@ -56,15 +56,15 @@ public class ProtocolResultsTest {
 	private class RegionServerImpl extends TestRegionServer {
 
 		private final List<List<BigInteger>> values;
-		private final List<List<DataIdentifiers>> peerResults;
+		private final List<List<SearchResults>> peerResults;
 
 		public RegionServerImpl(int playerID) throws IOException {
 			super(playerID);
 			values = new ArrayList<List<BigInteger>>();
-			peerResults = new ArrayList<List<DataIdentifiers>>();
+			peerResults = new ArrayList<List<SearchResults>>();
 		}
 
-		public List<List<DataIdentifiers>> getPeerResults() {
+		public List<List<SearchResults>> getPeerResults() {
 			return peerResults;
 		}
 
@@ -126,7 +126,7 @@ public class ProtocolResultsTest {
 		private final MessageBroker broker;
 		private final Relay relay;
 		private List<BigInteger> values;
-		private List<DataIdentifiers> peerResults;
+		private List<SearchResults> peerResults;
 
 		public ConcurrentPlayer(int playerID, int requestID, Relay relay,
 				MessageBroker broker) {
@@ -145,7 +145,7 @@ public class ProtocolResultsTest {
 			return this.values;
 		}
 
-		public List<DataIdentifiers> getPeerResults() {
+		public List<SearchResults> getPeerResults() {
 			return this.peerResults;
 		}
 
@@ -211,7 +211,7 @@ public class ProtocolResultsTest {
 
 			List<BigInteger> peerOneValues = new ArrayList<BigInteger>();
 			List<BigInteger> peerTwoValues = new ArrayList<BigInteger>();
-			List<DataIdentifiers> receivedPeerResults = new ArrayList<DataIdentifiers>();
+			List<SearchResults> receivedPeerResults = new ArrayList<SearchResults>();
 
 			switch (playerDestIDs.get(i)) {
 				case 0 :

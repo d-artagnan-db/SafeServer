@@ -23,8 +23,7 @@ public interface SharemindPlayer extends Player {
 	 * @return
 	 * @throws pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMissmatch
 	 */
-
-	public List<DataIdentifiers> getProtocolResults()
+	public List<SearchResults> getProtocolResults()
 			throws ResultsLengthMissmatch;
 
 	public void cleanValues();

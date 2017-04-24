@@ -1,6 +1,7 @@
 package pt.uminho.haslab.smcoprocessors.protocolresults;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition;
 import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.Equal;
@@ -9,67 +10,94 @@ import pt.uminho.haslab.smhbase.sharemindImp.SharemindSharedSecret;
 
 public class PlayerResults {
 
-	private final List<DataIdentifiers> results;
+	private final List<SearchResults> results;
 	private final Condition condition;
+	private final int nBits;
 
 	/* TODO: this function has to validate if the protocol results are all ok. */
-	public PlayerResults(List<DataIdentifiers> results, Condition condition)
-			throws ResultsLengthMissmatch {
+	public PlayerResults(List<SearchResults> results, Condition condition,
+			int nBits) throws ResultsLengthMissmatch {
+
+		// System.out.println("ResRes size is "+ results.size());
+		/*
+		 * for(int i =0; i < results.size(); i++){ results.get(i).printSize(); }
+		 */
+
 		int nIdentifiers = results.get(0).getIdentifiers().size();
 
-		for (DataIdentifiers d : results) {
+		for (SearchResults d : results) {
 			if (nIdentifiers != d.getIdentifiers().size()) {
 				throw new ResultsLengthMissmatch();
 			}
 		}
 		this.condition = condition;
 		this.results = results;
+		this.nBits = nBits;
 	}
 
 	/**
-	 * Function that given the results from each player it returns the index of
-	 * the row that correspond to the real key searched for.
-	 * 
-	 * Currently this is being used with just a single element in each list,
-	 * thus making it possible to know if a value matches or not. Previous
-	 * implementations used lists with more elements, but this was left mostly
-	 * unchanged to not break compatability. In the future this code can
-	 * refactoring and simplified.
-	 * 
+	 * Iterates through the results of the smpc protocols and declassifies the
+	 * result. The function returns True for row keys that satisfy the
+	 * protocols.
 	 * 
 	 * @return BigInteger with the corresponding Index
 	 * @throws pt.uminho.haslab.smcoprocessors.protocolresults.ResultsIdentifiersMissmatch
 	 */
-	public BigInteger findCorrespondingIndex()
-			throws ResultsIdentifiersMissmatch {
+	public List<Boolean> declassify() throws ResultsIdentifiersMissmatch {
 		int nIdentifiers = results.get(0).getIdentifiers().size();
 
+		List<Boolean> resultIDS = new ArrayList<Boolean>();
+
 		for (int i = 0; i < nIdentifiers; i++) {
+			byte[] bFirstIdent = results.get(0).getIdentifiers().get(i);
+			byte[] bSecondIdent = results.get(1).getIdentifiers().get(i);
+			byte[] bThirdIdent = results.get(2).getIdentifiers().get(i);
 
-			BigInteger firstIdent = results.get(0).getIdentifiers().get(i);
-			BigInteger secondIdent = results.get(1).getIdentifiers().get(i);
-			BigInteger thirdIdent = results.get(2).getIdentifiers().get(i);
+			byte[] bFirstSecret = results.get(0).getSecrets().get(i);
+			byte[] bSecondSecret = results.get(1).getSecrets().get(i);
+			byte[] bThirdSecret = results.get(2).getSecrets().get(i);
 
-			BigInteger firstSecret = results.get(0).getSecrets().get(i);
-			BigInteger secondSecret = results.get(1).getSecrets().get(i);
-			BigInteger thirdSecret = results.get(2).getSecrets().get(i);
+			BigInteger firstIdent = new BigInteger(bFirstIdent);
+			BigInteger secondIdent = new BigInteger(bSecondIdent);
+			BigInteger thirdIdent = new BigInteger(bThirdIdent);
+
+			BigInteger firstSecret = new BigInteger(bFirstSecret);
+			BigInteger secondSecret = new BigInteger(bSecondSecret);
+			BigInteger thirdSecret = new BigInteger(bThirdSecret);
 
 			if (!firstIdent.equals(secondIdent)
 					|| !secondIdent.equals(thirdIdent)) {
 				throw new ResultsIdentifiersMissmatch();
 			}
 
-			SharemindSharedSecret secretResult = new SharemindSharedSecret(1,
-					firstSecret, secondSecret, thirdSecret);
+			if (condition == Equal) {
+				SharemindSharedSecret secretResult = new SharemindSharedSecret(
+						1, firstSecret, secondSecret, thirdSecret);
 
-			int result = secretResult.unshare().intValue();
-			if (condition == Equal && result == 1) {
-				return results.get(0).getIdentifiers().get(i);
-			} else if (condition == GreaterOrEqualThan && result == 0) {
-				return results.get(0).getIdentifiers().get(i);
+				int result = secretResult.unshare().intValue();
+				if (result == 1) {
+					resultIDS.add(Boolean.TRUE);
+				} else {
+					resultIDS.add(Boolean.FALSE);
+				}
+
+			} else if (condition == GreaterOrEqualThan) {
+				SharemindSharedSecret secretResult = new SharemindSharedSecret(
+						nBits, firstSecret, secondSecret, thirdSecret);
+
+				int result = secretResult.unshare().intValue();
+
+				// System.out.println("Result is " + result + " for NBits "
+				// +nBits);
+
+				if (result == 0) {
+					resultIDS.add(Boolean.TRUE);
+				} else {
+					resultIDS.add(Boolean.FALSE);
+				}
 			}
 		}
 
-		return null;
+		return resultIDS;
 	}
 }

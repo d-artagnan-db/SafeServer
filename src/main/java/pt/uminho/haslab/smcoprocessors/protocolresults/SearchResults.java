@@ -33,6 +33,11 @@ public class SearchResults {
 		return identifiers;
 	}
 
+	public void printSize() {
+		System.out.println("Secrets " + secrets.size() + " ident "
+				+ identifiers.size());
+	}
+
 	public DataIdentifiers toDataIdentifier() throws ResultsLengthMissmatch {
 		List<BigInteger> bSecrets = new ArrayList<BigInteger>();
 		List<BigInteger> bIdentifiers = new ArrayList<BigInteger>();

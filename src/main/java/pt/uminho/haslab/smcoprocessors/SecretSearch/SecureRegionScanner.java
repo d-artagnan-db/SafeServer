@@ -1,9 +1,12 @@
 package pt.uminho.haslab.smcoprocessors.SecretSearch;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.Cell;
@@ -38,6 +41,38 @@ public class SecureRegionScanner implements RegionScanner {
 	private final Scan scan;
 	private final RegionScanner scanner;
 
+	private final BatchCache resultsCache;
+
+	private final Batcher batcher;
+
+	private class BatchCache {
+
+		private Queue<List<Cell>> cells;
+
+		public BatchCache() {
+			cells = new LinkedList<List<Cell>>();
+		}
+
+		public void addListCells(List<List<Cell>> cells) {
+			for (List<Cell> lCells : cells) {
+				this.cells.add(lCells);
+			}
+		}
+		public void addCells(List<Cell> cells) {
+			this.cells.add(cells);
+		}
+
+		public List<Cell> getNext() {
+			return this.cells.poll();
+
+		}
+
+		public boolean isBatchEmpty() {
+			return cells.isEmpty();
+		}
+
+	}
+
 	public SecureRegionScanner(SearchCondition searchValue,
 			RegionCoprocessorEnvironment env, Player player,
 			SmpcConfiguration config, boolean stopOnMatch, Column col)
@@ -49,7 +84,9 @@ public class SecureRegionScanner implements RegionScanner {
 		this.col = col;
 		scan = new Scan();
 		scanner = env.getRegion().getScanner(scan);
-
+		batcher = new Batcher(config);
+		resultsCache = new BatchCache();
+		hasMore = false;
 	}
 
 	public HRegionInfo getRegionInfo() {
@@ -87,20 +124,72 @@ public class SecureRegionScanner implements RegionScanner {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
-	public boolean next(List<Cell> results) throws IOException {
-		LOG.debug("Next in SecureRegionScanner was issued ");
-		boolean matchFound = false;
-		List<Cell> localResults = new ArrayList<Cell>();
+	private class BatchGetResult {
+		private List<byte[]> rowIDS;
+		private List<byte[]> protectedValues;
+		private List<List<Cell>> localCells;
 
-		// Search for a matching encrypted value.
+		public BatchGetResult() {
+			rowIDS = new ArrayList<byte[]>();
+			protectedValues = new ArrayList<byte[]>();
+			localCells = new ArrayList<List<Cell>>();
+		}
 
+		public BatchGetResult(List<byte[]> rowIDS,
+				List<byte[]> protectedValues, List<List<Cell>> localCells) {
+			this.rowIDS = rowIDS;
+			this.protectedValues = protectedValues;
+			this.localCells = localCells;
+		}
+
+		public List<byte[]> getRowIDS() {
+			return rowIDS;
+		}
+
+		public void setRowIDS(List<byte[]> rowIDS) {
+			this.rowIDS = rowIDS;
+		}
+
+		public List<byte[]> getProtectedValues() {
+			return protectedValues;
+		}
+
+		public void setProtectedValues(List<byte[]> protectedValues) {
+			this.protectedValues = protectedValues;
+		}
+
+		public List<List<Cell>> getLocalCells() {
+			return localCells;
+		}
+
+		public void setLocalCells(List<List<Cell>> localCells) {
+			this.localCells = localCells;
+		}
+
+		public boolean isEmpty() {
+			return rowIDS.isEmpty();
+		}
+	}
+
+	private BatchGetResult loadBatch() throws IOException {
+		int batchSize = batcher.batchSize();
+		LOG.debug("BatchSize " + batchSize);
+		List<byte[]> rowIDS = new ArrayList<byte[]>();
+		List<byte[]> protectedValues = new ArrayList<byte[]>();
+		List<List<Cell>> localCells = new ArrayList<List<Cell>>();
+		int counter = 0;
+
+		LOG.debug("Going to load cells");
 		do {
-			localResults.clear();
+			List<Cell> localResults = new ArrayList<Cell>();
 			hasMore = scanner.next(localResults);
-			// If there is nothing to search;
+
+			// Return case when there are no records in the table;
+			// LOG.debug("hasMore? "+hasMore);
+			// LOG.debug("localResults empty? "+ localResults.isEmpty());
 			if (hasMore == false && localResults.isEmpty()) {
-				results.addAll(localResults);
-				return false;
+				// LOG.debug("Going to return new empty BatchGetResult");
+				return new BatchGetResult();
 			}
 
 			byte[] rowID = null;
@@ -115,28 +204,95 @@ public class SecureRegionScanner implements RegionScanner {
 				}
 
 			}
-			SharemindPlayer splayer = (SharemindPlayer) player;
-			long start = System.nanoTime();
-			matchFound = searchValue.evaluateCondition(protectedValue, rowID,
-					splayer);
-			long stop = System.nanoTime();
-			long elapsed = stop - start;
-			TIMES.info(player.getPlayerID() + ", " + searchValue.getCondition()
-					+ ", " + elapsed);
+			LOG.debug(player.getPlayerID() + " found row with id "
+					+ new String(rowID) + " -> "
+					+ new BigInteger(protectedValue));
+			rowIDS.add(rowID);
+			protectedValues.add(protectedValue);
+			localCells.add(localResults);
+			counter += 1;
+			// LOG.debug("Counter is "+counter);
+			// LOG.debug("hasMore? "+hasMore);
+		} while (counter < batchSize && hasMore);
+		LOG.debug("Cells loaded");
+		return new BatchGetResult(rowIDS, protectedValues, localCells);
+	}
 
-		} while (hasMore & !matchFound);
+	private List<List<Cell>> searchBatch(BatchGetResult bRes) {
+		SharemindPlayer splayer = (SharemindPlayer) player;
 
-		if (matchFound) {
-			results.addAll(localResults);
+		List<byte[]> procVals = bRes.getProtectedValues();
+		List<byte[]> rowIDS = bRes.getRowIDS();
+		List<List<Cell>> localCells = bRes.getLocalCells();
+		List<List<Cell>> filtredCells = new ArrayList<List<Cell>>();
+
+		LOG.debug("Going to evaluate condition");
+		long start = System.nanoTime();
+		List<Boolean> condResults = searchValue.evaluateCondition(procVals,
+				rowIDS, splayer);
+
+		long stop = System.nanoTime();
+		long elapsed = stop - start;
+		TIMES.info(player.getPlayerID() + ", " + searchValue.getCondition()
+				+ ", " + elapsed);
+		LOG.debug("Condition evaluated in " + player.getPlayerID() + ", "
+				+ searchValue.getCondition() + ", " + elapsed);
+
+		LOG.debug("Results size " + condResults.size());
+		LOG.debug("rowIDS size " + rowIDS.size());
+		if (condResults.size() != rowIDS.size()) {
+			throw new IllegalStateException();
+		}
+		LOG.debug("Going to filter results");
+		for (int i = 0; i < condResults.size(); i++) {
+			LOG.debug("Loop index " + i + " of " + condResults.size());
+			LOG.debug(player.getPlayerID() + " ID is "
+					+ new String(rowIDS.get(i)) + " and has result "
+					+ condResults.get(i));
+			if (condResults.get(i).equals(Boolean.TRUE)) {
+				filtredCells.add(localCells.get(i));
+			}
+		}
+		LOG.debug("Filtered Cells size is " + filtredCells.size());
+		return filtredCells;
+	}
+
+	public boolean next(List<Cell> results) throws IOException {
+		LOG.debug("Next in SecureRegionScanner was issued ");
+
+		LOG.debug("ResultsCach empty? " + resultsCache.isBatchEmpty());
+		if (resultsCache.isBatchEmpty()) {
+			List<List<Cell>> fRows = new ArrayList<List<Cell>>();
+
+			do {
+				BatchGetResult bRes = loadBatch();
+
+				LOG.debug("bRes empty? " + bRes.isEmpty());
+
+				if (!bRes.isEmpty()) {
+					// Only returns rows that satisfy the protocol
+					fRows = searchBatch(bRes);
+				}
+				LOG.debug("hasMore? " + hasMore + " fRows " + fRows.isEmpty());
+			} while (hasMore && fRows.isEmpty());
+
+			LOG.debug("Going to add  cells");
+			resultsCache.addListCells(fRows);
+
 		}
 
-		localResults.clear();
-
-		if (matchFound & stopOnMatch) {
-			hasMore = false;
+		LOG.debug("hasMore? " + hasMore + " resultsCache? "
+				+ resultsCache.isBatchEmpty());
+		if (hasMore == false && resultsCache.isBatchEmpty()) {
+			results.addAll(new ArrayList<Cell>());
+			return false;
 		}
 
-		return hasMore;
+		LOG.debug("StopOnMatch " + stopOnMatch);
+
+		results.addAll(resultsCache.getNext());
+		return !(resultsCache.isBatchEmpty() || this.stopOnMatch);
+
 	}
 
 	public boolean next(List<Cell> result, int limit) throws IOException {

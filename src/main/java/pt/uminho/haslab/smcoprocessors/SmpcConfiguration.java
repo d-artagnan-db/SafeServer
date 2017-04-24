@@ -20,6 +20,7 @@ public class SmpcConfiguration {
 	private final boolean isDevelopment;
 	private final String secretFamily;
 	private final String secretQualifier;
+	private final int batchSize;
 
 	public SmpcConfiguration(Configuration conf) {
 		playerID = conf.getInt("smhbase.player.id", -1);
@@ -39,6 +40,7 @@ public class SmpcConfiguration {
 		isDevelopment = conf.getBoolean("hbase.coprocessor.development", true);
 		secretFamily = conf.get("smhbase.column.family");
 		secretQualifier = conf.get("smhbase.column.qualifier");
+		batchSize = conf.getInt("smhbase.batch.size", 20);
 
 	}
 
@@ -82,6 +84,10 @@ public class SmpcConfiguration {
 
 	public byte[] getSecretQualifier() {
 		return this.secretQualifier.getBytes();
+	}
+
+	public int getBatchSize() {
+		return batchSize;
 	}
 
 }

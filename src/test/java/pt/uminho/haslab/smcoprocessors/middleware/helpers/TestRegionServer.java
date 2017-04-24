@@ -67,7 +67,6 @@ public abstract class TestRegionServer extends Thread implements RegionServer {
 
 	}
 
-	@Override
 	public void stopRegionServer() throws IOException, InterruptedException {
 		this.join();
 	}

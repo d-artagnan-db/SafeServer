@@ -2,6 +2,7 @@ package pt.uminho.haslab.smcoprocessors.middleware;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -81,10 +82,11 @@ public abstract class ConcurrentSecretSearchTest extends ConcurrentProtocolTest 
 			 */
 			SearchCondition condition = getSearchCondition(nBits,
 					secondValueSecret.toByteArray(), 1);
-
-			searchRes = condition
-					.evaluateCondition(firstValueSecret.toByteArray(),
-							rowID.toByteArray(), player);
+			List<byte[]> vals = new ArrayList<byte[]>();
+			List<byte[]> ids = new ArrayList<byte[]>();
+			vals.add(firstValueSecret.toByteArray());
+			ids.add(rowID.toByteArray());
+			searchRes = condition.evaluateCondition(vals, ids, player).get(0);
 			Integer playerID = player.getPlayerID();
 			results.get(playerID).put(reqID, searchRes);
 

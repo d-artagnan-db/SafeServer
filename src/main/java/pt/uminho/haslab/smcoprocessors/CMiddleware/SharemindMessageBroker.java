@@ -9,6 +9,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
 import pt.uminho.haslab.protocommunication.Search.ShareMessage;
@@ -28,8 +29,12 @@ public class SharemindMessageBroker implements MessageBroker {
 
 	private final RequestsLocks filterIndexLocks;
 
+	private final RequestsLocks protocolBatchMessagesLocks;
+
 	// protocol messages received
 	private final Map<RequestIdentifier, Queue<ShareMessage>> messagesReceived;
+
+	private final Map<RequestIdentifier, Queue<BatchShareMessage>> batchMessagesReceived;
 
 	// protocol resuts messages received
 	private final Map<RequestIdentifier, Queue<ResultsMessage>> protocolResults;
@@ -43,12 +48,16 @@ public class SharemindMessageBroker implements MessageBroker {
 		protocolResultsLocks = new RequestsLocks();
 		filterIndexLocks = new RequestsLocks();
 
+		protocolBatchMessagesLocks = new RequestsLocks();
+
 		relayStarted = new CountDownLatch(1);
 		lock = new ReentrantLock();
 
 		messagesReceived = new ConcurrentHashMap<RequestIdentifier, Queue<ShareMessage>>();
 		protocolResults = new ConcurrentHashMap<RequestIdentifier, Queue<ResultsMessage>>();
 		filterIndex = new ConcurrentHashMap<RequestIdentifier, FilterIndexMessage>();
+
+		batchMessagesReceived = new ConcurrentHashMap<RequestIdentifier, Queue<BatchShareMessage>>();
 
 	}
 
@@ -75,6 +84,30 @@ public class SharemindMessageBroker implements MessageBroker {
 			protocolMessagesLocks.unlockOnRequest(requestID);
 		}
 
+	}
+
+	public void receiveBatchMessage(BatchShareMessage message) {
+		lock.lock();
+		RequestIdentifier requestID = new RequestIdentifier(message
+				.getRequestID().toByteArray(), message.getRegionID()
+				.toByteArray());
+		try {
+			protocolBatchMessagesLocks.lockOnRequest(requestID);
+			lock.unlock();
+
+			if (batchMessagesReceived.containsKey(requestID)) {
+				batchMessagesReceived.get(requestID).add(message);
+			} else {
+				Queue values = new ConcurrentLinkedQueue<BatchShareMessage>();
+				values.add(message);
+				batchMessagesReceived.put(requestID, values);
+			}
+
+			protocolBatchMessagesLocks.signalToRead(requestID);
+
+		} finally {
+			protocolBatchMessagesLocks.unlockOnRequest(requestID);
+		}
 	}
 
 	@Override
@@ -133,6 +166,30 @@ public class SharemindMessageBroker implements MessageBroker {
 			}
 
 			return messagesReceived.get(requestId);
+
+		} catch (InterruptedException ex) {
+			LOG.error(ex);
+			throw new IllegalArgumentException(ex.getMessage());
+		}
+	}
+
+	@Override
+	public Queue<BatchShareMessage> getReceivedBatchMessages(
+			RequestIdentifier requestId) {
+		lock.lock();
+
+		try {
+
+			protocolBatchMessagesLocks.lockOnRequest(requestId);
+			lock.unlock();
+
+			// While there arent messages for this request wait.
+			while (!batchMessagesReceived.containsKey(requestId)) {
+				LOG.debug("Waiting on messages");
+				protocolBatchMessagesLocks.awaitForWrite(requestId);
+			}
+
+			return batchMessagesReceived.get(requestId);
 
 		} catch (InterruptedException ex) {
 			LOG.error(ex);
@@ -200,14 +257,30 @@ public class SharemindMessageBroker implements MessageBroker {
 	}
 
 	@Override
-	public void readMessages(RequestIdentifier requestId) {
-		protocolMessagesLocks.unlockOnRequest(requestId);
+	public void allBatchMessagesRead(RequestIdentifier requestID) {
+		protocolBatchMessagesLocks.removeLock(requestID);
+		batchMessagesReceived.remove(requestID);
 	}
 
 	@Override
-	public void waitNewMessage(RequestIdentifier requestId)
+	public void readMessages(RequestIdentifier requestID) {
+		protocolMessagesLocks.unlockOnRequest(requestID);
+	}
+
+	public void readBatchMessages(RequestIdentifier requestID) {
+		protocolBatchMessagesLocks.unlockOnRequest(requestID);
+	}
+
+	@Override
+	public void waitNewMessage(RequestIdentifier requestID)
 			throws InterruptedException {
-		protocolMessagesLocks.awaitForWrite(requestId);
+		protocolMessagesLocks.awaitForWrite(requestID);
+	}
+
+	public void waitNewBatchMessage(RequestIdentifier requestID)
+			throws InterruptedException {
+		protocolBatchMessagesLocks.awaitForWrite(requestID);
+
 	}
 
 	@Override
