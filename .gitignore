@@ -29,6 +29,6 @@ log/
 !/.mvn/wrapper/maven-wrapper.jar
 
 #inteij ignore
-
+nbproject
 .idea
 *.iml
