@@ -40,6 +40,7 @@ import pt.uminho.haslab.smcoprocessors.SecretSearch.SecureRegionScanner;
 import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsIdentifiersMissmatch;
 import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMissmatch;
 import pt.uminho.haslab.smhbase.interfaces.Player;
+import pt.uminho.haslab.smhbase.sharemindImp.SharemindSecretFunctions;
 
 public class SmpcCoprocessor extends BaseRegionObserver {
 
@@ -84,6 +85,9 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 					+ " is going to wait for other players");
 			waitOtherPlayers();
 			initiateSharedResources(searchConf);
+            if(searchConf.getPreRandomSize() > 0){
+                SharemindSecretFunctions.initRandomElemes(searchConf.getPreRandomSize(),searchConf.getnBits());
+            }
 			LOG.info("Resources initated " + searchConf.getPlayerIDasString());
 		} else {
 			LOG.debug("Second start " + searchConf.getPlayerIDasString());

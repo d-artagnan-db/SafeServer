@@ -12,7 +12,6 @@ import pt.uminho.haslab.smcoprocessors.CMiddleware.Relay;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
 import pt.uminho.haslab.smcoprocessors.SecretSearch.ContextPlayer;
 import pt.uminho.haslab.smcoprocessors.SharemindPlayer;
-import pt.uminho.haslab.smcoprocessors.protocolresults.DataIdentifiers;
 import pt.uminho.haslab.smcoprocessors.protocolresults.FilteredIndexes;
 import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMissmatch;
 import pt.uminho.haslab.smcoprocessors.protocolresults.SearchResults;

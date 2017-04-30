@@ -204,9 +204,10 @@ public class SecureRegionScanner implements RegionScanner {
 				}
 
 			}
-			LOG.debug(player.getPlayerID() + " found row with id "
-					+ new String(rowID) + " -> "
-					+ new BigInteger(protectedValue));
+			/*
+			 * LOG.debug(player.getPlayerID() + " found row with id " + new
+			 * String(rowID) + " -> " + new BigInteger(protectedValue));
+			 */
 			rowIDS.add(rowID);
 			protectedValues.add(protectedValue);
 			localCells.add(localResults);
@@ -245,10 +246,11 @@ public class SecureRegionScanner implements RegionScanner {
 		}
 		LOG.debug("Going to filter results");
 		for (int i = 0; i < condResults.size(); i++) {
-			LOG.debug("Loop index " + i + " of " + condResults.size());
-			LOG.debug(player.getPlayerID() + " ID is "
-					+ new String(rowIDS.get(i)) + " and has result "
-					+ condResults.get(i));
+			/*
+			 * LOG.debug("Loop index " + i + " of " + condResults.size());
+			 * LOG.debug(player.getPlayerID() + " ID is " + new
+			 * String(rowIDS.get(i)) + " and has result " + condResults.get(i));
+			 */
 			if (condResults.get(i).equals(Boolean.TRUE)) {
 				filtredCells.add(localCells.get(i));
 			}

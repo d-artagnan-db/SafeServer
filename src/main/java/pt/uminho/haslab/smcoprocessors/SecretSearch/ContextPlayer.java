@@ -13,6 +13,7 @@ import pt.uminho.haslab.smcoprocessors.CMiddleware.Relay;
 import pt.uminho.haslab.smhbase.interfaces.Player;
 import com.google.protobuf.ByteString;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
@@ -130,12 +131,16 @@ public class ContextPlayer implements Player, SharemindPlayer {
 					.setRegionID(ByteString.copyFrom(requestID.getRegionID()))
 					.setPlayerDest(destPlayer);
 
+            //builder.addInt(this.playerID);
+          
+          
+            List<ByteString>  bsl = new ArrayList<ByteString>();
 			for (byte[] val : values) {
 				ByteString bsVal = ByteString.copyFrom(val);
-				bsm.addValues(bsVal);
+                bsl.add(bsVal);
+				//bsm.addValues(bsVal);
 			}
-			// .addAllValues(bsVals).build();
-
+			bsm.addAllValues(bsl);
 			relay.sendBatchMessages(bsm.build());
 			bmBuilder.clear();
 
