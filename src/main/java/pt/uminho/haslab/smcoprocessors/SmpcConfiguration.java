@@ -21,7 +21,7 @@ public class SmpcConfiguration {
 	private final String secretFamily;
 	private final String secretQualifier;
 	private final int batchSize;
-    private final int preRandomElems;
+	private final int preRandomElems;
 
 	public SmpcConfiguration(Configuration conf) {
 		playerID = conf.getInt("smhbase.player.id", -1);
@@ -42,8 +42,7 @@ public class SmpcConfiguration {
 		secretFamily = conf.get("smhbase.column.family");
 		secretQualifier = conf.get("smhbase.column.qualifier");
 		batchSize = conf.getInt("smhbase.batch.size", 20);
-        preRandomElems = conf.getInt("smhbase.smpc.prerandom.size", 0);
-        
+		preRandomElems = conf.getInt("smhbase.smpc.prerandom.size", 0);
 
 	}
 
@@ -92,9 +91,9 @@ public class SmpcConfiguration {
 	public int getBatchSize() {
 		return batchSize;
 	}
-    
-    public int getPreRandomSize(){
-        return preRandomElems;
-    }
+
+	public int getPreRandomSize() {
+		return preRandomElems;
+	}
 
 }

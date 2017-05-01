@@ -119,12 +119,10 @@ public class ContextPlayer implements Player, SharemindPlayer {
 					.setRegionID(ByteString.copyFrom(requestID.getRegionID()))
 					.setPlayerDest(destPlayer);
 
-          
-          
-            List<ByteString>  bsl = new ArrayList<ByteString>();
+			List<ByteString> bsl = new ArrayList<ByteString>();
 			for (byte[] val : values) {
 				ByteString bsVal = ByteString.copyFrom(val);
-                bsl.add(bsVal);
+				bsl.add(bsVal);
 			}
 			bsm.addAllValues(bsl);
 			relay.sendBatchMessages(bsm.build());

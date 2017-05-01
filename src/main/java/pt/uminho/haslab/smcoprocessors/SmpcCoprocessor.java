@@ -85,9 +85,10 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 					+ " is going to wait for other players");
 			waitOtherPlayers();
 			initiateSharedResources(searchConf);
-            if(searchConf.getPreRandomSize() > 0){
-                SharemindSecretFunctions.initRandomElemes(searchConf.getPreRandomSize(),searchConf.getnBits());
-            }
+			if (searchConf.getPreRandomSize() > 0) {
+				SharemindSecretFunctions.initRandomElemes(
+						searchConf.getPreRandomSize(), searchConf.getnBits());
+			}
 			LOG.info("Resources initated " + searchConf.getPlayerIDasString());
 		} else {
 			LOG.debug("Second start " + searchConf.getPlayerIDasString());
