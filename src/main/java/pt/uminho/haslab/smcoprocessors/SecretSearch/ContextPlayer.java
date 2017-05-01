@@ -24,7 +24,6 @@ import pt.uminho.haslab.smcoprocessors.SharemindPlayer;
 import pt.uminho.haslab.smcoprocessors.protocolresults.FilteredIndexes;
 import pt.uminho.haslab.smcoprocessors.protocolresults.SearchResults;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
-import pt.uminho.haslab.protocommunication.Search.ShareByteMessage;
 
 /**
  * A PlayerRequest is what SharemindValue interacts with, to him it is the
@@ -71,7 +70,6 @@ public class ContextPlayer implements Player, SharemindPlayer {
 	private final Map<Integer, Queue<List<byte[]>>> playerBatchMessages;
 
 	private final ShareMessage.Builder message;
-	private final ShareByteMessage.Builder sbmBuilder;
 	private final BatchShareMessage.Builder bmBuilder;
 
 	public ContextPlayer(Relay relay, RequestIdentifier requestID,
@@ -92,7 +90,6 @@ public class ContextPlayer implements Player, SharemindPlayer {
 		playerBatchMessages.put(players[1], new LinkedList<List<byte[]>>());
 
 		message = ShareMessage.newBuilder();
-		sbmBuilder = ShareByteMessage.newBuilder();
 		bmBuilder = BatchShareMessage.newBuilder();
 
 	}
@@ -116,29 +113,18 @@ public class ContextPlayer implements Player, SharemindPlayer {
 	}
 	public void sendValueToPlayer(Integer destPlayer, List<byte[]> values) {
 		try {
-			/*
-			 * List<ShareByteMessage> bsVals = new
-			 * ArrayList<ShareByteMessage>();
-			 * 
-			 * for(byte[] val: values){ ByteString bsVal =
-			 * ByteString.copyFrom(val); ShareByteMessage sbMessage =
-			 * sbmBuilder.setValue(bsVal).build(); bsVals.add(sbMessage);
-			 * sbmBuilder.clear(); }
-			 */
 			BatchShareMessage.Builder bsm = bmBuilder
 					.setPlayerSource(this.playerID)
 					.setRequestID(ByteString.copyFrom(requestID.getRequestID()))
 					.setRegionID(ByteString.copyFrom(requestID.getRegionID()))
 					.setPlayerDest(destPlayer);
 
-            //builder.addInt(this.playerID);
           
           
             List<ByteString>  bsl = new ArrayList<ByteString>();
 			for (byte[] val : values) {
 				ByteString bsVal = ByteString.copyFrom(val);
                 bsl.add(bsVal);
-				//bsm.addValues(bsVal);
 			}
 			bsm.addAllValues(bsl);
 			relay.sendBatchMessages(bsm.build());
