@@ -37,7 +37,6 @@
         <artifactId>commons-logging-api</artifactId>
       <version>1.1</version>
     </dependency>
-
     <dependency>
       <groupId>com.google.protobuf</groupId>
       <artifactId>protobuf-java</artifactId>
@@ -112,12 +111,12 @@
                <resource>
                  <targetPath>/</targetPath>
                  <directory>target/dependency</directory>
-                 <include>protocommunication-1.0-SNAPSHOT.jar</include>       
+                 <include>protocommunication-1.1-SNAPSHOT.jar</include>       
                </resource>
                <resource>
                  <targetPath>/</targetPath>
                  <directory>target/dependency</directory>
-                 <include>smpc-1.0.0-SNAPSHOT.jar</include>       
+                 <include>smpc-1.1.0-SNAPSHOT.jar</include>       
                </resource>
                <!--<resource>
                  <targetPath>/</targetPath>

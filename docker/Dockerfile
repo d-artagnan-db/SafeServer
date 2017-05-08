@@ -16,7 +16,8 @@ RUN \
 RUN apt-get install oracle-java7-set-default --assume-yes --quiet
 
 WORKDIR /usr/local/hbase
-RUN wget http://mirrors.fe.up.pt/pub/apache/hbase/0.98.24/hbase-0.98.24-hadoop2-bin.tar.gz --quiet
+
+RUN wget https://archive.apache.org/dist/hbase/0.98.24/hbase-0.98.24-hadoop2-bin.tar.gz --quiet
 RUN tar -xvzf hbase-0.98.24-hadoop2-bin.tar.gz
 RUN rm -f hbase-0.98.24-hadoop2-bin.tar.gz
 
@@ -31,7 +32,7 @@ WORKDIR /root
 
 COPY saferegions.sh .
 COPY configurations/standalone-template.xml .
-
+COPY configurations/log4j.properties /usr/local/hbase/hbase-0.98.24-hadoop2/conf
 
 COPY *.jar /usr/local/hbase/hbase-0.98.24-hadoop2/lib/	
 

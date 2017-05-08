@@ -1,5 +1,5 @@
 cluster1:
-    image: saferegions:latest
+    image: safecloud-eu/saferegions
     ports:
         - "60010:60010" # Master info web portal port
         - "60000:60000" # Master port for client to connect
@@ -7,10 +7,10 @@ cluster1:
     net: ncwork
     hostname: cluster1
     container_name: cluster1
-    command: "-s 0 6262 cluster2 6262 cluster3 6262 60000 16262"
+    command: "-s 0 6262 cluster2 6262 cluster3 6262 60000 16262 100 20"
 
 cluster2:
-    image: saferegions:latest
+    image: safecloud-eu/saferegions
     ports:
         - "60020:60010"
         - "61000:61000"
@@ -18,10 +18,10 @@ cluster2:
     net: ncwork
     hostname: cluster2
     container_name: cluster2
-    command: "-s 1 6262 cluster3 6262 cluster1 6262 61000 17262"
+    command: "-s 1 6262 cluster3 6262 cluster1 6262 61000 17262 100 20"
 
 cluster3:
-    image: saferegions:latest
+    image: safecloud-eu/saferegions
     ports:
         - "60030:60010"
         - "62000:62000"
@@ -29,4 +29,4 @@ cluster3:
     net: ncwork
     hostname: cluster3
     container_name: cluster3
-    command: "-s 2 6262 cluster1 6262 cluster2 6262 62000 18262"
+    command: "-s 2 6262 cluster1 6262 cluster2 6262 62000 18262 100 20"

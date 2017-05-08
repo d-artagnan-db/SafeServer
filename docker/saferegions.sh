@@ -21,6 +21,8 @@ function help () {
 	#expose the ports on the host.
 	echo "masterPort sets the port for the client to connect to the Master."
 	echo "zookeeperPort sets the port for the client to connect to the zookeeper."
+	echo "batchSize sets the size of messages exchanged in a protocol batch."
+	echo "randomPool sets the size for a pool of random values."
 }
 
 : "${HBASE_HOME:?Need to set HBASE_HOME non-empty}"
@@ -52,6 +54,8 @@ secondTargetHost=$5
 secondTargetPort=$6
 masterPort=$7
 zookeeperPort=$8
+batchSize=$9
+randomPool=$10
 
 
 function standalone () {
@@ -67,11 +71,13 @@ function standalone () {
 	sed -i "s/{SECONDTARGETPORT}/$secondTargetPort/g" hbase-site.xml
 	sed -i "s/{MASTERPORT}/$masterPort/g" hbase-site.xml
 	sed -i "s/{ZOOKEEPERPORT}/$zookeeperPort/g" hbase-site.xml
+	sed -i "s/{BATCHSIZE}/$batchSize/g" hbase-site.xml
+	sed -i "s/{RANDOMPOOL}/$randomPool/g" hbase-site.xml
 
 	cd ../bin
 	./start-hbase.sh
 	cd ..
-	tail -f logs/*
+	tail -f /usr/local/hbase/hbase-0.98.24-hadoop2/bin/log/*
 }
 
 
