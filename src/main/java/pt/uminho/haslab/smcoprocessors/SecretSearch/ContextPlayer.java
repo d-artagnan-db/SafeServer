@@ -8,12 +8,10 @@ import java.util.Map;
 import java.util.Queue;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import pt.uminho.haslab.protocommunication.Search.ShareMessage;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.Relay;
 import pt.uminho.haslab.smhbase.interfaces.Player;
 import com.google.protobuf.ByteString;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
@@ -69,7 +67,6 @@ public class ContextPlayer implements Player, SharemindPlayer {
 
 	private final Map<Integer, Queue<List<byte[]>>> playerBatchMessages;
 
-	private final ShareMessage.Builder message;
 	private final BatchShareMessage.Builder bmBuilder;
 
 	public ContextPlayer(Relay relay, RequestIdentifier requestID,
@@ -89,28 +86,10 @@ public class ContextPlayer implements Player, SharemindPlayer {
 		playerBatchMessages.put(players[0], new LinkedList<List<byte[]>>());
 		playerBatchMessages.put(players[1], new LinkedList<List<byte[]>>());
 
-		message = ShareMessage.newBuilder();
 		bmBuilder = BatchShareMessage.newBuilder();
 
 	}
 
-	public void sendValueToPlayer(int destPlayer, BigInteger value) {
-		try {
-			ByteString bsVal = ByteString.copyFrom(value.toByteArray());
-
-			ShareMessage msg = message
-					.setPlayerSource(this.playerID)
-					.setRequestID(ByteString.copyFrom(requestID.getRequestID()))
-					.setRegionID(ByteString.copyFrom(requestID.getRegionID()))
-					.setPlayerDest(destPlayer).addValues(bsVal).build();
-			relay.sendMessage(msg);
-			message.clear();
-		} catch (IOException ex) {
-			LOG.error(ex);
-			throw new IllegalStateException(ex);
-		}
-
-	}
 	public void sendValueToPlayer(Integer destPlayer, List<byte[]> values) {
 		try {
 			BatchShareMessage.Builder bsm = bmBuilder
@@ -195,58 +174,6 @@ public class ContextPlayer implements Player, SharemindPlayer {
 
 	}
 
-	/**
-	 * This method has to be synchronized because the message broker might be
-	 * storing a value on the queues. Since it is synchronized it blocks until
-	 * the message broker has inserted the value.
-	 * 
-	 * @param originPlayerId
-	 * @return BigInteger of the value sent from originPlayerId.
-	 */
-	public BigInteger getValue(Integer originPlayerId) {
-		// LOG.debug("Going to call getValue");
-		/**
-		 * First check for messages already stored when reading another value.
-		 * Since values are not received in order, the player may read a value
-		 * from another player besides the one it is expecting from. When this
-		 * happens it stores in playersMessages variable.
-		 */
-		if (!playerMessages.get(originPlayerId).isEmpty()) {
-
-			return playerMessages.get(originPlayerId).poll();
-		}
-
-		try {
-			Queue<ShareMessage> messages = broker
-					.getReceivedMessages(requestID);
-
-			while (messages.peek() == null) {
-				broker.waitNewMessage(requestID);
-			}
-
-			ShareMessage shareMessage = messages.poll();
-			broker.readMessages(requestID);
-
-			// ATENTION: VALUE HARD CODED TO FIRST ELEMEENT
-			// IN CASE OF BATCH MESSAGE, IT WILL HAVE MORE THAN ONE ELEMENT
-			byte[] val = shareMessage.getValues(0).toByteArray();
-			BigInteger bVal = new BigInteger(val);
-
-			if (shareMessage.getPlayerSource() != originPlayerId) {
-				// LOG.debug("Going to call again getValue");
-				playerMessages.get(shareMessage.getPlayerSource()).add(bVal);
-				BigInteger resultValue = this.getValue(originPlayerId);
-				return resultValue;
-			} else {
-				return bVal;
-			}
-
-		} catch (InterruptedException ex) {
-			LOG.error(ex);
-			throw new IllegalArgumentException(ex.getMessage());
-		} finally {
-		}
-	}
 
 	/**
 	 * This method has to be synchronized because the message broker might be
@@ -347,7 +274,7 @@ public class ContextPlayer implements Player, SharemindPlayer {
 
 	public void cleanValues() {
 
-		broker.allMessagesRead(requestID);
+		broker.allBatchMessagesRead(requestID);
 		broker.allResultsRead(requestID);
 		broker.allIndexesMessagesRead(requestID);
 	}
@@ -391,22 +318,27 @@ public class ContextPlayer implements Player, SharemindPlayer {
 
 	public void cleanResultsMatch() {
 		broker.allResultsRead(requestID);
-		broker.allMessagesRead(requestID);
+		broker.allBatchMessagesRead(requestID);
 		broker.allIndexesMessagesRead(requestID);
 	}
 
 	public void storeValues(Integer playerDest, Integer playerSource,
 			List<byte[]> values) {
-		throw new UnsupportedOperationException("Not supported yet."); // To
-																		// change
-																		// body
-																		// of
-																		// generated
-																		// methods,
-																		// choose
-																		// Tools
-																		// |
-																		// Templates.
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
+
+    public void sendValueToPlayer(int playerId, BigInteger value) {
+        String msg = "Sigle ShareMessage are deprecated. "
+                + "       Please send batch of messages.";
+        LOG.error(msg);
+        throw new UnsupportedOperationException(msg); 
+    }
+
+    public BigInteger getValue(Integer originPlayerId) {
+        String msg = "Sigle ShareMessage are deprecated. "
+                + "       Please send batch of messages.";
+        LOG.error(msg);
+        throw new UnsupportedOperationException(msg); 
+    }
 
 }

@@ -105,7 +105,7 @@ public abstract class SecretSearchTest extends DoubleBatchValueProtocolTest {
 			 * broker can only be cleaned after executing the protocol for every
 			 * value or messages can be lost between values
 			 */
-			broker.allMessagesRead(ident);
+			broker.allBatchMessagesRead(ident);
 
 		}
 

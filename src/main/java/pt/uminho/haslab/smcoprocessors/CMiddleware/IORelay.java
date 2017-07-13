@@ -6,7 +6,6 @@ import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.protocommunication.Search;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
-import pt.uminho.haslab.protocommunication.Search.ShareMessage;
 
 public class IORelay implements Relay {
 
@@ -134,14 +133,6 @@ public class IORelay implements Relay {
 		}
 
 		return client;
-	}
-
-	@Override
-	public synchronized void sendMessage(ShareMessage msg) throws IOException {
-		int target = calculateDestPlayer(msg.getPlayerSource(),
-				msg.getPlayerDest());
-
-		getTargetClient(target).sendMessage(msg);
 	}
 
 	public synchronized void sendBatchMessages(Search.BatchShareMessage msg)

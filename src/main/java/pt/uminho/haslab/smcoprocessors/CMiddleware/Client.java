@@ -12,7 +12,6 @@ import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
-import pt.uminho.haslab.protocommunication.Search.ShareMessage;
 
 public class Client extends Thread {
 
@@ -50,8 +49,10 @@ public class Client extends Thread {
 		switch (type) {
 
 			case 0 : {
-				new ShareHandler(message).handle();
-				break;
+                            String msg= "Share messages no longer supported";
+                            LOG.error(msg);
+                            throw new IllegalStateException(msg);
+				//new ShareHandler(message).handle();
 			}
 			case 1 : {
 				new ResultsHandler(message).handle();
@@ -133,26 +134,6 @@ public class Client extends Thread {
 		public abstract void handle();
 	}
 
-	private class ShareHandler extends MessageHandler {
-
-		public ShareHandler(byte[] msg) {
-			super(msg);
-		}
-
-		@Override
-		public void handle() {
-			try {
-				ShareMessage message = ShareMessage.parseFrom(msg);
-				broker.receiveMessage(message);
-			} catch (InvalidProtocolBufferException ex) {
-				LOG.debug(ex);
-				throw new IllegalStateException(ex);
-
-			}
-
-		}
-
-	}
 
 	private class ResultsHandler extends MessageHandler {
 

@@ -12,7 +12,6 @@ import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
-import pt.uminho.haslab.protocommunication.Search.ShareMessage;
 
 public class SharemindMessageBroker implements MessageBroker {
 
@@ -30,9 +29,6 @@ public class SharemindMessageBroker implements MessageBroker {
 	private final RequestsLocks filterIndexLocks;
 
 	private final RequestsLocks protocolBatchMessagesLocks;
-
-	// protocol messages received
-	private final Map<RequestIdentifier, Queue<ShareMessage>> messagesReceived;
 
 	private final Map<RequestIdentifier, Queue<BatchShareMessage>> batchMessagesReceived;
 
@@ -53,38 +49,13 @@ public class SharemindMessageBroker implements MessageBroker {
 		relayStarted = new CountDownLatch(1);
 		lock = new ReentrantLock();
 
-		messagesReceived = new ConcurrentHashMap<RequestIdentifier, Queue<ShareMessage>>();
-		protocolResults = new ConcurrentHashMap<RequestIdentifier, Queue<ResultsMessage>>();
+                protocolResults = new ConcurrentHashMap<RequestIdentifier, Queue<ResultsMessage>>();
 		filterIndex = new ConcurrentHashMap<RequestIdentifier, FilterIndexMessage>();
 
 		batchMessagesReceived = new ConcurrentHashMap<RequestIdentifier, Queue<BatchShareMessage>>();
 
 	}
 
-	public void receiveMessage(ShareMessage message) {
-		lock.lock();
-		RequestIdentifier requestID = new RequestIdentifier(message
-				.getRequestID().toByteArray(), message.getRegionID()
-				.toByteArray());
-		try {
-			protocolMessagesLocks.lockOnRequest(requestID);
-			lock.unlock();
-
-			if (messagesReceived.containsKey(requestID)) {
-				messagesReceived.get(requestID).add(message);
-			} else {
-				Queue values = new ConcurrentLinkedQueue<ShareMessage>();
-				values.add(message);
-				messagesReceived.put(requestID, values);
-			}
-
-			protocolMessagesLocks.signalToRead(requestID);
-
-		} finally {
-			protocolMessagesLocks.unlockOnRequest(requestID);
-		}
-
-	}
 
 	public void receiveBatchMessage(BatchShareMessage message) {
 		lock.lock();
@@ -148,29 +119,6 @@ public class SharemindMessageBroker implements MessageBroker {
 			filterIndexLocks.unlockOnRequest(requestID);
 		}
 
-	}
-
-	@Override
-	public Queue<ShareMessage> getReceivedMessages(RequestIdentifier requestId) {
-		lock.lock();
-
-		try {
-
-			protocolMessagesLocks.lockOnRequest(requestId);
-			lock.unlock();
-
-			// While there arent messages for this request wait.
-			while (!messagesReceived.containsKey(requestId)) {
-				LOG.debug("Waiting on messages");
-				protocolMessagesLocks.awaitForWrite(requestId);
-			}
-
-			return messagesReceived.get(requestId);
-
-		} catch (InterruptedException ex) {
-			LOG.error(ex);
-			throw new IllegalArgumentException(ex.getMessage());
-		}
 	}
 
 	@Override
@@ -250,12 +198,7 @@ public class SharemindMessageBroker implements MessageBroker {
 	public void waitRelayStart() throws InterruptedException {
 		relayStarted.await();
 	}
-	@Override
-	public void allMessagesRead(RequestIdentifier requestID) {
-		protocolMessagesLocks.removeLock(requestID);
-		messagesReceived.remove(requestID);
-	}
-
+        
 	@Override
 	public void allBatchMessagesRead(RequestIdentifier requestID) {
 		protocolBatchMessagesLocks.removeLock(requestID);

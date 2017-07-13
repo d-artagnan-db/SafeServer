@@ -1,7 +1,6 @@
 package pt.uminho.haslab.smcoprocessors;
 
 import java.util.List;
-import pt.uminho.haslab.smcoprocessors.protocolresults.DataIdentifiers;
 import pt.uminho.haslab.smcoprocessors.protocolresults.FilteredIndexes;
 import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMissmatch;
 import pt.uminho.haslab.smcoprocessors.protocolresults.SearchResults;

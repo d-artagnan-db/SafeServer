@@ -12,7 +12,6 @@ import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
-import pt.uminho.haslab.protocommunication.Search.ShareMessage;
 import pt.uminho.haslab.protocommunication.Search.Shutdown;
 
 /**
@@ -62,13 +61,6 @@ public class RelayClient extends Thread {
 		out.flush();
 
 	}
-
-	public void sendMessage(ShareMessage msg) throws IOException {
-
-		messagesAskedToSend.addAndGet(1);
-		sendToClient(0, msg.toByteArray());
-	}
-
 	public synchronized void sendBatchMessages(BatchShareMessage msgs)
 			throws IOException {
 		messagesAskedToSend.addAndGet(1);
