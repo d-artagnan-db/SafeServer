@@ -96,7 +96,7 @@ public class RegionServerSim extends TestRegionServer {
 					nops += 1;
 					System.out.println("elapsed " + elapsed);
 					System.out.println("nops " + nops);
-					broker.allMessagesRead(ident);
+					broker.allBatchMessagesRead(ident);
 
 				}
 
