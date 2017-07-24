@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+
 import static junit.framework.TestCase.assertEquals;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
@@ -19,111 +21,113 @@ import pt.uminho.haslab.smhbase.sharemindImp.SharemindSecret;
 
 public abstract class SecretSearchTest extends DoubleValueProtocolTest {
 
-	private static final Log LOG = LogFactory.getLog(SecretSearchTest.class
-			.getName());
-	public SecretSearchTest(List<Integer> nbits, List<BigInteger> valuesOne,
-			List<BigInteger> valuesTwo) throws IOException,
-			InvalidNumberOfBits, InvalidSecretValue {
-		super(nbits, valuesOne, valuesTwo);
-	}
+    private static final Log LOG = LogFactory.getLog(SecretSearchTest.class
+            .getName());
 
-	protected abstract SearchCondition getSearchCondition(int valueNBits,
-			byte[] value, int targetPlayer);
+    public SecretSearchTest(List<Integer> nbits, List<BigInteger> valuesOne,
+                            List<BigInteger> valuesTwo) throws IOException,
+            InvalidNumberOfBits, InvalidSecretValue {
 
-	private class RSImpl extends TestRegionServer {
+        super(nbits, valuesOne, valuesTwo);
+    }
 
-		public RSImpl(int playerID) throws IOException {
-			super(playerID);
-		}
+    protected abstract SearchCondition getSearchCondition(int valueNBits,
+                                                          byte[] value, int targetPlayer);
 
-		@Override
-		public void doComputation() {
-			byte[] reqID = "1".getBytes();
-			byte[] regionID = "1".getBytes();
-			RequestIdentifier ident = new RequestIdentifier(reqID, regionID);
-			TestPlayer player = new TestPlayer(relay, ident, playerID, broker);
-			if (this.playerID == 1) {
-				player.setTargetPlayer();
-			}
+    private class RSImpl extends TestRegionServer {
 
-			players.get(playerID).add(player);
+        public RSImpl(int playerID) throws IOException {
+            super(playerID);
+        }
 
-			for (int i = 0; i < nbits.size(); i++) {
+        @Override
+        public void doComputation() {
+            byte[] reqID = "1".getBytes();
+            byte[] regionID = "1".getBytes();
+            RequestIdentifier ident = new RequestIdentifier(reqID, regionID);
+            TestPlayer player = new TestPlayer(relay, ident, playerID, broker);
+            if (this.playerID == 1) {
+                player.setTargetPlayer();
+            }
 
-				int valueNbits = nbits.get(i);
+            players.get(playerID).add(player);
 
-				BigInteger secretOne = secretsOne.get(playerID).get(i);
-				BigInteger secretTwo = secretsTwo.get(playerID).get(i);
+            for (int i = 0; i < nbits.size(); i++) {
 
-				/**
-				 * Simulation of comparison of values inside hbase scan. The
-				 * second value is stored on the hbase the database. The first
-				 * value is request by the user to compare to the values stored
-				 * in the db. The comparison should be made as follows:
-				 * secretTwo == secretOne secretTwo >= secretOne secretTwo >
-				 * secretOne secretTwo < secretOne secretTwo <= SecretOne
-				 */
-				SearchCondition cond = getSearchCondition(valueNbits + 1,
-						secretTwo.toByteArray(), 1);
+                int valueNbits = nbits.get(i);
 
-				List<byte[]> cmpVal = new ArrayList<byte[]>();
-				cmpVal.add(secretOne.toByteArray());
-				List<byte[]> ids = new ArrayList<byte[]>();
-				ids.add(reqID);
-				List<Boolean> searchRes = cond.evaluateCondition(cmpVal, ids,
-						player);
-				LOG.debug("Expected result " + searchRes.get(0));
-				BigInteger result = BigInteger.ZERO;
+                BigInteger secretOne = secretsOne.get(playerID).get(i);
+                BigInteger secretTwo = secretsTwo.get(playerID).get(i);
 
-				if (searchRes.get(0)) {
-					result = BigInteger.ONE;
-				}
+                /**
+                 * Simulation of comparison of values inside hbase scan. The
+                 * second value is stored on the hbase the database. The first
+                 * value is request by the user to compare to the values stored
+                 * in the db. The comparison should be made as follows:
+                 * secretTwo == secretOne secretTwo >= secretOne secretTwo >
+                 * secretOne secretTwo < secretOne secretTwo <= SecretOne
+                 */
+                SearchCondition cond = getSearchCondition(valueNbits + 1,
+                        secretTwo.toByteArray(), 1);
 
-				protocolResults.get(playerID).add(result);
+                List<byte[]> cmpVal = new ArrayList<byte[]>();
+                cmpVal.add(secretOne.toByteArray());
+                List<byte[]> ids = new ArrayList<byte[]>();
+                ids.add(reqID);
+                List<Boolean> searchRes = cond.evaluateCondition(cmpVal, ids,
+                        player);
+                LOG.debug("Expected result " + searchRes.get(0));
+                BigInteger result = BigInteger.ZERO;
 
-			}
-			/**
-			 * broker can only be cleaned after executing the protocol for every
-			 * value or messages can be lost between values
-			 */
-			broker.allBatchMessagesRead(ident);
+                if (searchRes.get(0)) {
+                    result = BigInteger.ONE;
+                }
 
-		}
+                protocolResults.get(playerID).add(result);
 
-	}
+            }
+            /**
+             * broker can only be cleaned after executing the protocol for every
+             * value or messages can be lost between values
+             */
+            broker.allBatchMessagesRead(ident);
 
-	@Override
-	protected RegionServer createRegionServer(int playerID) throws IOException {
-		return new RSImpl(playerID);
-	}
+        }
 
-	@Override
-	protected void validateResults() throws InvalidSecretValue {
+    }
 
-		for (int i = 0; i < nbits.size(); i++) {
+    @Override
+    protected RegionServer createRegionServer(int playerID) throws IOException {
+        return new RSImpl(playerID);
+    }
 
-			// The results stored from all of the parties should be the same
-			LOG.debug(protocolResults.get(0));
-			LOG.debug(protocolResults.get(1));
-			LOG.debug(protocolResults.get(2));
-			assertEquals(protocolResults.get(0), protocolResults.get(1));
-			assertEquals(protocolResults.get(1), protocolResults.get(2));
+    @Override
+    protected void validateResults() throws InvalidSecretValue {
 
-			int expectedResult = compareOriginalValues(valuesOne.get(i),
-					valuesTwo.get(i));
-			assertEquals(expectedResult, protocolResults.get(0).get(i)
-					.intValue());
-		}
-	}
+        for (int i = 0; i < nbits.size(); i++) {
 
-	protected abstract int compareOriginalValues(BigInteger first,
-			BigInteger second);
+            // The results stored from all of the parties should be the same
+            LOG.debug(protocolResults.get(0));
+            LOG.debug(protocolResults.get(1));
+            LOG.debug(protocolResults.get(2));
+            assertEquals(protocolResults.get(0), protocolResults.get(1));
+            assertEquals(protocolResults.get(1), protocolResults.get(2));
 
-	@Override
-	protected SharemindSecret testingProtocol(Secret originalSecret,
-			Secret cmpSecret) {
-		throw new UnsupportedOperationException(
-				"Operation not used in this test");
-	}
+            int expectedResult = compareOriginalValues(valuesOne.get(i),
+                    valuesTwo.get(i));
+            assertEquals(expectedResult, protocolResults.get(0).get(i)
+                    .intValue());
+        }
+    }
+
+    protected abstract int compareOriginalValues(BigInteger first,
+                                                 BigInteger second);
+
+    @Override
+    protected SharemindSecret testingProtocol(Secret originalSecret,
+                                              Secret cmpSecret) {
+        throw new UnsupportedOperationException(
+                "Operation not used in this test");
+    }
 
 }

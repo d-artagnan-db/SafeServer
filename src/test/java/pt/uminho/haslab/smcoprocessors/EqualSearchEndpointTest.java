@@ -31,7 +31,7 @@ public class EqualSearchEndpointTest extends AbstractSearchEndpointTest {
 
 	public void searchEndpointComparision(Dealer dealer,
 			List<BigInteger> values, TestClusterTables tables, int nbits)
-			throws InvalidSecretValue, Throwable {
+			throws Throwable {
 		LOG.debug("Going to enter searcEndpointComparison");
 
 		/*

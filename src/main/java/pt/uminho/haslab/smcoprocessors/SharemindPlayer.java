@@ -12,7 +12,7 @@ import pt.uminho.haslab.smhbase.interfaces.Player;
  */
 public interface SharemindPlayer extends Player {
 
-	public void sendProtocolResults(int destPlayer, SearchResults res);
+	void sendProtocolResults(int destPlayer, SearchResults res);
 
 	/**
 	 * This function accepts the local results, retrieves the results from the
@@ -22,19 +22,19 @@ public interface SharemindPlayer extends Player {
 	 * @return
 	 * @throws pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMissmatch
 	 */
-	public List<SearchResults> getProtocolResults()
+    List<SearchResults> getProtocolResults()
 			throws ResultsLengthMissmatch;
 
-	public void cleanValues();
+	void cleanValues();
 
-	public void cleanResultsMatch();
+	void cleanResultsMatch();
 
-	public void sendFilteredIndexes(FilteredIndexes indexes);
+	void sendFilteredIndexes(FilteredIndexes indexes);
 
-	public FilteredIndexes getFilterIndexes();
+	FilteredIndexes getFilterIndexes();
 
-	public boolean isTargetPlayer();
+	boolean isTargetPlayer();
 
-	public void setTargetPlayer();
+	void setTargetPlayer();
 
 }

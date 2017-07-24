@@ -4,10 +4,10 @@ import java.io.IOException;
 
 public interface RegionServer {
 
-	public void startRegionServer();
+	void startRegionServer();
 
-	public void stopRegionServer() throws IOException, InterruptedException;
+	void stopRegionServer() throws IOException, InterruptedException;
 
-	public boolean getRunStatus();
+	boolean getRunStatus();
 
 }

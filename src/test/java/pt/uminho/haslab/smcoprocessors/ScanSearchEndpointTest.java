@@ -26,7 +26,7 @@ public abstract class ScanSearchEndpointTest extends AbstractSearchEndpointTest 
 	@Override
 	public void searchEndpointComparision(Dealer dealer,
 			List<BigInteger> values, TestClusterTables tables, int nbits)
-			throws InvalidNumberOfBits, InvalidSecretValue, Throwable {
+			throws Throwable {
 
 		ScanValidator shelper = new ScanValidator(values);
 

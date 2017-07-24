@@ -195,7 +195,8 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 		byte[] regionID = env.getRegion().getStartKey();
 		LOG.debug("RequestID " + Arrays.toString(requestID));
 		LOG.debug("RegionID " + Arrays.toString(regionID));
-		RequestIdentifier ident = new RequestIdentifier(requestID, regionID);
+
+                RequestIdentifier ident = new RequestIdentifier(requestID, regionID);
 		Player player = getPlayer(ident);
 		int nbits = this.searchConf.getnBits();
 		String targetPlayerS = new String(op.getAttribute("targetPlayer"));

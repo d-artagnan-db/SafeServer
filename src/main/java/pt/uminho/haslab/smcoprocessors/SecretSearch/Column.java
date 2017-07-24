@@ -43,10 +43,7 @@ public class Column {
 		if (!Arrays.equals(this.cf, other.cf)) {
 			return false;
 		}
-		if (!Arrays.equals(this.cq, other.cq)) {
-			return false;
-		}
-		return true;
-	}
+        return Arrays.equals(this.cq, other.cq);
+    }
 
 }

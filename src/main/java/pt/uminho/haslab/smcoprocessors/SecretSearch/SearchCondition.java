@@ -13,7 +13,7 @@ public interface SearchCondition {
 	 * following way: GreaterThan = !Equal && GreaterOrEqualThan LesserThan =
 	 * !GreaterOrEqualThan LesserOrEqualThan = !GreaterOrEqualThan && Equal
 	 */
-	public enum Condition {
+    enum Condition {
 		Equal, GreaterOrEqualThan, Greater, Less, LessOrEqualThan, NotEqual, And, Or, Not, Nop
 	}
 
@@ -27,8 +27,8 @@ public interface SearchCondition {
 	 * @param p
 	 * @return
 	 */
-	public List<Boolean> evaluateCondition(List<byte[]> value,
-			List<byte[]> rowID, SharemindPlayer p);
+    List<Boolean> evaluateCondition(List<byte[]> value,
+                                    List<byte[]> rowID, SharemindPlayer p);
 
-	public Condition getCondition();
+	Condition getCondition();
 }

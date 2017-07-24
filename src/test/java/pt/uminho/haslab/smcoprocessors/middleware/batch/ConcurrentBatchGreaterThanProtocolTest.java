@@ -35,7 +35,7 @@ public class ConcurrentBatchGreaterThanProtocolTest
 		for (int i = 0; i < secretOne.size(); i++) {
 			int comparisonResult = secretOne.get(i).compareTo(secretTwo.get(i));
 			boolean expectedResult = comparisonResult == 0
-					|| comparisonResult == 1 ? true : false;
+                    || comparisonResult == 1;
 			bool.add(expectedResult);
 		}
 		return bool;
