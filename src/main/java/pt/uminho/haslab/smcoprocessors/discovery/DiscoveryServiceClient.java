@@ -27,7 +27,7 @@ public interface DiscoveryServiceClient {
      * state of the the RegionIdentifier.
      * @return 
      */
-     List<RegionLocation> getPeersLocation();
+     List<RegionLocation> getPeersLocation() throws FailedRegionDiscovery;
     
     
 }

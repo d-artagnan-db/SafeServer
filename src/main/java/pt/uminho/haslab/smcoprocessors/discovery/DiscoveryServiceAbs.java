@@ -24,7 +24,7 @@ public abstract class DiscoveryServiceAbs implements DiscoveryService {
     protected abstract DiscoveryServiceClient getDiscoveryServiceClient();
     
     
-    public List<RegionLocation> discoverRegions(RequestIdentifier requestIdentifier){
+    public List<RegionLocation> discoverRegions(RequestIdentifier requestIdentifier) throws FailedRegionDiscovery {
         DiscoveryServiceClient client  = getDiscoveryServiceClient();
         client.sendCurrentLocationOfPlayerInRequest(requestIdentifier);
         return client.getPeersLocation();

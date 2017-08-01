@@ -22,7 +22,7 @@ import static junit.framework.TestCase.assertEquals;
 @RunWith(Parameterized.class)
 public abstract class ConcurrentRedisDiscoveryServiceTest extends TestLinkedRegions {
 
-    private static final Log LOG = LogFactory
+    protected static final Log LOG = LogFactory
             .getLog(ConcurrentRedisDiscoveryServiceTest.class.getName());
 
     protected final static int DISC_SERVICE_SLEEP_TIME = 200;

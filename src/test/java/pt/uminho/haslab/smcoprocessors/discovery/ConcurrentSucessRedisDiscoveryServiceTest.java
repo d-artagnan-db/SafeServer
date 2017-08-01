@@ -28,7 +28,12 @@ public class ConcurrentSucessRedisDiscoveryServiceTest extends ConcurrentRedisDi
         public void run(){
             RedisDiscoveryService service = new RedisDiscoveryService("localhost", playerID, ip, port, DISC_SERVICE_SLEEP_TIME, DISC_SERVICE_INC_TIME, DISC_SERVICE_RETRIES);
             RequestIdentifier reqi = new RequestIdentifier(requestID, regionID);
-            List<RegionLocation> playerLocations = service.discoverRegions(reqi);
+            List<RegionLocation> playerLocations = null;
+            try {
+                playerLocations = service.discoverRegions(reqi);
+            } catch (FailedRegionDiscovery failedRegionDiscovery) {
+                failedRegionDiscovery.printStackTrace();
+            }
             locations.put(playerID, playerLocations);
             runStatus = false;
             //System.out.println("All values put");

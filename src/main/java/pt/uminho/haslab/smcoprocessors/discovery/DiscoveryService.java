@@ -7,6 +7,6 @@ import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
 
 public interface DiscoveryService {
     
-    List<RegionLocation> discoverRegions(RequestIdentifier requestIdentifier);
+    List<RegionLocation> discoverRegions(RequestIdentifier requestIdentifier) throws FailedRegionDiscovery;
     
 }

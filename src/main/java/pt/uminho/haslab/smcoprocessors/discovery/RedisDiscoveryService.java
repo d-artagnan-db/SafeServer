@@ -32,15 +32,16 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
             
         }
         
-        private List<RegionLocation> parseJedisResult(List<String> results){
+        private List<RegionLocation> parseJedisResult(List<String> results) throws FailedRegionDiscovery {
             List<RegionLocation> regionResult = new ArrayList<RegionLocation>();
             /**
-             * The result size should either be 0 because no jedis.lrange was successful or 3 when it was successful.
+             * The result size should either be 0 because no jedis.
+             * lrange was successful or 3 when it was successful.
              */
             if(results.size() != 3 || results.isEmpty()){
                 String msg = "Illegal results input size";
                 LOG.debug(msg);
-                throw new IllegalStateException(msg);
+                throw new FailedRegionDiscovery(msg);
             }
             
             for(String result: results){
@@ -55,7 +56,7 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
         }
         
 
-        public List<RegionLocation> getPeersLocation() {
+        public List<RegionLocation> getPeersLocation() throws FailedRegionDiscovery {
             boolean run = true;
             List<String> clients = new ArrayList<String>();
             System.out.println("Going to read");
