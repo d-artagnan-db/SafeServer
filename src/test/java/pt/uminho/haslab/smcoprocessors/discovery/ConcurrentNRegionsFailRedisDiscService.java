@@ -20,7 +20,7 @@ public class ConcurrentNRegionsFailRedisDiscService extends ConcurrentNRegionsRe
     /*This class simulates a cluster where some regions fail at publishing their location.
     * In the class constructor it is selected at random some bannedPlayers and requestsIds in a
     * tuple (bannedPlayer, requestId) which are banned from sending their location to redis.
-    * The tuple is mantained by the following two lists.
+    * The tuple is maintained by the following two lists.
     * */
     private final Map<Integer, Integer> bannedPlayers;
     private final Set<Integer> bannedRequestIDs;
