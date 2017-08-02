@@ -1,6 +1,5 @@
 package pt.uminho.haslab.smcoprocessors.benchmarks;
 
-import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -9,75 +8,78 @@ import pt.uminho.haslab.smcoprocessors.CMiddleware.Relay;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.SharemindMessageBroker;
 import pt.uminho.haslab.smcoprocessors.SmpcConfiguration;
 
+import java.io.IOException;
+
 public abstract class TestRegionServer extends Thread implements RegionServer {
 
-	protected final Relay relay;
+    protected final Relay relay;
 
-	protected final MessageBroker broker;
+    protected final MessageBroker broker;
 
-	protected final SmpcConfiguration searchConf;
+    protected final SmpcConfiguration searchConf;
 
-	protected boolean runStatus;
+    protected boolean runStatus;
 
-	protected final int playerID;
+    protected final int playerID;
 
-	private static final Log LOG = LogFactory.getLog(TestRegionServer.class
-			.getName());
-	public TestRegionServer(int playerID) throws IOException {
-		System.out.println("ola " + playerID);
-		String resource = "hbase-site-" + playerID + ".xml";
+    private static final Log LOG = LogFactory.getLog(TestRegionServer.class
+            .getName());
 
-		Configuration conf = new Configuration();
-		conf.addResource(resource);
-		searchConf = new SmpcConfiguration(conf);
-		System.out.println(" cebas " + searchConf.getnBits());
+    public TestRegionServer(int playerID) throws IOException {
+        System.out.println("ola " + playerID);
+        String resource = "hbase-site-" + playerID + ".xml";
 
-		broker = new SharemindMessageBroker();
+        Configuration conf = new Configuration();
+        conf.addResource(resource);
+        searchConf = new SmpcConfiguration(conf);
+        System.out.println(" cebas " + searchConf.getnBits());
 
-		relay = searchConf.createRelay(broker);
+        broker = new SharemindMessageBroker();
 
-		this.playerID = playerID;
-		runStatus = true;
+        relay = searchConf.createRelay(broker);
 
-	}
+        this.playerID = playerID;
+        runStatus = true;
 
-	public abstract void doComputation();
+    }
 
-	@Override
-	public void run() {
+    public abstract void doComputation();
 
-		try {
-			// Start and wait for other players.
-			relay.bootRelay();
+    @Override
+    public void run() {
 
-			broker.waitRelayStart();
-			doComputation();
+        try {
+            // Start and wait for other players.
+            relay.bootRelay();
 
-			relay.stopRelay();
-			Thread.sleep(1000);
+            broker.waitRelayStart();
+            doComputation();
 
-		} catch (InterruptedException ex) {
-			runStatus = false;
-			LOG.debug(ex);
-			throw new IllegalStateException(ex);
-		} catch (IOException ex) {
-			runStatus = false;
-			LOG.debug(ex);
-			throw new IllegalStateException(ex);
-		}
+            relay.stopRelay();
+            Thread.sleep(1000);
 
-	}
+        } catch (InterruptedException ex) {
+            runStatus = false;
+            LOG.debug(ex);
+            throw new IllegalStateException(ex);
+        } catch (IOException ex) {
+            runStatus = false;
+            LOG.debug(ex);
+            throw new IllegalStateException(ex);
+        }
 
-	@Override
-	public void stopRegionServer() throws IOException, InterruptedException {
-		this.join();
-	}
+    }
 
-	public void startRegionServer() {
-		this.start();
-	}
+    @Override
+    public void stopRegionServer() throws IOException, InterruptedException {
+        this.join();
+    }
 
-	public boolean getRunStatus() {
-		return this.runStatus;
-	}
+    public void startRegionServer() {
+        this.start();
+    }
+
+    public boolean getRunStatus() {
+        return this.runStatus;
+    }
 }

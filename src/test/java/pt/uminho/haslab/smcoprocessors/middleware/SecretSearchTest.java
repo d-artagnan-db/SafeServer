@@ -1,12 +1,5 @@
 package pt.uminho.haslab.smcoprocessors.middleware;
 
-import java.io.IOException;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-
-import static junit.framework.TestCase.assertEquals;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
@@ -18,6 +11,13 @@ import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
 import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
 import pt.uminho.haslab.smhbase.interfaces.Secret;
 import pt.uminho.haslab.smhbase.sharemindImp.SharemindSecret;
+
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+
+import static junit.framework.TestCase.assertEquals;
 
 public abstract class SecretSearchTest extends DoubleValueProtocolTest {
 

@@ -12,49 +12,57 @@ import java.util.Random;
 
 import static junit.framework.TestCase.assertEquals;
 
-public class ConcurrentFailRedisDiscoveryServiceTest extends ConcurrentRedisDiscoveryServiceTest {
+public class ConcurrentFailRedisDiscoveryServiceTest
+        extends
+        ConcurrentRedisDiscoveryServiceTest {
 
     private final int faultyPlayerId;
     private int faultyDiscovery;
 
-
-    public ConcurrentFailRedisDiscoveryServiceTest(BigInteger requestID, BigInteger regionID, List<String> ip, List<Integer> port) throws IOException {
+    public ConcurrentFailRedisDiscoveryServiceTest(BigInteger requestID,
+                                                   BigInteger regionID, List<String> ip, List<Integer> port)
+            throws IOException {
         super(requestID, regionID, ip, port);
         Random rand = new Random();
-        //Generates a random number between 0 and 2
+        // Generates a random number between 0 and 2
         faultyPlayerId = rand.nextInt(3);
         faultyDiscovery = 0;
-
 
     }
 
     protected RegionServer createRegionServer(int playerID) throws IOException {
-        return new SuccRedisRegionServer(playerID, requestsID.toByteArray(), regionsID.toByteArray(), ips.get(playerID), ports.get(playerID));
+        return new SuccRedisRegionServer(playerID, requestsID.toByteArray(),
+                regionsID.toByteArray(), ips.get(playerID), ports.get(playerID));
     }
-
 
     @Override
     protected void validateResults() throws InvalidSecretValue {
-            assertEquals(2, faultyDiscovery);
+        assertEquals(2, faultyDiscovery);
     }
 
-    private class SuccRedisRegionServer extends RedisRegionServer{
+    private class SuccRedisRegionServer extends RedisRegionServer {
 
-        public SuccRedisRegionServer(int playerID, byte[] requestID, byte[] regionID, String ip, Integer port) {
+        public SuccRedisRegionServer(int playerID, byte[] requestID,
+                                     byte[] regionID, String ip, Integer port) {
             super(playerID, requestID, regionID, ip, port);
         }
+
         @Override
-        public void run(){
-            if(playerID != faultyPlayerId) {
-                RedisDiscoveryService service = new RedisDiscoveryService("localhost", playerID, ip, port, DISC_SERVICE_SLEEP_TIME, DISC_SERVICE_INC_TIME, DISC_SERVICE_RETRIES);
-                RequestIdentifier reqi = new RequestIdentifier(requestID, regionID);
+        public void run() {
+            if (playerID != faultyPlayerId) {
+                RedisDiscoveryService service = new RedisDiscoveryService(
+                        "localhost", playerID, ip, port,
+                        DISC_SERVICE_SLEEP_TIME, DISC_SERVICE_INC_TIME,
+                        DISC_SERVICE_RETRIES);
+                RequestIdentifier reqi = new RequestIdentifier(requestID,
+                        regionID);
                 List<RegionLocation> playerLocations = new ArrayList<RegionLocation>();
                 try {
                     playerLocations = service.discoverRegions(reqi);
                 } catch (FailedRegionDiscovery failedRegionDiscovery) {
-                    //failedRegionDiscovery.printStackTrace();
+                    // failedRegionDiscovery.printStackTrace();
                     LOG.debug(failedRegionDiscovery);
-                    faultyDiscovery +=1;
+                    faultyDiscovery += 1;
                 }
 
                 locations.put(playerID, playerLocations);

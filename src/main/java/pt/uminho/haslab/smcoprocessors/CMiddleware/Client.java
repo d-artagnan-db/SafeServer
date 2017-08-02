@@ -1,196 +1,193 @@
 package pt.uminho.haslab.smcoprocessors.CMiddleware;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.Socket;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
 
+import java.io.*;
+import java.net.Socket;
+
 public class Client extends Thread {
 
-	private static final Log LOG = LogFactory.getLog(Client.class.getName());
+    private static final Log LOG = LogFactory.getLog(Client.class.getName());
 
-	private final Socket clientSocket;
+    private final Socket clientSocket;
 
-	private final MessageBroker broker;
+    private final MessageBroker broker;
 
-	private boolean running;
+    private boolean running;
 
-	private boolean toClose;
+    private boolean toClose;
 
-	public Client(Socket clientSocket, MessageBroker broker) {
-		this.clientSocket = clientSocket;
-		this.broker = broker;
-		running = true;
-	}
-	private DataInputStream getInStream() throws IOException {
-		return new DataInputStream(new BufferedInputStream(
-				this.clientSocket.getInputStream()));
-	}
+    public Client(Socket clientSocket, MessageBroker broker) {
+        this.clientSocket = clientSocket;
+        this.broker = broker;
+        running = true;
+    }
 
-	private DataOutputStream getOutStream() throws IOException {
-		return new DataOutputStream(new BufferedOutputStream(
-				this.clientSocket.getOutputStream()));
+    private DataInputStream getInStream() throws IOException {
+        return new DataInputStream(new BufferedInputStream(
+                this.clientSocket.getInputStream()));
+    }
 
-	}
+    private DataOutputStream getOutStream() throws IOException {
+        return new DataOutputStream(new BufferedOutputStream(
+                this.clientSocket.getOutputStream()));
 
-	private void handleMessage(int type, byte[] message) throws IOException {
-		/*
+    }
+
+    private void handleMessage(int type, byte[] message) throws IOException {
+        /*
 		 * LOG.debug("Handle message with type " + type + " and size " +
 		 * message.length);
 		 */
-		switch (type) {
+        switch (type) {
 
-			case 0 : {
-                            String msg= "Share messages no longer supported";
-                            LOG.error(msg);
-                            throw new IllegalStateException(msg);
-				//new ShareHandler(message).handle();
-			}
-			case 1 : {
-				new ResultsHandler(message).handle();
-				break;
-			}
-			case 2 : {
-				new FilterIndexHandler(message).handle();
-				break;
-			}
-			case 3 : {
-				new BatchShareHandler(message).handle();
-				break;
-			}
-			case 99 : {
-				toClose = true;
-				break;
-			}
-		}
+            case 0: {
+                String msg = "Share messages no longer supported";
+                LOG.error(msg);
+                throw new IllegalStateException(msg);
+                // new ShareHandler(message).handle();
+            }
+            case 1: {
+                new ResultsHandler(message).handle();
+                break;
+            }
+            case 2: {
+                new FilterIndexHandler(message).handle();
+                break;
+            }
+            case 3: {
+                new BatchShareHandler(message).handle();
+                break;
+            }
+            case 99: {
+                toClose = true;
+                break;
+            }
+        }
 
-	}
+    }
 
-	public void close() throws IOException {
-		running = false;
-		clientSocket.close();
-	}
+    public void close() throws IOException {
+        running = false;
+        clientSocket.close();
+    }
 
-	public boolean isRunning() {
-		return running;
-	}
+    public boolean isRunning() {
+        return running;
+    }
 
-	@Override
-	public void run() {
-		DataInputStream in = null;
-		DataOutputStream out = null;
-		try {
-			in = getInStream();
-			out = getOutStream();
+    @Override
+    public void run() {
+        DataInputStream in = null;
+        DataOutputStream out = null;
+        try {
+            in = getInStream();
+            out = getOutStream();
 
-			while (running) {
-				int messageSize = in.readInt();
-				int messageType = in.readInt();
-				byte[] message = new byte[messageSize];
-				in.readFully(message);
+            while (running) {
+                int messageSize = in.readInt();
+                int messageType = in.readInt();
+                byte[] message = new byte[messageSize];
+                in.readFully(message);
 
-				handleMessage(messageType, message);
+                handleMessage(messageType, message);
 
-				if (toClose) {
-					out.writeInt(-99);
-					out.flush();
-					close();
-				} else {
-					out.writeInt(0);
-					out.flush();
-				}
+                if (toClose) {
+                    out.writeInt(-99);
+                    out.flush();
+                    close();
+                } else {
+                    out.writeInt(0);
+                    out.flush();
+                }
 
-			}
-		} catch (IOException ex) {
-			LOG.debug(ex);
-			throw new IllegalStateException(ex);
-		} finally {
-			try {
-				in.close();
-			} catch (IOException ex) {
-				LOG.debug(ex);
-				throw new IllegalStateException(ex);
-			}
-		}
+            }
+        } catch (IOException ex) {
+            LOG.debug(ex);
+            throw new IllegalStateException(ex);
+        } finally {
+            try {
+                in.close();
+            } catch (IOException ex) {
+                LOG.debug(ex);
+                throw new IllegalStateException(ex);
+            }
+        }
 
-	}
+    }
 
-	private abstract class MessageHandler {
+    private abstract class MessageHandler {
 
-		protected final byte[] msg;
+        protected final byte[] msg;
 
-		public MessageHandler(byte[] msg) {
-			this.msg = msg;
-		}
+        public MessageHandler(byte[] msg) {
+            this.msg = msg;
+        }
 
-		public abstract void handle();
-	}
+        public abstract void handle();
+    }
 
+    private class ResultsHandler extends MessageHandler {
 
-	private class ResultsHandler extends MessageHandler {
+        public ResultsHandler(byte[] msg) {
+            super(msg);
+        }
 
-		public ResultsHandler(byte[] msg) {
-			super(msg);
-		}
+        @Override
+        public void handle() {
+            try {
+                ResultsMessage message = ResultsMessage.parseFrom(msg);
+                broker.receiveProtocolResults(message);
+            } catch (InvalidProtocolBufferException ex) {
+                LOG.debug(ex);
+                throw new IllegalStateException(ex);
+            }
 
-		@Override
-		public void handle() {
-			try {
-				ResultsMessage message = ResultsMessage.parseFrom(msg);
-				broker.receiveProtocolResults(message);
-			} catch (InvalidProtocolBufferException ex) {
-				LOG.debug(ex);
-				throw new IllegalStateException(ex);
-			}
+        }
 
-		}
+    }
 
-	}
+    private class FilterIndexHandler extends MessageHandler {
 
-	private class FilterIndexHandler extends MessageHandler {
+        public FilterIndexHandler(byte[] msg) {
+            super(msg);
+        }
 
-		public FilterIndexHandler(byte[] msg) {
-			super(msg);
-		}
+        @Override
+        public void handle() {
+            try {
+                FilterIndexMessage message = FilterIndexMessage.parseFrom(msg);
+                broker.receiveFilterIndex(message);
+            } catch (InvalidProtocolBufferException ex) {
+                LOG.debug(ex);
+                throw new IllegalStateException(ex);
+            }
+        }
+    }
 
-		@Override
-		public void handle() {
-			try {
-				FilterIndexMessage message = FilterIndexMessage.parseFrom(msg);
-				broker.receiveFilterIndex(message);
-			} catch (InvalidProtocolBufferException ex) {
-				LOG.debug(ex);
-				throw new IllegalStateException(ex);
-			}
-		}
-	}
+    private class BatchShareHandler extends MessageHandler {
 
-	private class BatchShareHandler extends MessageHandler {
+        public BatchShareHandler(byte[] msg) {
+            super(msg);
+        }
 
-		public BatchShareHandler(byte[] msg) {
-			super(msg);
-		}
+        @Override
+        public void handle() {
+            try {
+                BatchShareMessage message = BatchShareMessage.parseFrom(msg);
+                broker.receiveBatchMessage(message);
+            } catch (InvalidProtocolBufferException ex) {
+                LOG.debug(ex);
+                throw new IllegalStateException(ex);
 
-		@Override
-		public void handle() {
-			try {
-				BatchShareMessage message = BatchShareMessage.parseFrom(msg);
-				broker.receiveBatchMessage(message);
-			} catch (InvalidProtocolBufferException ex) {
-				LOG.debug(ex);
-				throw new IllegalStateException(ex);
+            }
 
-			}
+        }
 
-		}
-
-	}
+    }
 }

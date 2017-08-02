@@ -1,152 +1,155 @@
 package pt.uminho.haslab.smcoprocessors.middleware;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import static org.junit.Assert.assertEquals;
-import org.junit.Test;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
 import pt.uminho.haslab.smcoprocessors.SecretSearch.ContextPlayer;
 import pt.uminho.haslab.smcoprocessors.middleware.helpers.TestRegionServer;
 import pt.uminho.haslab.testingutils.ValuesGenerator;
 
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+
 @RunWith(Parameterized.class)
 public class SendThenReceiveMessageBrokerTest {
 
-	private final List<BigInteger> peerOne;
+    private final List<BigInteger> peerOne;
 
-	private final List<BigInteger> peerTwo;
+    private final List<BigInteger> peerTwo;
 
-	private final List<BigInteger> peerThree;
-	@Parameterized.Parameters
-	public static Collection nbitsValues() {
-		return ValuesGenerator.SendAndReceiveMessageBrokerTest2();
-	}
+    private final List<BigInteger> peerThree;
 
-	public SendThenReceiveMessageBrokerTest(List<BigInteger> peerOne,
-			List<BigInteger> peerTwo, List<BigInteger> peerThree) {
-		this.peerOne = peerOne;
-		this.peerTwo = peerTwo;
-		this.peerThree = peerThree;
+    @Parameterized.Parameters
+    public static Collection nbitsValues() {
+        return ValuesGenerator.SendAndReceiveMessageBrokerTest2();
+    }
 
-	}
+    public SendThenReceiveMessageBrokerTest(List<BigInteger> peerOne,
+                                            List<BigInteger> peerTwo, List<BigInteger> peerThree) {
+        this.peerOne = peerOne;
+        this.peerTwo = peerTwo;
+        this.peerThree = peerThree;
 
-	private class RegionServer extends TestRegionServer {
-		private final List<BigInteger> toSend;
-		public List<BigInteger> recVal;
+    }
 
-		public int playerSource;
-		public int playerDest;
+    private class RegionServer extends TestRegionServer {
+        private final List<BigInteger> toSend;
+        public List<BigInteger> recVal;
 
-		public RegionServer(int playerID, List<BigInteger> toSend,
-				int playerDest, int playerSource) throws IOException {
-			super(playerID);
-			this.toSend = toSend;
-			this.playerSource = playerSource;
-			this.playerDest = playerDest;
-			recVal = new ArrayList<BigInteger>();
-		}
+        public int playerSource;
+        public int playerDest;
 
-		@Override
-		public void doComputation() {
-			long contextId = 0;
-			List<ContextPlayer> players = new ArrayList<ContextPlayer>();
+        public RegionServer(int playerID, List<BigInteger> toSend,
+                            int playerDest, int playerSource) throws IOException {
+            super(playerID);
+            this.toSend = toSend;
+            this.playerSource = playerSource;
+            this.playerDest = playerDest;
+            recVal = new ArrayList<BigInteger>();
+        }
 
-			for (BigInteger value : toSend) {
-				byte[] reqID = ("" + contextId).getBytes();
-				byte[] regionID = "1".getBytes();
-				RequestIdentifier ident = new RequestIdentifier(reqID, regionID);
-				ContextPlayer r = new ContextPlayer(relay, ident, playerID,
-						broker);
+        @Override
+        public void doComputation() {
+            long contextId = 0;
+            List<ContextPlayer> players = new ArrayList<ContextPlayer>();
 
-				r.sendValueToPlayer(playerDest, value);
-				contextId++;
-				players.add(r);
-			}
+            for (BigInteger value : toSend) {
+                byte[] reqID = ("" + contextId).getBytes();
+                byte[] regionID = "1".getBytes();
+                RequestIdentifier ident = new RequestIdentifier(reqID, regionID);
+                ContextPlayer r = new ContextPlayer(relay, ident, playerID,
+                        broker);
 
-			for (ContextPlayer p : players) {
-				BigInteger rec = p.getValue(this.playerSource);
-				recVal.add(rec);
-			}
-		}
-	}
+                r.sendValueToPlayer(playerDest, value);
+                contextId++;
+                players.add(r);
+            }
 
-	@Test
-	public void testMessageRightRotate() throws InterruptedException,
-			IOException {
+            for (ContextPlayer p : players) {
+                BigInteger rec = p.getValue(this.playerSource);
+                recVal.add(rec);
+            }
+        }
+    }
 
-		RegionServer a = new RegionServer(0, peerOne, 1, 2);
+    @Test
+    public void testMessageRightRotate() throws InterruptedException,
+            IOException {
 
-		RegionServer b = new RegionServer(1, peerTwo, 2, 0);
+        RegionServer a = new RegionServer(0, peerOne, 1, 2);
 
-		RegionServer c = new RegionServer(2, peerThree, 0, 1);
+        RegionServer b = new RegionServer(1, peerTwo, 2, 0);
 
-		a.startRegionServer();
-		b.startRegionServer();
-		c.startRegionServer();
+        RegionServer c = new RegionServer(2, peerThree, 0, 1);
 
-		a.stopRegionServer();
-		b.stopRegionServer();
-		c.stopRegionServer();
+        a.startRegionServer();
+        b.startRegionServer();
+        c.startRegionServer();
 
-		validateMessageRightRotate(a, b, c);
-		// Wait some time before next test
-		Thread.sleep(5000);
-	}
+        a.stopRegionServer();
+        b.stopRegionServer();
+        c.stopRegionServer();
 
-	// @Test
-	public void testMessageLeftRotate() throws IOException,
-			InterruptedException {
+        validateMessageRightRotate(a, b, c);
+        // Wait some time before next test
+        Thread.sleep(5000);
+    }
 
-		RegionServer a = new RegionServer(0, peerOne, 2, 1);
+    // @Test
+    public void testMessageLeftRotate() throws IOException,
+            InterruptedException {
 
-		RegionServer b = new RegionServer(1, peerTwo, 0, 2);
+        RegionServer a = new RegionServer(0, peerOne, 2, 1);
 
-		RegionServer c = new RegionServer(2, peerThree, 1, 0);
+        RegionServer b = new RegionServer(1, peerTwo, 0, 2);
 
-		a.startRegionServer();
-		b.startRegionServer();
-		c.startRegionServer();
-		a.stopRegionServer();
-		b.stopRegionServer();
-		c.stopRegionServer();
+        RegionServer c = new RegionServer(2, peerThree, 1, 0);
 
-		validateMessageLeftRotate(a, b, c);
-		// Wait some time before next test
-		Thread.sleep(10000);
-	}
+        a.startRegionServer();
+        b.startRegionServer();
+        c.startRegionServer();
+        a.stopRegionServer();
+        b.stopRegionServer();
+        c.stopRegionServer();
 
-	private void validateMessageRightRotate(RegionServer a, RegionServer b,
-			RegionServer c) {
+        validateMessageLeftRotate(a, b, c);
+        // Wait some time before next test
+        Thread.sleep(10000);
+    }
 
-		assertEquals(a.recVal.size(), peerThree.size());
-		assertEquals(b.recVal.size(), peerOne.size());
-		assertEquals(c.recVal.size(), peerTwo.size());
+    private void validateMessageRightRotate(RegionServer a, RegionServer b,
+                                            RegionServer c) {
 
-		for (int i = 0; i < a.recVal.size(); i++) {
-			assertEquals(peerOne.get(i), b.recVal.get(i));
-			assertEquals(peerThree.get(i), a.recVal.get(i));
-			assertEquals(peerTwo.get(i), c.recVal.get(i));
+        assertEquals(a.recVal.size(), peerThree.size());
+        assertEquals(b.recVal.size(), peerOne.size());
+        assertEquals(c.recVal.size(), peerTwo.size());
 
-		}
-	}
+        for (int i = 0; i < a.recVal.size(); i++) {
+            assertEquals(peerOne.get(i), b.recVal.get(i));
+            assertEquals(peerThree.get(i), a.recVal.get(i));
+            assertEquals(peerTwo.get(i), c.recVal.get(i));
 
-	private void validateMessageLeftRotate(RegionServer a, RegionServer b,
-			RegionServer c) {
+        }
+    }
 
-		assertEquals(a.recVal.size(), peerTwo.size());
-		assertEquals(b.recVal.size(), peerThree.size());
-		assertEquals(c.recVal.size(), peerOne.size());
+    private void validateMessageLeftRotate(RegionServer a, RegionServer b,
+                                           RegionServer c) {
 
-		for (int i = 0; i < a.recVal.size(); i++) {
-			assertEquals(peerOne.get(i), c.recVal.get(i));
-			assertEquals(peerThree.get(i), b.recVal.get(i));
-			assertEquals(peerTwo.get(i), a.recVal.get(i));
+        assertEquals(a.recVal.size(), peerTwo.size());
+        assertEquals(b.recVal.size(), peerThree.size());
+        assertEquals(c.recVal.size(), peerOne.size());
 
-		}
-	}
+        for (int i = 0; i < a.recVal.size(); i++) {
+            assertEquals(peerOne.get(i), c.recVal.get(i));
+            assertEquals(peerThree.get(i), b.recVal.get(i));
+            assertEquals(peerTwo.get(i), a.recVal.get(i));
+
+        }
+    }
 }

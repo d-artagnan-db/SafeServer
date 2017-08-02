@@ -1,48 +1,49 @@
 package pt.uminho.haslab.smcoprocessors;
 
-import java.math.BigInteger;
-import java.util.List;
 import org.apache.hadoop.hbase.client.Result;
-import static org.junit.Assert.assertEquals;
 import pt.uminho.haslab.smcoprocessors.helpers.TestClusterTables;
-import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
-import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
 import pt.uminho.haslab.smhbase.interfaces.Dealer;
 import pt.uminho.haslab.testingutils.ScanValidator;
 
+import java.math.BigInteger;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+
 public abstract class ScanSearchEndpointTest extends AbstractSearchEndpointTest {
 
-	protected byte[] startKey;
+    protected byte[] startKey;
 
-	protected byte[] stopKey;
+    protected byte[] stopKey;
 
-	public ScanSearchEndpointTest() throws Exception {
-		super();
-	}
+    public ScanSearchEndpointTest() throws Exception {
+        super();
+    }
 
-	protected abstract byte[] getStartKey(ScanValidator validator);
-	protected abstract byte[] getStopKey(ScanValidator validator);
+    protected abstract byte[] getStartKey(ScanValidator validator);
 
-	@Override
-	public void searchEndpointComparision(Dealer dealer,
-			List<BigInteger> values, TestClusterTables tables, int nbits)
-			throws Throwable {
+    protected abstract byte[] getStopKey(ScanValidator validator);
 
-		ScanValidator shelper = new ScanValidator(values);
+    @Override
+    public void searchEndpointComparision(Dealer dealer,
+                                          List<BigInteger> values, TestClusterTables tables, int nbits)
+            throws Throwable {
 
-		startKey = getStartKey(shelper);
-		stopKey = getStopKey(shelper);
+        ScanValidator shelper = new ScanValidator(values);
 
-		List<Result> results = tables.scanEndpoint(nbits, startKey, stopKey, 1,
-				config, dealer);
+        startKey = getStartKey(shelper);
+        stopKey = getStopKey(shelper);
 
-		boolean res = shelper.validateResults(results);
-		assertEquals(true, res);
-	}
+        List<Result> results = tables.scanEndpoint(nbits, startKey, stopKey, 1,
+                config, dealer);
 
-	@Override
-	protected String getTestTableName() {
-		return "ScanTable";
-	}
+        boolean res = shelper.validateResults(results);
+        assertEquals(true, res);
+    }
+
+    @Override
+    protected String getTestTableName() {
+        return "ScanTable";
+    }
 
 }

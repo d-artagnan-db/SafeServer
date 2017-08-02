@@ -4,19 +4,19 @@ import pt.uminho.haslab.testingutils.ScanValidator;
 
 public class ScanSearchWithStartKeyTest extends ScanSearchEndpointTest {
 
-	public ScanSearchWithStartKeyTest() throws Exception {
-		super();
-	}
+    public ScanSearchWithStartKeyTest() throws Exception {
+        super();
+    }
 
-	@Override
-	protected byte[] getStartKey(ScanValidator validator) {
-		return validator.generateStartKey();
-	}
+    @Override
+    protected byte[] getStartKey(ScanValidator validator) {
+        return validator.generateStartKey();
+    }
 
-	// return empty key;
-	@Override
-	protected byte[] getStopKey(ScanValidator validator) {
-		return null;
-	}
+    // return empty key;
+    @Override
+    protected byte[] getStopKey(ScanValidator validator) {
+        return null;
+    }
 
 }

@@ -1,26 +1,25 @@
 package pt.uminho.haslab.smcoprocessors.CMiddleware;
 
-import java.io.IOException;
 import pt.uminho.haslab.protocommunication.Search;
 import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
 
+import java.io.IOException;
+
 public interface Relay {
 
+    void sendBatchMessages(BatchShareMessage msg) throws IOException;
 
-	void sendBatchMessages(BatchShareMessage msg) throws IOException;
+    void sendProtocolResults(ResultsMessage msg) throws IOException;
 
-	void sendProtocolResults(ResultsMessage msg) throws IOException;
+    void stopRelay() throws IOException;
 
-	void stopRelay() throws IOException;
+    boolean isRelayRunning();
 
-	boolean isRelayRunning();
+    void bootRelay();
 
-	void bootRelay();
+    void forceStopRelay() throws IOException;
 
-	void forceStopRelay() throws IOException;
-
-	void sendFilteredIndexes(Search.FilterIndexMessage msg)
-			throws IOException;
+    void sendFilteredIndexes(Search.FilterIndexMessage msg) throws IOException;
 
 }
