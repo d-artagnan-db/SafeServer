@@ -21,8 +21,6 @@ public class RelayServer extends Thread {
 
     private final MessageBroker broker;
 
-    private final long messagesReceived;
-
     private final ServerSocket serverSocket;
 
     private final List<Client> clients;
@@ -30,21 +28,20 @@ public class RelayServer extends Thread {
 
     private long clientsReceived;
 
-    private final CountDownLatch playersConnected;
+    private CountDownLatch mainLoopClosed;
+
 
     public RelayServer(final String bindingAdress, final int bindingPort,
                        final MessageBroker broker) throws IOException {
         this.bindingPort = bindingPort;
         this.bindingAddress = bindingAdress;
         this.broker = broker;
-        LOG.debug("Starting server " + bindingPort);
-        messagesReceived = 0;
+        LOG.debug("Starting server " + bindingAdress+":"+bindingPort);
         clientsReceived = 0;
         clients = new ArrayList<Client>();
         serverSocket = new ServerSocket(bindingPort);
-
-        playersConnected = new CountDownLatch(2);
         running = true;
+        mainLoopClosed = new CountDownLatch(1);
 
     }
 
@@ -61,10 +58,17 @@ public class RelayServer extends Thread {
                 Thread.sleep(500);
             }
         }
+        running = false;
+
+        //Client to trigger loop to  force thread to verify running state and exit
+        RelayClient closeClient = new RelayClient(bindingPort, bindingAddress, bindingPort);
+        closeClient.connectToTarget();
+        closeClient.start();
+        closeClient.shutdown();
+
         LOG.debug(this.bindingPort + " server has running state of " + running);
-        while (running) {
-            Thread.sleep(500);
-        }
+        //Wait for main loop to exit and close server socket.
+        mainLoopClosed.await();
         LOG.debug("All clients closed");
         serverSocket.close();
 
@@ -76,8 +80,10 @@ public class RelayServer extends Thread {
     }
 
     public void startServer() {
-        LOG.debug(this.bindingPort + " is starting relay server");
         this.start();
+        broker.relayStarted();
+        LOG.debug(this.bindingPort + " is starting relay server");
+
     }
 
     public long getClientsReceived() {
@@ -88,28 +94,17 @@ public class RelayServer extends Thread {
     public void run() {
         try {
             while (running) {
-                if (clientsReceived == 2) {
-                    running = false;
-                } else {
                     Socket socketClient = serverSocket.accept();
                     Client client = new Client(socketClient, broker);
                     client.start();
                     this.clients.add(client);
-                    clientsReceived += 1;
-                    playersConnected.countDown();
+                    clientsReceived +=1;
 
                 }
-            }
+                mainLoopClosed.countDown();
         } catch (IOException ex) {
             LOG.debug(ex);
             throw new IllegalStateException(ex);
         }
-
     }
-
-    public void waitPlayersToConnect() throws InterruptedException {
-        this.playersConnected.await();
-
-    }
-
 }

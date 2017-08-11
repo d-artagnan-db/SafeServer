@@ -20,6 +20,26 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
     private static final Log LOG = LogFactory
             .getLog(RedisDiscoveryService.class.getName());
 
+    public RedisDiscoveryService(DiscoveryServiceConfiguration conf) {
+        super(conf.getDiscoveryServiceLocation(), conf.getPlayerID(), conf.getRegionServerIP(), conf.getPort());
+        jedis = new Jedis(conf.getDiscoveryServiceLocation());
+        client = new Client();
+        this.sleepTime = conf.getSleepTime();
+        this.incTime = conf.getIncTime();
+        this.retries = conf.getRetries();
+    }
+
+    public RedisDiscoveryService(String discoveryServiceLocation, int playerID,
+                                 String regionServerIP, int port, int sleepTime, int incTime,
+                                 int retries) {
+        super(discoveryServiceLocation, playerID, regionServerIP, port);
+        jedis = new Jedis(discoveryServiceLocation);
+        client = new Client();
+        this.sleepTime = sleepTime;
+        this.incTime = incTime;
+        this.retries = retries;
+    }
+
     private class Client implements DiscoveryServiceClient {
 
         private String key;
@@ -38,12 +58,13 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
 
         private List<RegionLocation> parseJedisResult(List<String> results)
                 throws FailedRegionDiscovery {
-            List<RegionLocation> regionResult = new ArrayList<RegionLocation>();
             /**
              * The result size should either be 0 because no jedis. lrange was
              * successful or 3 when it was successful.
              */
-            if (results.size() != 3 || results.isEmpty()) {
+            List<RegionLocation> regionResult = new ArrayList<RegionLocation>();
+
+            if (results.size() != 3) {
                 String msg = "Illegal results input size";
                 LOG.debug(msg);
                 throw new FailedRegionDiscovery(msg);
@@ -53,7 +74,7 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
                 String[] subs = result.split(":");
 
                 if (Integer.parseInt(subs[0]) != playerID) {
-                    RegionLocation rl = new RegionLocation(subs[1],
+                    RegionLocation rl = new RegionLocation(Integer.parseInt(subs[0]),subs[1],
                             Integer.parseInt(subs[2]));
                     regionResult.add(rl);
                 }
@@ -94,17 +115,6 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
             return parseJedisResult(clients);
         }
 
-    }
-
-    public RedisDiscoveryService(String discoveryServiceLocation, int playerID,
-                                 String regionServerIP, int port, int sleepTime, int incTime,
-                                 int retries) {
-        super(discoveryServiceLocation, playerID, regionServerIP, port);
-        jedis = new Jedis(discoveryServiceLocation);
-        client = new Client();
-        this.sleepTime = sleepTime;
-        this.incTime = incTime;
-        this.retries = retries;
     }
 
     @Override

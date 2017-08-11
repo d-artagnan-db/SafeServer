@@ -7,12 +7,12 @@ import java.util.List;
 public abstract class DiscoveryServiceAbs implements DiscoveryService {
 
     protected final int playerID;
-    protected final String RegionServerIP;
+    private final String RegionServerIP;
     protected final int port;
-    protected final String discoveryServeLocation;
-    protected final String locationMessage;
+    private final String discoveryServeLocation;
+    final String locationMessage;
 
-    public DiscoveryServiceAbs(String discoveryServiceLocation, int playerID,
+    DiscoveryServiceAbs(String discoveryServiceLocation, int playerID,
                                String regionServerIP, int port) {
         this.discoveryServeLocation = discoveryServiceLocation;
         this.playerID = playerID;

@@ -64,8 +64,14 @@ public class Client extends Thread {
                 new BatchShareHandler(message).handle();
                 break;
             }
+            //Message issued to close connection.
             case 99: {
                 toClose = true;
+                break;
+            }
+            //Message used for UnitTests
+            case 999:{
+                new TestMessageHandler(message).handle();
                 break;
             }
         }
@@ -188,6 +194,16 @@ public class Client extends Thread {
             }
 
         }
+    }
 
+    private class TestMessageHandler extends MessageHandler {
+
+        public TestMessageHandler(byte[] msg) {
+            super(msg);
+        }
+
+        public void handle() {
+            broker.receiveTestMessage(msg);
+        }
     }
 }

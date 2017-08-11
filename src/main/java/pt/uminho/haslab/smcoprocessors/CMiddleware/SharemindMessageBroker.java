@@ -1,5 +1,6 @@
 package pt.uminho.haslab.smcoprocessors.CMiddleware;
 
+import com.sun.xml.internal.ws.server.UnsupportedMediaException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
@@ -251,4 +252,12 @@ public class SharemindMessageBroker implements MessageBroker {
         return this.protocolResultsLocks.lockExist(requestID);
     }
 
+    /**
+     *  Method only used for unitTest class implementations.
+     *  Should be ignored on a concrete implementation
+     * */
+    public void receiveTestMessage(byte[] message) {
+        throw new UnsupportedMediaException("This method should only be used for testing purposes");
+
+    }
 }

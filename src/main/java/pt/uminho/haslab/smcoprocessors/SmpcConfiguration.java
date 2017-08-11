@@ -4,77 +4,64 @@ import org.apache.hadoop.conf.Configuration;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.IORelay;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.MessageBroker;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.Relay;
+import pt.uminho.haslab.smcoprocessors.discovery.DiscoveryServiceConfiguration;
 
 import java.io.IOException;
 
 public class SmpcConfiguration {
 
+    //IORelay configuration
     private final int playerID;
     private final String relayHost;
     private final int relayPort;
-    private final String relayFirstTargetAddress;
-    private final int relayFirstTargetPort;
-    private final String relaySecondTargetAddress;
-    private final int relaySecondTargetPort;
-    private final int waitTime;
-    private final int nBits;
     private final boolean isDevelopment;
+
+    //SMCP library configuration
+    private final int nBits;
     private final String secretFamily;
     private final String secretQualifier;
     private final int batchSize;
     private final int preRandomElems;
 
+    //DiscoveryService configuration
+    private final int sleepTime;
+    private final int incTime;
+    private final int retries;
+    private final String discoveryServiceLocation;
+
     public SmpcConfiguration(Configuration conf) {
+
+        //IORelay configuration
         playerID = conf.getInt("smhbase.player.id", -1);
         relayHost = conf.get("smhbase.relay.host");
         relayPort = conf.getInt("smhbase.relay.port", -1);
-        relayFirstTargetAddress = conf
-                .get("smhbase.relay.target.first.address");
-        relayFirstTargetPort = conf.getInt("smhbase.relay.target.first.port",
-                -1);
-        relaySecondTargetAddress = conf
-                .get("smhbase.relay.target.second.address");
-        relaySecondTargetPort = conf.getInt("smhbase.relay.target.second.port",
-                -1);
-
-        waitTime = conf.getInt("smhbase.relay.wait.time", 0);
-        nBits = conf.getInt("smhbase.nbits", -1);
         isDevelopment = conf.getBoolean("hbase.coprocessor.development", true);
+
+        //SMCP library configuration
+        nBits = conf.getInt("smhbase.nbits", -1);
         secretFamily = conf.get("smhbase.column.family");
         secretQualifier = conf.get("smhbase.column.qualifier");
         batchSize = conf.getInt("smhbase.batch.size", 20);
         preRandomElems = conf.getInt("smhbase.smpc.prerandom.size", 0);
 
+        //DiscoveryService configuration
+        discoveryServiceLocation = conf.get("smhbase.discovery.location");
+        sleepTime = conf.getInt("smhbase.discovery.sleepTime", 200);
+        incTime = conf.getInt("smhbase.discovery.incTime", 100);
+        retries = conf.getInt("smhbase.discovery.retries", 5);
     }
 
     public Relay createRelay(MessageBroker broker) throws IOException {
-        return new IORelay(relayHost, relayPort, relayFirstTargetAddress,
-                relayFirstTargetPort, relaySecondTargetAddress,
-                relaySecondTargetPort, broker);
+        DiscoveryServiceConfiguration conf = new DiscoveryServiceConfiguration( discoveryServiceLocation, playerID, relayHost, relayPort, sleepTime, incTime, retries);
+        return new IORelay(relayHost, relayPort, broker, conf);
     }
 
     public int getPlayerID() {
         return playerID;
     }
 
-    public String getRelayHost() {
-        return relayHost;
-    }
-
-    public int getRelayPort() {
-        return relayPort;
-    }
-
-    public int getWaitTime() {
-        return waitTime;
-    }
-
     public int getnBits() {
         return nBits;
-    }
-
-    public boolean isIsDevelopment() {
-        return isDevelopment;
     }
 
     public String getPlayerIDasString() {
@@ -95,6 +82,18 @@ public class SmpcConfiguration {
 
     public int getPreRandomSize() {
         return preRandomElems;
+    }
+
+    public String getRelayHost() {
+        return relayHost;
+    }
+
+    public int getRelayPort() {
+        return relayPort;
+    }
+
+    public boolean isDevelopment() {
+        return isDevelopment;
     }
 
 }

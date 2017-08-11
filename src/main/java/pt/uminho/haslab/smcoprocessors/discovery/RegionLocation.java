@@ -2,10 +2,12 @@ package pt.uminho.haslab.smcoprocessors.discovery;
 
 public class RegionLocation {
 
+    private final int playerID;
     private final String ip;
     private final int port;
 
-    public RegionLocation(String ip, int port) {
+    public RegionLocation(int playerID, String ip, int port) {
+        this.playerID = playerID;
         this.ip = ip;
         this.port = port;
     }

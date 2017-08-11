@@ -59,7 +59,12 @@ public class RelayClient extends Thread {
 
     }
 
-    public synchronized void sendBatchMessages(BatchShareMessage msgs)
+    /***
+     * Following functions should only be invoked by the Relay.
+     * sendTestMessage is the only Exception, which can be invoked by multiple clients
+     * and thus needs to be synchronized.
+     * */
+    public void sendBatchMessages(BatchShareMessage msgs)
             throws IOException {
         messagesAskedToSend.addAndGet(1);
         sendToClient(3, msgs.toByteArray());
@@ -75,7 +80,12 @@ public class RelayClient extends Thread {
         sendToClient(2, msg.toByteArray());
     }
 
-    public void sendShutdown() throws IOException {
+    public synchronized void sendTestMessage(byte[] message) throws IOException {
+        messagesAskedToSend.addAndGet(1);
+        sendToClient(999, message);
+    }
+
+    private void sendShutdown() throws IOException {
         Shutdown shutdown = Shutdown.newBuilder().build();
         sendToClient(99, shutdown.toByteArray());
     }
@@ -132,6 +142,8 @@ public class RelayClient extends Thread {
                 int vRead = in.readInt();
                 if (vRead != -99) {
                     messagesSent.addAndGet(1);
+                }else{
+                    running = false;
                 }
             } catch (IOException ex) {
                 LOG.debug("Error on closing socket that was waiting " + ex);

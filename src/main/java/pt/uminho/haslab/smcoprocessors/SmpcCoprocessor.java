@@ -35,7 +35,7 @@ public class SmpcCoprocessor extends BaseRegionObserver {
     private static final Log LOG = LogFactory.getLog(SmpcCoprocessor.class
             .getName());
 
-    /* Regio Enviorment */
+    /* Region Environment */
     private RegionCoprocessorEnvironment env;
 
     /* Configuration related to the Player and SearchEndpoint */
@@ -71,13 +71,18 @@ public class SmpcCoprocessor extends BaseRegionObserver {
             // Wait some time before tryng to connect with other region servers
             LOG.debug("Player " + searchConf.getPlayerID()
                     + " is going to wait for other players");
-            waitOtherPlayers();
+            try {
+                waitServerStart();
+            } catch (InterruptedException e1) {
+                LOG.error("Relay not booted correctly "+ e1.getLocalizedMessage());
+                throw new IllegalStateException(e1);
+            }
             initiateSharedResources(searchConf);
             if (searchConf.getPreRandomSize() > 0) {
                 SharemindSecretFunctions.initRandomElemes(
                         searchConf.getPreRandomSize(), searchConf.getnBits());
             }
-            LOG.info("Resources initated " + searchConf.getPlayerIDasString());
+            LOG.info("Resources initiated " + searchConf.getPlayerIDasString());
         } else {
             LOG.debug("Second start " + searchConf.getPlayerIDasString());
             setupSharedResources(searchConf);
@@ -88,7 +93,7 @@ public class SmpcCoprocessor extends BaseRegionObserver {
     @Override
     public void stop(CoprocessorEnvironment e) throws IOException {
         if (wasFirst) {
-            if (!searchConf.isIsDevelopment()) {
+            if (!searchConf.isDevelopment()) {
                 relay.stopRelay();
             } else {
                 /*
@@ -118,25 +123,6 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 
     }
 
-    private class WaitOthers extends Thread {
-
-        private final int waitTime;
-
-        public WaitOthers(int waitTime) {
-            this.waitTime = waitTime;
-        }
-
-        @Override
-        public void run() {
-            try {
-                LOG.debug("Going to sleep and wait for other players");
-                Thread.sleep(waitTime);
-                relay.bootRelay();
-            } catch (InterruptedException ex) {
-                LOG.error(ex);
-            }
-        }
-    }
 
     /**
      * Helping function that checks if the region server player has started the
@@ -150,21 +136,9 @@ public class SmpcCoprocessor extends BaseRegionObserver {
                 .containsKey(searchConf.getPlayerIDasString());
     }
 
-    private void waitOtherPlayers() {
-        LOG.debug("waiting for other players " + searchConf.getWaitTime());
-        new WaitOthers(searchConf.getWaitTime()).start();
-
-        if (!searchConf.isIsDevelopment()) {
-
-			/* In development clusters are not launched concurrently */
-            try {
-                LOG.debug("Waiting for relay start");
-                broker.waitRelayStart();
-            } catch (InterruptedException ex) {
-                LOG.error("Error on waiting for other players");
-                LOG.error(ex);
-            }
-        }
+    private void waitServerStart() throws InterruptedException {
+        LOG.debug("Waiting for signal of Relay Start");
+        broker.waitRelayStart();
     }
 
     private Player getPlayer(RequestIdentifier identifier) {

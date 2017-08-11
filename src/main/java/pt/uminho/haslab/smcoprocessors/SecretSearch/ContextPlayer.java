@@ -58,8 +58,6 @@ public class ContextPlayer implements Player, SharemindPlayer {
      * reading any messages from the broker check the queue to see if it already
      * exists.
      */
-    private final Map<Integer, Queue<BigInteger>> playerMessages;
-
     private final Map<Integer, Queue<List<byte[]>>> playerBatchMessages;
 
     private final BatchShareMessage.Builder bmBuilder;
@@ -71,12 +69,10 @@ public class ContextPlayer implements Player, SharemindPlayer {
         this.requestID = requestID;
         this.playerID = playerID;
         this.broker = broker;
-        playerMessages = new HashMap<Integer, Queue<BigInteger>>();
+
         playerBatchMessages = new HashMap<Integer, Queue<List<byte[]>>>();
 
         int[] players = getPlayerSources();
-        playerMessages.put(players[0], new LinkedList<BigInteger>());
-        playerMessages.put(players[1], new LinkedList<BigInteger>());
 
         playerBatchMessages.put(players[0], new LinkedList<List<byte[]>>());
         playerBatchMessages.put(players[1], new LinkedList<List<byte[]>>());
