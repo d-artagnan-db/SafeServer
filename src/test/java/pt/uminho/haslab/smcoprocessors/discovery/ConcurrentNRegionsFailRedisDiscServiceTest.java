@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static junit.framework.TestCase.assertEquals;
 
 @RunWith(Parameterized.class)
-public class ConcurrentNRegionsFailRedisDiscService extends ConcurrentNRegionsRedisDiscService {
+public class ConcurrentNRegionsFailRedisDiscServiceTest extends ConcurrentNRegionsRedisDiscService {
 
     /*This class simulates a cluster where some regions fail at publishing their location.
     * In the class constructor it is selected at random some bannedPlayers and requestsIds in a
@@ -35,7 +35,7 @@ public class ConcurrentNRegionsFailRedisDiscService extends ConcurrentNRegionsRe
         return ValuesGenerator.NRegionsRedisTestValueGenerator(nRegions);
     }
 
-    public ConcurrentNRegionsFailRedisDiscService(Map<Integer, List<BigInteger>> requestIDs, Map<Integer, List<BigInteger>> regionIDs, Map<Integer, List<String>> ips, Map<Integer, List<Integer>> ports) {
+    public ConcurrentNRegionsFailRedisDiscServiceTest(Map<Integer, List<BigInteger>> requestIDs, Map<Integer, List<BigInteger>> regionIDs, Map<Integer, List<String>> ips, Map<Integer, List<Integer>> ports) {
         super(requestIDs, regionIDs, ips, ports);
         bannedPlayers = new HashMap<Integer, Integer>();
         bannedRequestIDs = new HashSet<Integer>();

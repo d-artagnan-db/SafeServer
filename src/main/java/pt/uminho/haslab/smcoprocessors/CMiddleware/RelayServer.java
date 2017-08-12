@@ -55,6 +55,7 @@ public class RelayServer extends Thread {
         for (Client c : clients) {
             LOG.debug(this.bindingPort + " is going to check client status");
             while (c.isRunning()) {
+                LOG.debug("Clients not closed");
                 Thread.sleep(500);
             }
         }

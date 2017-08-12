@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @RunWith(Parameterized.class)
-public class ConcurrentNRegionsSucessRedisDiscService extends ConcurrentNRegionsRedisDiscService {
+public class ConcurrentNRegionsSucessRedisDiscServiceTest extends ConcurrentNRegionsRedisDiscService {
 
     @Parameterized.Parameters
     public static Collection nbitsValues() {
@@ -21,7 +21,7 @@ public class ConcurrentNRegionsSucessRedisDiscService extends ConcurrentNRegions
     }
 
 
-    public ConcurrentNRegionsSucessRedisDiscService(Map<Integer, List<BigInteger>> requestIDs, Map<Integer, List<BigInteger>> regionIDs, Map<Integer, List<String>> ips, Map<Integer, List<Integer>> ports) {
+    public ConcurrentNRegionsSucessRedisDiscServiceTest(Map<Integer, List<BigInteger>> requestIDs, Map<Integer, List<BigInteger>> regionIDs, Map<Integer, List<String>> ips, Map<Integer, List<Integer>> ports) {
         super(requestIDs, regionIDs, ips, ports);
     }
 

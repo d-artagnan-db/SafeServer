@@ -19,14 +19,14 @@ import java.util.concurrent.CountDownLatch;
 import static org.junit.Assert.assertArrayEquals;
 
 @RunWith(Parameterized.class)
-public class CorrectSingleServerMultipleClients extends SingleServerMultipleClients {
+public class CorrectSingleServerMultipleClientsTest extends SingleServerMultipleClients {
 
     @Parameterized.Parameters
     public static Collection nbitsValues() {
         return ValuesGenerator.PeerConnectionManagerSingleServerTestValueGenerator();
     }
 
-    private static final Log LOG = LogFactory.getLog(CorrectSingleServerMultipleClients.class.getName());
+    private static final Log LOG = LogFactory.getLog(CorrectSingleServerMultipleClientsTest.class.getName());
 
     private final String serverIp;
     private final int serverPort;
@@ -36,7 +36,7 @@ public class CorrectSingleServerMultipleClients extends SingleServerMultipleClie
 
 
 
-    public CorrectSingleServerMultipleClients(String serverIp, int serverPort, byte[] messagesToSend) {
+    public CorrectSingleServerMultipleClientsTest(String serverIp, int serverPort, byte[] messagesToSend) {
         this.serverIp = serverIp;
         this.serverPort = serverPort;
         this.messageToSend = messagesToSend;

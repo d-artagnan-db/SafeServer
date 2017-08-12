@@ -66,6 +66,7 @@ public class Client extends Thread {
             }
             //Message issued to close connection.
             case 99: {
+                LOG.debug("Received message to close "+clientSocket.getPort());
                 toClose = true;
                 break;
             }
