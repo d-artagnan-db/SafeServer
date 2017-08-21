@@ -50,7 +50,7 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
                     .toString(requestIdentifier.getRequestID());
             String regionID = Arrays.toString(requestIdentifier.getRegionID());
             key = requestID + ":" + regionID;
-            LOG.debug("Going to put on redis " + key + ":"
+            LOG.debug("Going to put on redis " + key + "<->"
                     + locationMessage);
             jedis.lpush(key, locationMessage);
 

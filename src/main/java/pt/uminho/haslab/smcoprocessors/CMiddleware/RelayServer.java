@@ -31,12 +31,12 @@ public class RelayServer extends Thread {
     private CountDownLatch mainLoopClosed;
 
 
-    public RelayServer(final String bindingAdress, final int bindingPort,
+    public RelayServer(final String bindingAddress, final int bindingPort,
                        final MessageBroker broker) throws IOException {
         this.bindingPort = bindingPort;
-        this.bindingAddress = bindingAdress;
+        this.bindingAddress = bindingAddress;
         this.broker = broker;
-        LOG.debug("Starting server " + bindingAdress+":"+bindingPort);
+        LOG.debug("Starting server " + bindingAddress+":"+bindingPort);
         clientsReceived = 0;
         clients = new ArrayList<Client>();
         serverSocket = new ServerSocket(bindingPort);
