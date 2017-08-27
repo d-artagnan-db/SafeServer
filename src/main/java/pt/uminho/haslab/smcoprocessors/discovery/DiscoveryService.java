@@ -6,7 +6,10 @@ import java.util.List;
 
 public interface DiscoveryService {
 
-    List<RegionLocation> discoverRegions(RequestIdentifier requestIdentifier)
-            throws FailedRegionDiscovery;
+    void registerRegion(RequestIdentifier requestIdentifier);
+
+    void unregisterRegion(RequestIdentifier requestIdentifier);
+
+    List<RegionLocation> discoverRegions(RequestIdentifier requestIdentifier) throws FailedRegionDiscovery;
 
 }

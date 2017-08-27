@@ -19,4 +19,8 @@ public class RegionLocation {
     public int getPort() {
         return port;
     }
+
+    public int getPlayerID() {
+        return playerID;
+    }
 }

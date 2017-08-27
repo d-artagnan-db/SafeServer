@@ -24,9 +24,9 @@ public abstract class ConcurrentNRegionsRedisDiscService
             .getLog(ConcurrentNRegionsRedisDiscService.class.getName());
 
 
-    protected final static int DISC_SERVICE_SLEEP_TIME = 200;
-    protected final static int DISC_SERVICE_INC_TIME = 100;
-    protected final static int DISC_SERVICE_RETRIES = 3;
+    protected final static int DISC_SERVICE_SLEEP_TIME = 2000;
+    protected final static int DISC_SERVICE_INC_TIME = 1000;
+    protected final static int DISC_SERVICE_RETRIES = 10;
 
     protected final Map<Integer, List<BigInteger>> requestIDs;
     protected final Map<Integer, List<BigInteger>> regionIDs;

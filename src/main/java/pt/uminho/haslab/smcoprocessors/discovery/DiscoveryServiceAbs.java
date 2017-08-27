@@ -13,7 +13,7 @@ public abstract class DiscoveryServiceAbs implements DiscoveryService {
     final String locationMessage;
 
     DiscoveryServiceAbs(String discoveryServiceLocation, int playerID,
-                               String regionServerIP, int port) {
+                        String regionServerIP, int port) {
         this.discoveryServeLocation = discoveryServiceLocation;
         this.playerID = playerID;
         this.RegionServerIP = regionServerIP;
@@ -23,11 +23,17 @@ public abstract class DiscoveryServiceAbs implements DiscoveryService {
 
     protected abstract DiscoveryServiceClient getDiscoveryServiceClient();
 
-    public List<RegionLocation> discoverRegions(
-            RequestIdentifier requestIdentifier) throws FailedRegionDiscovery {
-        DiscoveryServiceClient client = getDiscoveryServiceClient();
-        client.sendCurrentLocationOfPlayerInRequest(requestIdentifier);
-        return client.getPeersLocation();
+
+    public void registerRegion(RequestIdentifier requestIdentifier) {
+        getDiscoveryServiceClient().sendCurrentLocationOfPlayerInRequest(requestIdentifier);
+    }
+
+    public void unregisterRegion(RequestIdentifier requestIdentifier) {
+        getDiscoveryServiceClient().removeCurrentLocationOfPlayerInRequest(requestIdentifier);
+    }
+
+    public List<RegionLocation> discoverRegions(RequestIdentifier requestIdentifier) throws FailedRegionDiscovery {
+        return getDiscoveryServiceClient().getPeersLocation(requestIdentifier);
     }
 
 }

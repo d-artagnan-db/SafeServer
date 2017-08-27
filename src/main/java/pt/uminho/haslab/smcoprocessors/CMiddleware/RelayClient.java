@@ -142,7 +142,7 @@ public class RelayClient extends Thread {
                 int vRead = in.readInt();
                 if (vRead != -99) {
                     messagesSent.addAndGet(1);
-                }else{
+                } else {
                     running = false;
                 }
             } catch (IOException ex) {

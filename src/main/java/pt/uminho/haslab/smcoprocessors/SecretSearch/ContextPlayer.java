@@ -223,6 +223,8 @@ public class ContextPlayer implements Player, SharemindPlayer {
     /**
      * The output should be SearchResults and not DataIdentifiers. That way the
      * result would be consistent with the output of SecretSearch.
+     * This function returns the SeachResults receives the results computed from the other parties, thus the result
+     * returned by this function should be a list with size equal to two.
      */
     public List<SearchResults> getProtocolResults()
             throws ResultsLengthMissmatch {
@@ -244,10 +246,10 @@ public class ContextPlayer implements Player, SharemindPlayer {
         }
 
         broker.protocolResultsRead(requestID);
+        assert results.size() == 2;
         return results;
     }
 
-    @Override
     public FilteredIndexes getFilterIndexes() {
         FilterIndexMessage recMessage = broker.getFilterIndexes(requestID);
 

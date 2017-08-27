@@ -10,7 +10,7 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  * Mock class used for testing purpose that only leaves the a test method to be defined.
- * */
+ */
 public abstract class TestMessageBroker implements MessageBroker {
     private final CountDownLatch relayStarted;
 
@@ -46,6 +46,7 @@ public abstract class TestMessageBroker implements MessageBroker {
         throw new UnsupportedMediaException("Method not currently supported on testing framework");
 
     }
+
     public void readMessages(RequestIdentifier requestID) {
         throw new UnsupportedMediaException("Method not currently supported on testing framework");
 

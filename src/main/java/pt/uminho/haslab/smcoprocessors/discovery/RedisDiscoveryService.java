@@ -42,18 +42,25 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
 
     private class Client implements DiscoveryServiceClient {
 
-        private String key;
-
-        public void sendCurrentLocationOfPlayerInRequest(
-                RequestIdentifier requestIdentifier) {
+        private String getKey(RequestIdentifier requestIdentifier) {
             String requestID = Arrays
                     .toString(requestIdentifier.getRequestID());
             String regionID = Arrays.toString(requestIdentifier.getRegionID());
-            key = requestID + ":" + regionID;
+            return requestID + ":" + regionID;
+        }
+
+        public synchronized void sendCurrentLocationOfPlayerInRequest(
+                RequestIdentifier requestIdentifier) {
+            String key = getKey(requestIdentifier);
             LOG.debug("Going to put on redis " + key + "<->"
                     + locationMessage);
             jedis.lpush(key, locationMessage);
 
+        }
+
+        public synchronized void removeCurrentLocationOfPlayerInRequest(RequestIdentifier requestIdentifier) {
+            String key = getKey(requestIdentifier);
+            jedis.del(key);
         }
 
         private List<RegionLocation> parseJedisResult(List<String> results)
@@ -65,7 +72,7 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
             List<RegionLocation> regionResult = new ArrayList<RegionLocation>();
 
             if (results.size() != 3) {
-                String msg = "Illegal results input size";
+                String msg = "Illegal results input size: " + results.size();
                 LOG.debug(msg);
                 throw new FailedRegionDiscovery(msg);
             }
@@ -74,7 +81,7 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
                 String[] subs = result.split(":");
 
                 if (Integer.parseInt(subs[0]) != playerID) {
-                    RegionLocation rl = new RegionLocation(Integer.parseInt(subs[0]),subs[1],
+                    RegionLocation rl = new RegionLocation(Integer.parseInt(subs[0]), subs[1],
                             Integer.parseInt(subs[2]));
                     regionResult.add(rl);
                 }
@@ -82,10 +89,12 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
             return regionResult;
         }
 
-        public List<RegionLocation> getPeersLocation()
+        public synchronized List<RegionLocation> getPeersLocation(RequestIdentifier requestIdentifier)
                 throws FailedRegionDiscovery {
             boolean run = true;
             List<String> clients = new ArrayList<String>();
+            String key = getKey(requestIdentifier);
+
             LOG.debug("Going to read");
             int sleepTimeInc = sleepTime;
             int nAttempts = 0;
@@ -114,6 +123,7 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
             }
             return parseJedisResult(clients);
         }
+
 
     }
 

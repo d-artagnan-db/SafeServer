@@ -22,7 +22,7 @@ public class PlayerResults {
 
         // System.out.println("ResRes size is "+ results.size());
         /*
-		 * for(int i =0; i < results.size(); i++){ results.get(i).printSize(); }
+         * for(int i =0; i < results.size(); i++){ results.get(i).printSize(); }
 		 */
 
         int nIdentifiers = results.get(0).getIdentifiers().size();

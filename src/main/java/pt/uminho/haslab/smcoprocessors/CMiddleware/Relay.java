@@ -1,7 +1,7 @@
 package pt.uminho.haslab.smcoprocessors.CMiddleware;
 
-import pt.uminho.haslab.protocommunication.Search;
 import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
+import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
 
 import java.io.IOException;
@@ -20,6 +20,10 @@ public interface Relay {
 
     void forceStopRelay() throws IOException;
 
-    void sendFilteredIndexes(Search.FilterIndexMessage msg) throws IOException;
+    void sendFilteredIndexes(FilterIndexMessage msg) throws IOException;
+
+    void registerRequest(RequestIdentifier requestIdentifier);
+
+    void unregisterRequest(RequestIdentifier requestIdentifier);
 
 }

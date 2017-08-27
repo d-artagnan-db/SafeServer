@@ -2,28 +2,23 @@ package pt.uminho.haslab.smcoprocessors.CMiddleware;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import pt.uminho.haslab.protocommunication.Search;
+import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
-import pt.uminho.haslab.smcoprocessors.discovery.DiscoveryService;
-import pt.uminho.haslab.smcoprocessors.discovery.DiscoveryServiceConfiguration;
-import pt.uminho.haslab.smcoprocessors.discovery.RedisDiscoveryService;
+import pt.uminho.haslab.smcoprocessors.discovery.*;
 
 import java.io.IOException;
+import java.util.List;
 
 public class IORelay implements Relay {
 
     private static final Log LOG = LogFactory.getLog(IORelay.class.getName());
 
     private final RelayServer server;
-
-    private boolean running;
-
     private final MessageBroker broker;
-
     private final DiscoveryService discoveryService;
-
     private final PeersConnectionManager peerConnectionManager;
+    private boolean running;
 
     public IORelay(String bindingAddress, int bindingPort,
                    MessageBroker broker, DiscoveryServiceConfiguration conf) throws IOException {
@@ -91,31 +86,55 @@ public class IORelay implements Relay {
         }
     }
 
-    private RelayClient getTargetClient(int playerID) {
-        //this.discoveryService.
-        return null;
+    private RelayClient getTargetClient(int playerID, RequestIdentifier requestIdentifier) {
+        RelayClient client = null;
+
+        try {
+            List<RegionLocation> locations = this.discoveryService.discoverRegions(requestIdentifier);
+
+            for (RegionLocation location : locations) {
+                if (location.getPlayerID() == playerID) {
+                    client = peerConnectionManager.getRelayClient(location.getIp(), location.getPort());
+                    break;
+                }
+            }
+        } catch (FailedRegionDiscovery failedRegionDiscovery) {
+            LOG.error(failedRegionDiscovery);
+            throw new IllegalStateException(failedRegionDiscovery);
+        }
+        return client;
     }
 
-    public synchronized void sendBatchMessages(Search.BatchShareMessage msg)
+    public synchronized void sendBatchMessages(BatchShareMessage msg)
             throws IOException {
-        int target = calculateDestPlayer(msg.getPlayerSource(),
-                msg.getPlayerDest());
-
-        getTargetClient(target).sendBatchMessages(msg);
+        RequestIdentifier ident = new RequestIdentifier(msg.getRequestID().toByteArray(), msg.getRegionID().toByteArray());
+        getTargetClient(msg.getPlayerDest(), ident).sendBatchMessages(msg);
     }
 
     public synchronized void sendProtocolResults(ResultsMessage msg)
             throws IOException {
-        int target = calculateDestPlayer(msg.getPlayerSource(),
-                msg.getPlayerDest());
-        getTargetClient(target).sendProtocolResults(msg);
+        RequestIdentifier ident = new RequestIdentifier(msg.getRequestID().toByteArray(), msg.getRegionID().toByteArray());
+        getTargetClient(msg.getPlayerDest(), ident).sendProtocolResults(msg);
     }
 
     public synchronized void sendFilteredIndexes(FilterIndexMessage msg)
             throws IOException {
-        int target = calculateDestPlayer(msg.getPlayerSource(),
-                msg.getPlayerDest());
-        getTargetClient(target).sendFilteredIndexes(msg);
+        RequestIdentifier ident = new RequestIdentifier(msg.getRequestID().toByteArray(), msg.getRegionID().toByteArray());
+        getTargetClient(msg.getPlayerDest(), ident).sendFilteredIndexes(msg);
+
+    }
+
+    public void registerRequest(RequestIdentifier requestIdentifier) {
+        discoveryService.registerRegion(requestIdentifier);
+    }
+
+    public void unregisterRequest(RequestIdentifier requestIdentifier) {
+        discoveryService.unregisterRegion(requestIdentifier);
+    }
+
+
+    public void cleanRequestRegister() {
+
 
     }
 
@@ -135,14 +154,14 @@ public class IORelay implements Relay {
             case 0:
                 return playerDest == 1 ? 1 : 0;
                 /*
-				 * if this player is 1 and wants to send to player two, then use
+                 * if this player is 1 and wants to send to player two, then use
 				 * connection two on the nio relay. Use connection one if it
 				 * goes to player 0.
 				 */
             case 1:
                 return playerDest == 2 ? 1 : 0;
-				/*
-				 * if this player is 2 and wants to send to player zero, then
+                /*
+                 * if this player is 2 and wants to send to player zero, then
 				 * use connection two on the nio relay. Use connection one if it
 				 * goes to player 1.
 				 */
@@ -150,7 +169,7 @@ public class IORelay implements Relay {
                 return playerDest == 0 ? 1 : 0;
         }
 
-		/* This does nothing, it just helps netbeans not show a warning */
+		/* This does nothing, it just hides editors warnings of missing return statement */
         return -1;
     }
 }

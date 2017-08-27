@@ -101,7 +101,7 @@ public class FilterIndexesTest extends TestLinkedRegions {
                 byte[] reqID = ("" + i).getBytes();
                 byte[] regionID = "1".getBytes();
                 RequestIdentifier ident = new RequestIdentifier(reqID, regionID);
-
+                relay.registerRequest(ident);
                 SharemindPlayer player = new ContextPlayer(relay, ident,
                         playerID, broker);
 

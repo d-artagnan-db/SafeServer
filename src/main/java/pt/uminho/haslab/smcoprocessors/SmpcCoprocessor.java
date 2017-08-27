@@ -74,7 +74,7 @@ public class SmpcCoprocessor extends BaseRegionObserver {
             try {
                 waitServerStart();
             } catch (InterruptedException e1) {
-                LOG.error("Relay not booted correctly "+ e1.getLocalizedMessage());
+                LOG.error("Relay not booted correctly " + e1.getLocalizedMessage());
                 throw new IllegalStateException(e1);
             }
             initiateSharedResources(searchConf);
@@ -97,7 +97,7 @@ public class SmpcCoprocessor extends BaseRegionObserver {
                 relay.stopRelay();
             } else {
                 /*
-				 * In development mode clusters are not concurrent and the stop
+                 * In development mode clusters are not concurrent and the stop
 				 * requests by default waits for the other players to cancel
 				 * their channel. This only happens if every relay stops the
 				 * execution concurerntly. This way the server socket is simpli
@@ -160,6 +160,7 @@ public class SmpcCoprocessor extends BaseRegionObserver {
         LOG.debug("RegionID " + Arrays.toString(regionID));
 
         RequestIdentifier ident = new RequestIdentifier(requestID, regionID);
+        relay.registerRequest(ident);
         Player player = getPlayer(ident);
         int nbits = this.searchConf.getnBits();
         String targetPlayerS = new String(op.getAttribute("targetPlayer"));
@@ -199,6 +200,7 @@ public class SmpcCoprocessor extends BaseRegionObserver {
         LOG.debug("RegionID is " + Arrays.toString(regionID));
 
         RequestIdentifier ident = new RequestIdentifier(requestID, regionID);
+        relay.registerRequest(ident);
         Player player = getPlayer(ident);
 
         int nbits = this.searchConf.getnBits();

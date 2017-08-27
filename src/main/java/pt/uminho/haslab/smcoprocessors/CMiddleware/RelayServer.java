@@ -36,7 +36,7 @@ public class RelayServer extends Thread {
         this.bindingPort = bindingPort;
         this.bindingAddress = bindingAddress;
         this.broker = broker;
-        LOG.debug("Starting server " + bindingAddress+":"+bindingPort);
+        LOG.debug("Starting server " + bindingAddress + ":" + bindingPort);
         clientsReceived = 0;
         clients = new ArrayList<Client>();
         serverSocket = new ServerSocket(bindingPort);
@@ -95,14 +95,14 @@ public class RelayServer extends Thread {
     public void run() {
         try {
             while (running) {
-                    Socket socketClient = serverSocket.accept();
-                    Client client = new Client(socketClient, broker);
-                    client.start();
-                    this.clients.add(client);
-                    clientsReceived +=1;
+                Socket socketClient = serverSocket.accept();
+                Client client = new Client(socketClient, broker);
+                client.start();
+                this.clients.add(client);
+                clientsReceived += 1;
 
-                }
-                mainLoopClosed.countDown();
+            }
+            mainLoopClosed.countDown();
         } catch (IOException ex) {
             LOG.debug(ex);
             throw new IllegalStateException(ex);

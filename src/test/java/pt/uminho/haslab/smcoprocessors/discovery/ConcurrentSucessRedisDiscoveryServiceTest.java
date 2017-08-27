@@ -35,6 +35,7 @@ public class ConcurrentSucessRedisDiscoveryServiceTest
                     "localhost", playerID, ip, port, DISC_SERVICE_SLEEP_TIME,
                     DISC_SERVICE_INC_TIME, DISC_SERVICE_RETRIES);
             RequestIdentifier reqi = new RequestIdentifier(requestID, regionID);
+            service.registerRegion(reqi);
             List<RegionLocation> playerLocations = null;
             try {
                 playerLocations = service.discoverRegions(reqi);
@@ -43,6 +44,7 @@ public class ConcurrentSucessRedisDiscoveryServiceTest
             }
             locations.put(playerID, playerLocations);
             runStatus = false;
+            service.unregisterRegion(reqi);
             // System.out.println("All values put");
 
         }

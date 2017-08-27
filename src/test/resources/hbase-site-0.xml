@@ -99,23 +99,31 @@
         <value>6262</value>
     </property>
     <property>
-        <name>smhbase.relay.target.first.address</name>
-        <value>localhost</value>
-    </property>
-    <property>
-        <name>smhbase.relay.target.first.port</name>
-        <value>6263</value>
-    </property>
-    <property>
-        <name>smhbase.relay.target.second.address</name>
-        <value>localhost</value>
-    </property>
-    <property>
-        <name>smhbase.relay.target.second.port</name>
-        <value>6264</value>
-    </property>
-    <property>
         <name>hbase.rpc.timeout</name>
         <value>6000000</value>
+    </property>
+    <property>
+        <name>smhbase.batch.size</name>
+        <value>20</value>
+    </property>
+    <property>
+        <name>smhbase.smpc.prerandom.size</name>
+        <value>0</value>
+    </property>
+    <property>
+        <name>smhbase.discovery.location</name>
+        <value>localhost</value>
+    </property>
+    <property>
+        <name>smhbase.discovery.sleepTime</name>
+        <value>200</value>
+    </property>
+    <property>
+        <name>smhbase.discovery.incTime</name>
+        <value>100</value>
+    </property>
+    <property>
+        <name>smhbase.discovery.retries</name>
+        <value>5</value>
     </property>
 </configuration>

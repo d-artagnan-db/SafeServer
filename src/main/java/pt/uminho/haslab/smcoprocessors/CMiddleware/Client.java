@@ -41,7 +41,7 @@ public class Client extends Thread {
 
     private void handleMessage(int type, byte[] message) throws IOException {
         /*
-		 * LOG.debug("Handle message with type " + type + " and size " +
+         * LOG.debug("Handle message with type " + type + " and size " +
 		 * message.length);
 		 */
         switch (type) {
@@ -66,12 +66,12 @@ public class Client extends Thread {
             }
             //Message issued to close connection.
             case 99: {
-                LOG.debug("Received message to close "+clientSocket.getPort());
+                LOG.debug("Received message to close " + clientSocket.getPort());
                 toClose = true;
                 break;
             }
             //Message used for UnitTests
-            case 999:{
+            case 999: {
                 new TestMessageHandler(message).handle();
                 break;
             }

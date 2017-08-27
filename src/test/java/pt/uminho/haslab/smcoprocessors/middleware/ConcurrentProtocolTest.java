@@ -133,6 +133,7 @@ public abstract class ConcurrentProtocolTest extends TestLinkedRegions {
                 byte[] regionID = "1".getBytes();
 
                 RequestIdentifier ident = new RequestIdentifier(reqID, regionID);
+                relay.registerRequest(ident);
                 ConcurrentTestPlayer player = createConcurrentPlayer(relay,
                         ident, playerID, broker, secretOne, secretTwo,
                         valueNbits);

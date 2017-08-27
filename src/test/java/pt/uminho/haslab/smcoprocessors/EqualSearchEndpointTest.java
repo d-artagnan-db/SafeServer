@@ -53,8 +53,8 @@ public class EqualSearchEndpointTest extends AbstractSearchEndpointTest {
             SharedSecret secret = dealer.share(value);
 
             LOG.debug("Going to compare value " + value);
-			/*
-			 * The computations will be made on 63 bits on reality. Always the
+            /*
+             * The computations will be made on 63 bits on reality. Always the
 			 * nbits used on the dealer +1. nbits+1. Explanation on the
 			 * description of the paramters of the region server and smhbase.
 			 */

@@ -7,29 +7,29 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PeersConnectionManagerImpl implements  PeersConnectionManager {
-    private static final Log LOG = LogFactory.getLog(PeersConnectionManagerImpl .class.getName());
+public class PeersConnectionManagerImpl implements PeersConnectionManager {
+    private static final Log LOG = LogFactory.getLog(PeersConnectionManagerImpl.class.getName());
 
     private Map<String, RelayClient> connectionToClients;
     private int playerBindPort;
 
     private boolean shutdownClients;
 
-    public PeersConnectionManagerImpl(int playerBindPort){
+    public PeersConnectionManagerImpl(int playerBindPort) {
         this.playerBindPort = playerBindPort;
         connectionToClients = new HashMap<String, RelayClient>();
         shutdownClients = false;
     }
 
     public synchronized RelayClient getRelayClient(String host, int port) {
-        String key = host+":"+port;
-        LOG.debug("GetRelayClient "+ key);
-        if(connectionToClients.containsKey(key)){
+        String key = host + ":" + port;
+        LOG.debug("GetRelayClient " + key);
+        if (connectionToClients.containsKey(key)) {
             LOG.debug("Found an already existing connection.");
             return connectionToClients.get(key);
-        }else{
+        } else {
             LOG.debug("Creating a new connection");
-            RelayClient client =  new RelayClient(playerBindPort, host, port);
+            RelayClient client = new RelayClient(playerBindPort, host, port);
             try {
                 LOG.debug("Connecting to target");
                 client.connectToTarget();
@@ -47,8 +47,8 @@ public class PeersConnectionManagerImpl implements  PeersConnectionManager {
         }
     }
 
-    public synchronized  void shutdownClients() throws IOException, InterruptedException {
-        if(!shutdownClients) {
+    public synchronized void shutdownClients() throws IOException, InterruptedException {
+        if (!shutdownClients) {
             LOG.debug("Going to shutdown client");
             for (RelayClient cli : connectionToClients.values()) {
                 cli.shutdown();

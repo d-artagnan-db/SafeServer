@@ -17,7 +17,7 @@ public class ConcurrentNRegionsSucessRedisDiscServiceTest extends ConcurrentNReg
 
     @Parameterized.Parameters
     public static Collection nbitsValues() {
-        return ValuesGenerator.NRegionsRedisTestValueGenerator(30);
+        return ValuesGenerator.NRegionsRedisTestValueGenerator(10);
     }
 
 
@@ -46,6 +46,7 @@ public class ConcurrentNRegionsSucessRedisDiscServiceTest extends ConcurrentNReg
                     "localhost", playerID, ip, port, DISC_SERVICE_SLEEP_TIME,
                     DISC_SERVICE_INC_TIME, DISC_SERVICE_RETRIES);
             RequestIdentifier reqi = new RequestIdentifier(requestID, regionID);
+            service.registerRegion(reqi);
             List<RegionLocation> playerLocations = null;
 
             try {
@@ -55,6 +56,7 @@ public class ConcurrentNRegionsSucessRedisDiscServiceTest extends ConcurrentNReg
             }
             locations.get(playerID).put(pos, playerLocations);
             runStatus = false;
+            //service.unregisterRegion(reqi);
 
         }
     }

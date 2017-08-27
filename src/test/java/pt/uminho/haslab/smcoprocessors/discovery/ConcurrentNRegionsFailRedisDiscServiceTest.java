@@ -25,8 +25,8 @@ public class ConcurrentNRegionsFailRedisDiscServiceTest extends ConcurrentNRegio
     private final Map<Integer, Integer> bannedPlayers;
     private final Set<Integer> bannedRequestIDs;
 
-    private final static int nRegions = 30;
-    private final static int bannedRegions = 10;
+    private final static int nRegions = 10;
+    private final static int bannedRegions = 2;
     private final Random r;
     private final AtomicInteger fails;
 
@@ -83,6 +83,7 @@ public class ConcurrentNRegionsFailRedisDiscServiceTest extends ConcurrentNRegio
             if (!(bannedRequestIDs.contains(pos) && bannedPlayers.get(pos) == playerID)) {
                 RequestIdentifier reqi = new RequestIdentifier(requestID, regionID);
                 List<RegionLocation> playerLocations = null;
+                service.registerRegion(reqi);
 
                 try {
                     playerLocations = service.discoverRegions(reqi);
@@ -91,6 +92,7 @@ public class ConcurrentNRegionsFailRedisDiscServiceTest extends ConcurrentNRegio
                     fails.addAndGet(1);
                 }
                 locations.get(playerID).put(pos, playerLocations);
+                //service.unregisterRegion(reqi);
                 runStatus = false;
             }
 

@@ -73,7 +73,7 @@ public abstract class SingleServerMultipleClients {
     protected abstract RegionServer createServer() throws IOException, InterruptedException;
 
 
-    protected abstract class AbsPlayerServer extends Thread implements  RegionServer{
+    protected abstract class AbsPlayerServer extends Thread implements RegionServer {
 
         protected final String bindingAddress;
         protected final int bindingPort;
@@ -88,6 +88,7 @@ public abstract class SingleServerMultipleClients {
             server = new RelayServer(bindingAddress, bindingPort, broker);
             runStatus = false;
         }
+
         public void startRegionServer() {
             this.start();
 
@@ -106,7 +107,7 @@ public abstract class SingleServerMultipleClients {
 
     }
 
-    protected abstract class AbsPlayerClient extends Thread implements RegionServer{
+    protected abstract class AbsPlayerClient extends Thread implements RegionServer {
 
         protected final int playerID;
         protected final String ip;

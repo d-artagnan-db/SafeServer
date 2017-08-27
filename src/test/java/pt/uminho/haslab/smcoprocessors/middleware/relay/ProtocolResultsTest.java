@@ -15,10 +15,7 @@ import pt.uminho.haslab.testingutils.ValuesGenerator;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -33,7 +30,6 @@ public class ProtocolResultsTest {
     /**
      * This list contains a sequence of player IDs, that dictates the target of
      * player that must receive the results of protocol.
-     * <p>
      * Each value in the list has one of the following possible values (0,1,2)
      * that is a playerID. The size of the list dictates how many concurrent
      * players are created by each RegionServer. The index of the list is used
@@ -156,7 +152,7 @@ public class ProtocolResultsTest {
                 byte[] reqID = ("" + requestID).getBytes();
                 byte[] regionID = "1".getBytes();
                 RequestIdentifier ident = new RequestIdentifier(reqID, regionID);
-
+                relay.registerRequest(ident);
                 SharemindPlayer player = new ContextPlayer(relay, ident,
                         playerID, broker);
 
@@ -174,7 +170,6 @@ public class ProtocolResultsTest {
 
                 int target = playerDestIDs.get(requestID);
                 if (playerID != target) {
-
                     player.sendProtocolResults(target, new SearchResults(
                             valuesToSend, ids));
                 } else {
@@ -213,6 +208,8 @@ public class ProtocolResultsTest {
             List<BigInteger> peerOneValues = new ArrayList<BigInteger>();
             List<BigInteger> peerTwoValues = new ArrayList<BigInteger>();
             List<SearchResults> receivedPeerResults = new ArrayList<SearchResults>();
+            List<BigInteger> peerOneConvertedReceivedPeerReults = new ArrayList<BigInteger>();
+            List<BigInteger> peerTwoConvertedReceivedPeerReults = new ArrayList<BigInteger>();
 
             switch (playerDestIDs.get(i)) {
                 case 0:
@@ -232,35 +229,40 @@ public class ProtocolResultsTest {
                     break;
             }
 
+            for (byte[] peerOneResults : receivedPeerResults.get(0).getSecrets()) {
+                peerOneConvertedReceivedPeerReults.add(new BigInteger(peerOneResults));
+            }
+            for (byte[] peerOneResults : receivedPeerResults.get(1).getSecrets()) {
+                peerTwoConvertedReceivedPeerReults.add(new BigInteger(peerOneResults));
+            }
+            System.out.println(Arrays.toString(peerOneValues.toArray()));
+            System.out.println(Arrays.toString(peerTwoValues.toArray()));
+            System.out.println(Arrays.toString(peerOneConvertedReceivedPeerReults.toArray()));
+            System.out.println(Arrays.toString(peerTwoConvertedReceivedPeerReults.toArray()));
+
             assertEquals(peerOneValues.size(), peerTwoValues.size());
-            assertEquals(peerOneValues.size(), receivedPeerResults.get(0)
-                    .getSecrets().size());
-            assertEquals(peerOneValues.size(), receivedPeerResults.get(1)
-                    .getSecrets().size());
-            assertEquals(peerOneValues.size(), receivedPeerResults.get(0)
-                    .getIdentifiers().size());
-            assertEquals(peerOneValues.size(), receivedPeerResults.get(1)
-                    .getIdentifiers().size());
+            assertEquals(peerOneValues.size(), peerOneConvertedReceivedPeerReults.size());
+            assertEquals(peerOneValues.size(), peerTwoConvertedReceivedPeerReults.size());
+            assertEquals(peerOneValues.size(), peerOneConvertedReceivedPeerReults.size());
+            assertEquals(peerOneValues.size(), peerTwoConvertedReceivedPeerReults.size());
 
             /**
              * Check if the results sent to the Dest player all arrive and in
              * the correct order. Assuming the values are in the same order,
              * than the first value from one of the list must match.
              */
-            int firstList = 0;
-            int secondList = 1;
 
-            if (!peerOneValues.get(0).equals(
-                    receivedPeerResults.get(0).getSecrets().get(0))) {
-                firstList = 1;
-                secondList = 0;
+            if (!peerOneValues.get(0).equals(peerOneConvertedReceivedPeerReults.get(0))) {
+                List<BigInteger> aux = peerOneConvertedReceivedPeerReults;
+                peerOneConvertedReceivedPeerReults = peerTwoConvertedReceivedPeerReults;
+                peerTwoConvertedReceivedPeerReults = aux;
             }
 
             for (int j = 0; j < peerOneValues.size(); j++) {
                 assertEquals(peerOneValues.get(j),
-                        receivedPeerResults.get(firstList).getSecrets().get(j));
+                        peerOneConvertedReceivedPeerReults.get(j));
                 assertEquals(peerTwoValues.get(j),
-                        receivedPeerResults.get(secondList).getSecrets().get(j));
+                        peerTwoConvertedReceivedPeerReults.get(j));
             }
 
         }

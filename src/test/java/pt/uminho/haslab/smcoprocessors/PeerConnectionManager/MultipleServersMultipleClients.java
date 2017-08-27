@@ -43,8 +43,8 @@ public abstract class MultipleServersMultipleClients {
         this.servers = new ArrayList<RegionServer>();
         this.clients = new ArrayList<RegionServer>();
         allServersStarted = new CountDownLatch(NSERVERS);
-        allClientsStarted= new CountDownLatch(NCLIENTS);
-        allMessagesReceived = new CountDownLatch(NCLIENTS*NMESSAGES);
+        allClientsStarted = new CountDownLatch(NCLIENTS);
+        allMessagesReceived = new CountDownLatch(NCLIENTS * NMESSAGES);
 
     }
 
@@ -53,7 +53,7 @@ public abstract class MultipleServersMultipleClients {
     public void testProtocol() throws InterruptedException, IOException {
 
         //Function must initiate the server and wait for its correct initialization.
-        for(int i=0; i < NSERVERS; i++){
+        for (int i = 0; i < NSERVERS; i++) {
             servers.add(createServer(serverBindingAddressess.get(i), serverBindingPorts.get(i)));
         }
         LOG.debug("Going to create clients");
@@ -103,7 +103,7 @@ public abstract class MultipleServersMultipleClients {
 
     protected abstract void validateResults();
 
-    protected abstract class AbsPlayerServer extends Thread implements  RegionServer{
+    protected abstract class AbsPlayerServer extends Thread implements RegionServer {
 
         protected final String bindingAddress;
         protected final int bindingPort;
@@ -118,6 +118,7 @@ public abstract class MultipleServersMultipleClients {
             server = new RelayServer(bindingAddress, bindingPort, broker);
             runStatus = false;
         }
+
         public void startRegionServer() {
             this.start();
 
@@ -136,7 +137,7 @@ public abstract class MultipleServersMultipleClients {
 
     }
 
-    protected abstract class AbsPlayerClient extends Thread implements RegionServer{
+    protected abstract class AbsPlayerClient extends Thread implements RegionServer {
 
         protected final int playerID;
         protected final String ip;

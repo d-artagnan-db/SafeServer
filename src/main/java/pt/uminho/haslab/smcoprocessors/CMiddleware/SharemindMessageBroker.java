@@ -253,9 +253,9 @@ public class SharemindMessageBroker implements MessageBroker {
     }
 
     /**
-     *  Method only used for unitTest class implementations.
-     *  Should be ignored on a concrete implementation
-     * */
+     * Method only used for unitTest class implementations.
+     * Should be ignored on a concrete implementation
+     */
     public void receiveTestMessage(byte[] message) {
         throw new UnsupportedMediaException("This method should only be used for testing purposes");
 

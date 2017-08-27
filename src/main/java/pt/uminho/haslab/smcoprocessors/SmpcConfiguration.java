@@ -45,14 +45,14 @@ public class SmpcConfiguration {
         preRandomElems = conf.getInt("smhbase.smpc.prerandom.size", 0);
 
         //DiscoveryService configuration
-        discoveryServiceLocation = conf.get("smhbase.discovery.location");
+        discoveryServiceLocation = conf.get("smhbase.discovery.location", "localhost");
         sleepTime = conf.getInt("smhbase.discovery.sleepTime", 200);
         incTime = conf.getInt("smhbase.discovery.incTime", 100);
         retries = conf.getInt("smhbase.discovery.retries", 5);
     }
 
     public Relay createRelay(MessageBroker broker) throws IOException {
-        DiscoveryServiceConfiguration conf = new DiscoveryServiceConfiguration( discoveryServiceLocation, playerID, relayHost, relayPort, sleepTime, incTime, retries);
+        DiscoveryServiceConfiguration conf = new DiscoveryServiceConfiguration(discoveryServiceLocation, playerID, relayHost, relayPort, sleepTime, incTime, retries);
         return new IORelay(relayHost, relayPort, broker, conf);
     }
 

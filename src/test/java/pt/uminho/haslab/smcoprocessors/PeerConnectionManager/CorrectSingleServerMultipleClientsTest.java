@@ -35,7 +35,6 @@ public class CorrectSingleServerMultipleClientsTest extends SingleServerMultiple
     private final CountDownLatch allClientsSent;
 
 
-
     public CorrectSingleServerMultipleClientsTest(String serverIp, int serverPort, byte[] messagesToSend) {
         this.serverIp = serverIp;
         this.serverPort = serverPort;
@@ -45,7 +44,7 @@ public class CorrectSingleServerMultipleClientsTest extends SingleServerMultiple
     }
 
     protected void validateResults() {
-        for(byte[] receivedMessage: receivedMessages){
+        for (byte[] receivedMessage : receivedMessages) {
             assertArrayEquals(messageToSend, receivedMessage);
         }
     }
@@ -67,13 +66,13 @@ public class CorrectSingleServerMultipleClientsTest extends SingleServerMultiple
     private class MessageBrokerImpl extends TestMessageBroker {
 
         public void receiveTestMessage(byte[] message) {
-            synchronized (this){
+            synchronized (this) {
                 receivedMessages.add(message);
             }
         }
     }
 
-    private class PlayerServer extends AbsPlayerServer{
+    private class PlayerServer extends AbsPlayerServer {
 
         PlayerServer(String bindingAddress, int bindingPort, MessageBroker broker) throws IOException {
             super(bindingAddress, bindingPort, broker);
@@ -93,7 +92,7 @@ public class CorrectSingleServerMultipleClientsTest extends SingleServerMultiple
     }
 
 
-    private class PlayerClient extends AbsPlayerClient{
+    private class PlayerClient extends AbsPlayerClient {
 
         PlayerClient(int playerID, String ip, int port) {
             super(playerID, ip, port);

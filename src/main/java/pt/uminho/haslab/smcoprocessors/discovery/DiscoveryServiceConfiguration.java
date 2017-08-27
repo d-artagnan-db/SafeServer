@@ -11,14 +11,13 @@ public class DiscoveryServiceConfiguration {
     private final int retries;
 
 
-
     public DiscoveryServiceConfiguration(String discoveryServiceLocation,
                                          int playerID,
                                          String regionServerIP,
                                          int port,
                                          int sleepTime,
                                          int incTime,
-                                         int retries){
+                                         int retries) {
         this.discoveryServiceLocation = discoveryServiceLocation;
         this.playerID = playerID;
         this.regionServerIP = regionServerIP;

@@ -22,13 +22,14 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
-public class AllToAllMessageExchangeDistributedClusterTest extends  MessageExchangeDistributedClusterTest {
+public class AllToAllMessageExchangeDistributedClusterTest extends MessageExchangeDistributedClusterTest {
 
     private static final Log LOG = LogFactory.getLog(AllToAllMessageExchangeDistributedClusterTest.class.getName());
     private static final byte[] regionIndentifier = new BigInteger("0").toByteArray();
+
     public AllToAllMessageExchangeDistributedClusterTest(List<String> bindingAddress, List<Integer> bindingPort, List<List<byte[]>> messagesToSend, List<List<BigInteger>> requestIdentifier) {
         super(bindingAddress, bindingPort, messagesToSend, requestIdentifier);
-        if(NREGIONS%2 == 0){
+        if (NREGIONS % 2 == 0) {
             /**
              * In this test we want every region to connect to every other region and process a different region.
              * Thus each region will have two connections per request and the number of regions must be a odd number,
@@ -43,7 +44,7 @@ public class AllToAllMessageExchangeDistributedClusterTest extends  MessageExcha
              * As can be seen by this example, by following a modular ring pattern, each region can connect to every
              * other region.
              *
-            * */
+             * */
             String msg = "Number of Regions must be a multiple of 3. A MPC protocol requires three regions to process a request.";
             throw new IllegalStateException(msg);
         }
@@ -56,29 +57,29 @@ public class AllToAllMessageExchangeDistributedClusterTest extends  MessageExcha
 
     protected void validateResults() {
 
-        for(RegionServer rs: regionServers){
+        for (RegionServer rs : regionServers) {
             RegionServerImpl rsi = (RegionServerImpl) rs;
             MessageBrokerImpl mbi = (MessageBrokerImpl) rsi.getMessageBroker();
 
             //In this test it is assumed that everyone sends the same message, thus everyone should receive the same.
             List<byte[]> clientMessagesToSend = this.messagesToSend.get(0);
             int ngroups = NREGIONS / 3;
-             int messagesThatRegionShouldReceive = NMESSAGES*ngroups*2;
+            int messagesThatRegionShouldReceive = NMESSAGES * ngroups * 2;
 
             assertEquals(messagesThatRegionShouldReceive, mbi.getReceivedMessages().size());
 
-            for(int i = 0; i < clientMessagesToSend.size(); i++){
-                boolean found=false;
+            for (int i = 0; i < clientMessagesToSend.size(); i++) {
+                boolean found = false;
                 int nMatches = 0;
-                for(int j =0; j < messagesThatRegionShouldReceive; j++){
+                for (int j = 0; j < messagesThatRegionShouldReceive; j++) {
 
-                    if(ArrayUtils.isEquals(clientMessagesToSend.get(i), mbi.getReceivedMessages().get(j))){
-                        found |=true;
-                        nMatches+=1;
+                    if (ArrayUtils.isEquals(clientMessagesToSend.get(i), mbi.getReceivedMessages().get(j))) {
+                        found |= true;
+                        nMatches += 1;
                     }
                 }
                 assertEquals(true, found);
-                assertEquals(ngroups*2, nMatches);
+                assertEquals(ngroups * 2, nMatches);
             }
 
         }
@@ -86,7 +87,7 @@ public class AllToAllMessageExchangeDistributedClusterTest extends  MessageExcha
     }
 
     protected RegionServer createRegionServer(int playerID, int index, List<String> bindingAddress, List<Integer> bindingPort, List<byte[]> messagesToSend, List<BigInteger> requestIdentifier) throws IOException {
-        return new RegionServerImpl(playerID, index, bindingAddress,bindingPort, messagesToSend, requestIdentifier);
+        return new RegionServerImpl(playerID, index, bindingAddress, bindingPort, messagesToSend, requestIdentifier);
     }
 
     private class MessageBrokerImpl extends TestMessageBroker {
@@ -95,11 +96,12 @@ public class AllToAllMessageExchangeDistributedClusterTest extends  MessageExcha
         private final int serverBindingPort;
         private final List<byte[]> receivedMessages;
 
-        MessageBrokerImpl(String serverBindingAddress, int serverBindingPort){
+        MessageBrokerImpl(String serverBindingAddress, int serverBindingPort) {
             this.serverBindingAddress = serverBindingAddress;
             this.serverBindingPort = serverBindingPort;
             receivedMessages = new ArrayList<byte[]>();
         }
+
         public void receiveTestMessage(byte[] message) {
             LOG.debug("ReceivedMessage");
             receivedMessages.add(message);
@@ -121,7 +123,6 @@ public class AllToAllMessageExchangeDistributedClusterTest extends  MessageExcha
     protected class RegionServerImpl extends Thread implements RegionServer {
 
 
-
         private final int playerID;
         private final int index;
         private final List<String> bindingAddress;
@@ -134,7 +135,7 @@ public class AllToAllMessageExchangeDistributedClusterTest extends  MessageExcha
         private MessageBroker mb;
 
 
-        RegionServerImpl(int playerID, int index, List<String> bindingAddress, List<Integer> bindingPort, List<byte[]> messagesToSend, List<BigInteger> requestIdentifier){
+        RegionServerImpl(int playerID, int index, List<String> bindingAddress, List<Integer> bindingPort, List<byte[]> messagesToSend, List<BigInteger> requestIdentifier) {
             this.playerID = playerID;
             this.index = index;
             this.bindingAddress = bindingAddress;
@@ -156,17 +157,18 @@ public class AllToAllMessageExchangeDistributedClusterTest extends  MessageExcha
 
         }
 
-        public MessageBroker getMessageBroker(){
+        public MessageBroker getMessageBroker() {
             return this.mb;
         }
 
         public boolean getRunStatus() {
             return runStatus;
         }
+
         @Override
         public void run() {
             runStatus = true;
-            LOG.debug("RegionServerIndex is "+index);
+            LOG.debug("RegionServerIndex is " + index);
             String serverBindingAddress = bindingAddress.get(index);
             int serverBindingPort = bindingPort.get(index);
             mb = new MessageBrokerImpl(serverBindingAddress, serverBindingPort);
@@ -179,7 +181,7 @@ public class AllToAllMessageExchangeDistributedClusterTest extends  MessageExcha
 
 
             } catch (IOException e) {
-                LOG.debug("Error on binding to address " + serverBindingAddress+":"+serverBindingPort);
+                LOG.debug("Error on binding to address " + serverBindingAddress + ":" + serverBindingPort);
                 LOG.error(e.getLocalizedMessage());
                 throw new IllegalStateException(e);
             } catch (InterruptedException e) {
@@ -200,18 +202,19 @@ public class AllToAllMessageExchangeDistributedClusterTest extends  MessageExcha
                     DISC_SERVICE_INC_TIME, DISC_SERVICE_RETRIES);
 
             //Create Client connections and send messages.
-            for(BigInteger reqIdent: requestIdentifiers){
-                LOG.debug("RegionServer "+playerID + " starting Requests Loop with request "+reqIdent);
-                RequestIdentifier uniqueIdent = new RequestIdentifier( reqIdent.toByteArray(), regionIndentifier);
+            for (BigInteger reqIdent : requestIdentifiers) {
+                LOG.debug("RegionServer " + playerID + " starting Requests Loop with request " + reqIdent);
+                RequestIdentifier uniqueIdent = new RequestIdentifier(reqIdent.toByteArray(), regionIndentifier);
+                discoveryService.registerRegion(uniqueIdent);
                 try {
-                    LOG.debug("RegionServer "+playerID + " discovering regions");
+                    LOG.debug("RegionServer " + playerID + " discovering regions");
 
                     List<RegionLocation> locations = discoveryService.discoverRegions(uniqueIdent);
 
-                    for(RegionLocation location: locations){
+                    for (RegionLocation location : locations) {
                         RelayClient client = connectionManager.getRelayClient(location.getIp(), location.getPort());
 
-                        for(byte[] message: messagesToSend){
+                        for (byte[] message : messagesToSend) {
                             client.sendTestMessage(message);
                             totalMessagesCounter.countDown();
                         }

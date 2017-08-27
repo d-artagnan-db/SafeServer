@@ -36,6 +36,7 @@ public interface MessageBroker {
     void receiveBatchMessage(BatchShareMessage message);
 
     void receiveTestMessage(byte[] message);
+
     Queue<BatchShareMessage> getReceivedBatchMessages(
             RequestIdentifier requestId);
 
