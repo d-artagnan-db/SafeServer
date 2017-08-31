@@ -35,7 +35,6 @@ public class TestPlayer implements SharemindPlayer {
 
     }
 
-    @Override
     public BigInteger getValue(Integer originPlayerID) {
         // LOG.debug("Going to call super getValue");
         BigInteger res = player.getValue(originPlayerID);
@@ -48,7 +47,6 @@ public class TestPlayer implements SharemindPlayer {
         return res;
     }
 
-    @Override
     public void sendValueToPlayer(int destPlayer, BigInteger value) {
 
         if (!messagesSent.containsKey(destPlayer)) {

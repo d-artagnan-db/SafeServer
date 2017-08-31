@@ -1,8 +1,9 @@
-package pt.uminho.haslab.smcoprocessors.middleware.batch;
+package pt.uminho.haslab.smcoprocessors.middleware.protocols;
 
 import pt.uminho.haslab.smcoprocessors.CMiddleware.MessageBroker;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.Relay;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
+import pt.uminho.haslab.smcoprocessors.middleware.helpers.ConcurrentBatchProtocolTest;
 import pt.uminho.haslab.smcoprocessors.middleware.helpers.ConcurrentBatchTestPlayer;
 import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
 import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;

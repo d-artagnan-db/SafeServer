@@ -321,14 +321,14 @@ public class ContextPlayer implements Player, SharemindPlayer {
 
     public void sendValueToPlayer(int playerId, BigInteger value) {
         String msg = "Sigle ShareMessage are deprecated. "
-                + "       Please send batch of messages.";
+                + "       Please send protocols of messages.";
         LOG.error(msg);
         throw new UnsupportedOperationException(msg);
     }
 
     public BigInteger getValue(Integer originPlayerId) {
         String msg = "Sigle ShareMessage are deprecated. "
-                + "       Please send batch of messages.";
+                + "       Please send protocols of messages.";
         LOG.error(msg);
         throw new UnsupportedOperationException(msg);
     }

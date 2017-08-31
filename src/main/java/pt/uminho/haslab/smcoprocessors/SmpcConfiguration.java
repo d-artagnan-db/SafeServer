@@ -41,7 +41,7 @@ public class SmpcConfiguration {
         nBits = conf.getInt("smhbase.nbits", -1);
         secretFamily = conf.get("smhbase.column.family");
         secretQualifier = conf.get("smhbase.column.qualifier");
-        batchSize = conf.getInt("smhbase.batch.size", 20);
+        batchSize = conf.getInt("smhbase.protocols.size", 20);
         preRandomElems = conf.getInt("smhbase.smpc.prerandom.size", 0);
 
         //DiscoveryService configuration

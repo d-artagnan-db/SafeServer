@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * Class used to hold the results from a single party after executing a protocol
- * on multiple database entries. Contains multiple results of an mpc batch operation.Similar to DataIdentifiers.
+ * on multiple database entries. Contains multiple results of an mpc protocols operation.Similar to DataIdentifiers.
  */
 public class SearchResults {
 

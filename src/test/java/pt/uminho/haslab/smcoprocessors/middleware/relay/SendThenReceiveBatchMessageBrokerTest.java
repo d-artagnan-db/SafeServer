@@ -1,4 +1,4 @@
-package pt.uminho.haslab.smcoprocessors.middleware.batch;
+package pt.uminho.haslab.smcoprocessors.middleware.relay;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

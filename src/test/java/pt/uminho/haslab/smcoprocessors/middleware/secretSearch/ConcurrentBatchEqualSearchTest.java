@@ -1,4 +1,4 @@
-package pt.uminho.haslab.smcoprocessors.middleware.batch;
+package pt.uminho.haslab.smcoprocessors.middleware.secretSearch;
 
 import pt.uminho.haslab.smcoprocessors.SecretSearch.AbstractSearchValue;
 import pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition;
@@ -10,14 +10,12 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.GreaterOrEqualThan;
+import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.Equal;
 
-public class ConcurrentBatchGreaterThanProtocolTest
-        extends
-        ConcurrentSecretSearchTest {
+public class ConcurrentBatchEqualSearchTest extends ConcurrentSecretSearchTest {
 
-    public ConcurrentBatchGreaterThanProtocolTest(List<Integer> nbits,
-                                                  List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo)
+    public ConcurrentBatchEqualSearchTest(List<Integer> nbits,
+                                          List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo)
             throws IOException, InvalidNumberOfBits, InvalidSecretValue {
         super(nbits, valuesOne, valuesTwo);
     }
@@ -25,8 +23,8 @@ public class ConcurrentBatchGreaterThanProtocolTest
     @Override
     protected SearchCondition getSearchCondition(int nBits,
                                                  List<byte[]> firstValueSecret, int i) {
-        return AbstractSearchValue.conditionTransformer(GreaterOrEqualThan,
-                nBits + 1, firstValueSecret, i);
+        return AbstractSearchValue.conditionTransformer(Equal, nBits + 1,
+                firstValueSecret, i);
     }
 
     @Override
@@ -35,13 +33,9 @@ public class ConcurrentBatchGreaterThanProtocolTest
         List<BigInteger> secretTwo = valuesTwo.get(request);
         List<Boolean> bool = new ArrayList<Boolean>();
         for (int i = 0; i < secretOne.size(); i++) {
-            int comparisonResult = secretOne.get(i).compareTo(secretTwo.get(i));
-            boolean expectedResult = comparisonResult == 0
-                    || comparisonResult == 1;
-            bool.add(expectedResult);
+            bool.add(secretOne.get(i).equals(secretTwo.get(i)));
         }
         return bool;
-
     }
 
 }

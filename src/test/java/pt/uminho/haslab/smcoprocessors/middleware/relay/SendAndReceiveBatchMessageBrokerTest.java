@@ -1,11 +1,11 @@
-package pt.uminho.haslab.smcoprocessors.middleware;
+package pt.uminho.haslab.smcoprocessors.middleware.relay;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
 import pt.uminho.haslab.smcoprocessors.SecretSearch.ContextPlayer;
-import pt.uminho.haslab.smcoprocessors.middleware.helpers.TestRegionServer;
+import pt.uminho.haslab.smcoprocessors.benchmarks.TestRegionServer;
 import pt.uminho.haslab.testingutils.ValuesGenerator;
 
 import java.io.IOException;
@@ -17,70 +17,79 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
-public class SendThenReceiveMessageBrokerTest {
+public class SendAndReceiveBatchMessageBrokerTest {
 
-    private final List<BigInteger> peerOne;
+    private final List<List<BigInteger>> peerOne;
 
-    private final List<BigInteger> peerTwo;
+    private final List<List<BigInteger>> peerTwo;
 
-    private final List<BigInteger> peerThree;
+    private final List<List<BigInteger>> peerThree;
 
     @Parameterized.Parameters
     public static Collection nbitsValues() {
-        return ValuesGenerator.SendAndReceiveMessageBrokerTest2();
+        return ValuesGenerator.SendAndReceiveBatchMessageBrokerTest2();
     }
 
-    public SendThenReceiveMessageBrokerTest(List<BigInteger> peerOne,
-                                            List<BigInteger> peerTwo, List<BigInteger> peerThree) {
+    public SendAndReceiveBatchMessageBrokerTest(List<List<BigInteger>> peerOne,
+                                                List<List<BigInteger>> peerTwo, List<List<BigInteger>> peerThree) {
         this.peerOne = peerOne;
         this.peerTwo = peerTwo;
         this.peerThree = peerThree;
-
     }
 
     private class RegionServer extends TestRegionServer {
-        private final List<BigInteger> toSend;
-        public List<BigInteger> recVal;
+
+        private final List<List<BigInteger>> toSend;
+
+        private final List<List<BigInteger>> recVal;
 
         public int playerSource;
         public int playerDest;
 
-        public RegionServer(int playerID, List<BigInteger> toSend,
+        public RegionServer(int playerID, List<List<BigInteger>> toSend,
                             int playerDest, int playerSource) throws IOException {
             super(playerID);
             this.toSend = toSend;
             this.playerSource = playerSource;
             this.playerDest = playerDest;
-            recVal = new ArrayList<BigInteger>();
+            recVal = new ArrayList<List<BigInteger>>();
+
         }
 
         @Override
         public void doComputation() {
-            long contextId = 0;
-            List<ContextPlayer> players = new ArrayList<ContextPlayer>();
+            long contextID = 0;
 
-            for (BigInteger value : toSend) {
-                byte[] reqID = ("" + contextId).getBytes();
+            for (List<BigInteger> vals : toSend) {
+
+                List<byte[]> bvals = new ArrayList<byte[]>();
+
+                for (BigInteger val : vals) {
+                    bvals.add(val.toByteArray());
+                }
+                byte[] reqID = ("" + contextID).getBytes();
                 byte[] regionID = "1".getBytes();
                 RequestIdentifier ident = new RequestIdentifier(reqID, regionID);
                 ContextPlayer r = new ContextPlayer(relay, ident, playerID,
                         broker);
+                r.sendValueToPlayer(playerDest, bvals);
 
-                r.sendValueToPlayer(playerDest, value);
-                contextId++;
-                players.add(r);
-            }
+                List<byte[]> receivedbValues = r.getValues(playerSource);
+                List<BigInteger> recValues = new ArrayList<BigInteger>();
 
-            for (ContextPlayer p : players) {
-                BigInteger rec = p.getValue(this.playerSource);
-                recVal.add(rec);
+                for (byte[] recval : receivedbValues) {
+                    recValues.add(new BigInteger(recval));
+                }
+                recVal.add(recValues);
+                // recVal.add(r.getValue(playerSource));
+                contextID++;
             }
         }
     }
 
     @Test
-    public void testMessageRightRotate() throws InterruptedException,
-            IOException {
+    public void testMessageRightRotate() throws IOException,
+            InterruptedException {
 
         RegionServer a = new RegionServer(0, peerOne, 1, 2);
 
@@ -91,17 +100,16 @@ public class SendThenReceiveMessageBrokerTest {
         a.startRegionServer();
         b.startRegionServer();
         c.startRegionServer();
-
         a.stopRegionServer();
         b.stopRegionServer();
         c.stopRegionServer();
 
         validateMessageRightRotate(a, b, c);
         // Wait some time before next test
-        Thread.sleep(5000);
+        Thread.sleep(10000);
     }
 
-    // @Test
+    @Test
     public void testMessageLeftRotate() throws IOException,
             InterruptedException {
 
@@ -120,7 +128,7 @@ public class SendThenReceiveMessageBrokerTest {
 
         validateMessageLeftRotate(a, b, c);
         // Wait some time before next test
-        Thread.sleep(10000);
+        Thread.sleep(5000);
     }
 
     private void validateMessageRightRotate(RegionServer a, RegionServer b,
@@ -131,9 +139,12 @@ public class SendThenReceiveMessageBrokerTest {
         assertEquals(c.recVal.size(), peerTwo.size());
 
         for (int i = 0; i < a.recVal.size(); i++) {
-            assertEquals(peerOne.get(i), b.recVal.get(i));
-            assertEquals(peerThree.get(i), a.recVal.get(i));
-            assertEquals(peerTwo.get(i), c.recVal.get(i));
+
+            for (int j = 0; j < peerOne.get(i).size(); j++) {
+                assertEquals(peerOne.get(i).get(j), b.recVal.get(i).get(j));
+                assertEquals(peerThree.get(i).get(j), a.recVal.get(i).get(j));
+                assertEquals(peerTwo.get(i).get(j), c.recVal.get(i).get(j));
+            }
 
         }
     }
@@ -146,10 +157,15 @@ public class SendThenReceiveMessageBrokerTest {
         assertEquals(c.recVal.size(), peerOne.size());
 
         for (int i = 0; i < a.recVal.size(); i++) {
-            assertEquals(peerOne.get(i), c.recVal.get(i));
-            assertEquals(peerThree.get(i), b.recVal.get(i));
-            assertEquals(peerTwo.get(i), a.recVal.get(i));
+
+            for (int j = 0; j < peerOne.get(i).size(); j++) {
+
+                assertEquals(peerOne.get(i).get(j), c.recVal.get(i).get(j));
+                assertEquals(peerThree.get(i).get(j), b.recVal.get(i).get(j));
+                assertEquals(peerTwo.get(i).get(j), a.recVal.get(i).get(j));
+            }
 
         }
     }
+
 }

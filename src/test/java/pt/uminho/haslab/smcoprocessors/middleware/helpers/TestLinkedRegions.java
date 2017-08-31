@@ -1,9 +1,8 @@
-package pt.uminho.haslab.smcoprocessors.middleware;
+package pt.uminho.haslab.smcoprocessors.middleware.helpers;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
-import pt.uminho.haslab.smcoprocessors.middleware.helpers.RegionServer;
 import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
 
 import java.io.IOException;

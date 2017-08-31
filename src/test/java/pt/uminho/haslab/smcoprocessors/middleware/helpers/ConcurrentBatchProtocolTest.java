@@ -1,4 +1,4 @@
-package pt.uminho.haslab.smcoprocessors.middleware.batch;
+package pt.uminho.haslab.smcoprocessors.middleware.helpers;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -7,11 +7,6 @@ import org.junit.runners.Parameterized;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.MessageBroker;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.Relay;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
-import pt.uminho.haslab.smcoprocessors.middleware.ConcurrentProtocolTest;
-import pt.uminho.haslab.smcoprocessors.middleware.TestLinkedRegions;
-import pt.uminho.haslab.smcoprocessors.middleware.helpers.ConcurrentBatchTestPlayer;
-import pt.uminho.haslab.smcoprocessors.middleware.helpers.RegionServer;
-import pt.uminho.haslab.smcoprocessors.middleware.helpers.TestRegionServer;
 import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
 import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
 import pt.uminho.haslab.smhbase.interfaces.Dealer;
@@ -31,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class ConcurrentBatchProtocolTest extends TestLinkedRegions {
 
     private static final Log LOG = LogFactory
-            .getLog(ConcurrentProtocolTest.class.getName());
+            .getLog(ConcurrentBatchProtocolTest.class.getName());
 
     protected final List<Integer> nbits;
     protected final List<List<BigInteger>> valuesOne;
@@ -158,6 +153,7 @@ public abstract class ConcurrentBatchProtocolTest extends TestLinkedRegions {
                 byte[] regionID = "1".getBytes();
 
                 RequestIdentifier ident = new RequestIdentifier(reqID, regionID);
+                relay.registerRequest(ident);
                 ConcurrentBatchTestPlayer player = createConcurrentPlayer(
                         relay, ident, playerID, broker, secretOne, secretTwo,
                         valueNbits);

@@ -19,7 +19,7 @@ public interface SearchCondition {
     }
 
     /**
-     * Executes the comparison of a batch of values with a smpc. An empty list
+     * Executes the comparison of a protocols of values with a smpc. An empty list
      * is returned if no match is found or a list of ids that satisfy the
      * protocol.
      *

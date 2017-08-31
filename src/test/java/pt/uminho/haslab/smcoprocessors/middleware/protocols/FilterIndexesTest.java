@@ -1,11 +1,11 @@
-package pt.uminho.haslab.smcoprocessors.middleware.relay;
+package pt.uminho.haslab.smcoprocessors.middleware.protocols;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
 import pt.uminho.haslab.smcoprocessors.SecretSearch.ContextPlayer;
 import pt.uminho.haslab.smcoprocessors.SharemindPlayer;
-import pt.uminho.haslab.smcoprocessors.middleware.TestLinkedRegions;
+import pt.uminho.haslab.smcoprocessors.middleware.helpers.TestLinkedRegions;
 import pt.uminho.haslab.smcoprocessors.middleware.helpers.RegionServer;
 import pt.uminho.haslab.smcoprocessors.middleware.helpers.TestRegionServer;
 import pt.uminho.haslab.smcoprocessors.protocolresults.FilteredIndexes;
