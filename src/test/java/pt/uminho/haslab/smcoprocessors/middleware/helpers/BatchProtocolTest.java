@@ -4,12 +4,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import pt.uminho.haslab.smcoprocessors.CMiddleware.MessageBroker;
-import pt.uminho.haslab.smcoprocessors.CMiddleware.Relay;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
 import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
 import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
 import pt.uminho.haslab.smhbase.interfaces.Dealer;
+import pt.uminho.haslab.smhbase.interfaces.Player;
 import pt.uminho.haslab.smhbase.sharemindImp.SharemindDealer;
 import pt.uminho.haslab.smhbase.sharemindImp.SharemindSharedSecret;
 import pt.uminho.haslab.testingutils.ValuesGenerator;
@@ -25,10 +24,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import static junit.framework.TestCase.assertEquals;
 
 @RunWith(Parameterized.class)
-public abstract class ConcurrentBatchProtocolTest extends TestLinkedRegions {
+public abstract class BatchProtocolTest extends TestLinkedRegions {
 
-    private static final Log LOG = LogFactory
-            .getLog(ConcurrentBatchProtocolTest.class.getName());
+    protected static final Log LOG = LogFactory
+            .getLog(BatchProtocolTest.class.getName());
 
     protected final List<Integer> nbits;
     protected final List<List<BigInteger>> valuesOne;
@@ -36,10 +35,8 @@ public abstract class ConcurrentBatchProtocolTest extends TestLinkedRegions {
     protected final Map<Integer, List<List<byte[]>>> secretsOne;
     protected final Map<Integer, List<List<byte[]>>> secretsTwo;
 
-    public ConcurrentBatchProtocolTest(List<Integer> nbits,
-                                       List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo)
-            throws IOException, InvalidNumberOfBits, InvalidSecretValue {
-
+    public BatchProtocolTest(List<Integer> nbits,
+                             List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo) throws IOException, InvalidNumberOfBits, InvalidSecretValue {
         super();
         this.nbits = nbits;
         this.valuesOne = valuesOne;
@@ -97,7 +94,6 @@ public abstract class ConcurrentBatchProtocolTest extends TestLinkedRegions {
             secretsTwo.get(2).add(secretsTwoU3);
 
         }
-
     }
 
     @Parameterized.Parameters
@@ -105,25 +101,14 @@ public abstract class ConcurrentBatchProtocolTest extends TestLinkedRegions {
         return ValuesGenerator.TwoBatchValuesGenerator();
     }
 
-    @Override
-    protected RegionServer createRegionServer(int playerID) throws IOException {
-        return new RSImpl(playerID, secretsOne.get(playerID),
-                secretsTwo.get(playerID), nbits);
-    }
-
-    protected abstract ConcurrentBatchTestPlayer createConcurrentPlayer(
-            Relay relay, RequestIdentifier requestID, int playerID,
-            MessageBroker broker, List<byte[]> firstValueSecret,
-            List<byte[]> secondValueSecret, int nBits);
-
     protected abstract int getExpectedResult(BigInteger valOne, BigInteger valtwo);
 
     protected void validateResults() throws InvalidSecretValue {
         for (int i = 0; i < nbits.size(); i++) {
 
-            BatchProtocolTest.ProtoRegionServer firstRS = (BatchProtocolTest.ProtoRegionServer) getRegionServer(0);
-            BatchProtocolTest.ProtoRegionServer secondRS = (BatchProtocolTest.ProtoRegionServer) getRegionServer(1);
-            BatchProtocolTest.ProtoRegionServer thirdRS = (BatchProtocolTest.ProtoRegionServer) getRegionServer(2);
+            ProtoRegionServer firstRS = (ProtoRegionServer) getRegionServer(0);
+            ProtoRegionServer secondRS = (ProtoRegionServer) getRegionServer(1);
+            ProtoRegionServer thirdRS = (ProtoRegionServer) getRegionServer(2);
 
             for (int j = 0; j < valuesOne.get(i).size(); j++) {
                 BigInteger fVal = new BigInteger((firstRS).getResult(i).get(j));
@@ -140,7 +125,7 @@ public abstract class ConcurrentBatchProtocolTest extends TestLinkedRegions {
         }
     }
 
-    protected class RSImpl extends TestRegionServer {
+    protected abstract class ProtoRegionServer extends TestRegionServer {
 
         private final int playerID;
 
@@ -148,23 +133,26 @@ public abstract class ConcurrentBatchProtocolTest extends TestLinkedRegions {
 
         private final List<List<byte[]>> secondValueSecrets;
 
-        private final List<ConcurrentBatchTestPlayer> requests;
+        private final List<List<byte[]>> results;
 
-        public RSImpl(int playerID, List<List<byte[]>> firstValueSecrets,
-                      List<List<byte[]>> secondValueSecrets, List<Integer> nbits)
+        public ProtoRegionServer(int playerID, List<List<byte[]>> firstValueSecrets,
+                                 List<List<byte[]>> secondValueSecrets, List<Integer> nbits)
                 throws IOException {
             super(playerID);
 
             this.playerID = playerID;
             this.firstValueSecrets = firstValueSecrets;
             this.secondValueSecrets = secondValueSecrets;
-            this.requests = new ArrayList<ConcurrentBatchTestPlayer>();
+            this.results = new ArrayList<List<byte[]>>();
 
         }
 
         public List<byte[]> getResult(int index) {
-            return requests.get(index).getResultSecret();
+            return results.get(index);
         }
+
+        public abstract List<byte[]> executeProtocol(Player player, List<byte[]> secretOne, List<byte[]> secretTwo,
+                                                     int nBits);
 
         @Override
         public void doComputation() {
@@ -180,25 +168,13 @@ public abstract class ConcurrentBatchProtocolTest extends TestLinkedRegions {
 
                 RequestIdentifier ident = new RequestIdentifier(reqID, regionID);
                 relay.registerRequest(ident);
-                ConcurrentBatchTestPlayer player = createConcurrentPlayer(
-                        relay, ident, playerID, broker, secretOne, secretTwo,
-                        valueNbits);
+                BatchTestPlayer player = new BatchTestPlayer(relay, ident, playerID, broker);
+                List<byte[]> result = executeProtocol(player, secretOne, secretTwo, valueNbits);
 
-                requests.add(player);
+                results.add(result);
+
             }
 
-            for (ConcurrentBatchTestPlayer p : requests) {
-                p.start();
-            }
-
-            for (ConcurrentBatchTestPlayer p : requests) {
-                try {
-                    p.join();
-                } catch (InterruptedException ex) {
-                    LOG.debug(ex);
-                    throw new IllegalStateException(ex);
-                }
-            }
         }
     }
 }

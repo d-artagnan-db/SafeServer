@@ -20,13 +20,7 @@ import static junit.framework.TestCase.assertEquals;
 @RunWith(Parameterized.class)
 public class MultipleServerMultipleClientsImplTest extends MultipleServersMultipleClients {
 
-    @Parameterized.Parameters
-    public static Collection nbitsValues() {
-        return ValuesGenerator.PeerConnectionManagerMultipleServerTestValueGenerator(NSERVERS, NCLIENTS, NMESSAGES);
-    }
-
     private static final Log LOG = LogFactory.getLog(CorrectSingleServerMultipleClientsTest.class.getName());
-
     private final Map<String, MessageBrokerImpl> messageBrokers;
     private final List<List<byte[]>> messagesToSend;
     /**
@@ -34,7 +28,6 @@ public class MultipleServerMultipleClientsImplTest extends MultipleServersMultip
      * and port specified by a position i  in the clientConnectionTargetAddress list and clientConnectionTargetPort list.
      */
     private int currentClientBeingCreated;
-
     /**
      * To understand how this test works, it is important to notice that the number of clients is different from
      * the number of servers. Furthermore a Server can receive messages from multiple clients, but a client can only
@@ -51,6 +44,53 @@ public class MultipleServerMultipleClientsImplTest extends MultipleServersMultip
         messageBrokers = new HashMap<String, MessageBrokerImpl>();
         this.messagesToSend = messagesToSend;
         currentClientBeingCreated = 0;
+    }
+
+    @Parameterized.Parameters
+    public static Collection nbitsValues() {
+        return ValuesGenerator.PeerConnectionManagerMultipleServerTestValueGenerator(NSERVERS, NCLIENTS, NMESSAGES);
+    }
+
+    protected RegionServer createServer(String bindingAddress, Integer bindingPort) throws IOException, InterruptedException {
+        MessageBrokerImpl mb = new MessageBrokerImpl(bindingAddress, bindingPort);
+        PlayerServer server = new PlayerServer(bindingAddress, bindingPort, mb);
+        String serverKey = bindingAddress + ":" + bindingPort;
+        this.messageBrokers.put(serverKey, mb);
+
+        return server;
+    }
+
+    protected RegionServer createClient(String bindingAddress, Integer bindingPort) {
+        PlayerClient client = new PlayerClient(currentClientBeingCreated, bindingAddress, bindingPort, messagesToSend.get(currentClientBeingCreated));
+        currentClientBeingCreated += 1;
+        return client;
+    }
+
+    protected void validateResults() {
+
+        for (int i = 0; i < NCLIENTS; i++) {
+            String serverBindingAddress = clientConnectionTargetAddress.get(i);
+            int serverBindingPort = clientConnectionTargetPort.get(i);
+            String key = serverBindingAddress + ":" + serverBindingPort;
+
+            List<byte[]> clientMessagesToSend = messagesToSend.get(i);
+            MessageBrokerImpl mbi = messageBrokers.get(key);
+            List<byte[]> mbiMessagesReceived = mbi.getReceivedMessages();
+
+            int matches = 0;
+
+            for (byte[] msg : clientMessagesToSend) {
+
+                for (byte[] bmsg : mbiMessagesReceived) {
+                    if (Arrays.equals(msg, bmsg)) {
+                        matches += 1;
+                        break;
+                    }
+                }
+            }
+            LOG.debug("Comparing number of messages " + clientMessagesToSend.size() + "-" + matches);
+            assertEquals(clientMessagesToSend.size(), matches);
+        }
     }
 
     private class MessageBrokerImpl extends TestMessageBroker {
@@ -81,49 +121,6 @@ public class MultipleServerMultipleClientsImplTest extends MultipleServersMultip
 
         public List<byte[]> getReceivedMessages() {
             return receivedMessages;
-        }
-    }
-
-    protected RegionServer createServer(String bindingAddress, Integer bindingPort) throws IOException, InterruptedException {
-        MessageBrokerImpl mb = new MessageBrokerImpl(bindingAddress, bindingPort);
-        PlayerServer server = new PlayerServer(bindingAddress, bindingPort, mb);
-        String serverKey = bindingAddress + ":" + bindingPort;
-        this.messageBrokers.put(serverKey, mb);
-
-        return server;
-    }
-
-    protected RegionServer createClient(String bindingAddress, Integer bindingPort) {
-        PlayerClient client = new PlayerClient(currentClientBeingCreated, bindingAddress, bindingPort, messagesToSend.get(currentClientBeingCreated));
-        currentClientBeingCreated += 1;
-        return client;
-    }
-
-
-    protected void validateResults() {
-
-        for (int i = 0; i < NCLIENTS; i++) {
-            String serverBindingAddress = clientConnectionTargetAddress.get(i);
-            int serverBindingPort = clientConnectionTargetPort.get(i);
-            String key = serverBindingAddress + ":" + serverBindingPort;
-
-            List<byte[]> clientMessagesToSend = messagesToSend.get(i);
-            MessageBrokerImpl mbi = messageBrokers.get(key);
-            List<byte[]> mbiMessagesReceived = mbi.getReceivedMessages();
-
-            int matches = 0;
-
-            for (byte[] msg : clientMessagesToSend) {
-
-                for (byte[] bmsg : mbiMessagesReceived) {
-                    if (Arrays.equals(msg, bmsg)) {
-                        matches += 1;
-                        break;
-                    }
-                }
-            }
-            LOG.debug("Comparing number of messages " + clientMessagesToSend.size() + "-" + matches);
-            assertEquals(clientMessagesToSend.size(), matches);
         }
     }
 

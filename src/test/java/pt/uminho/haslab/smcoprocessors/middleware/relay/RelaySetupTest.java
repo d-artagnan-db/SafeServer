@@ -10,18 +10,6 @@ import static org.junit.Assert.assertEquals;
 
 public class RelaySetupTest {
 
-    private class RegionServerImpl extends TestRegionServer {
-
-        public RegionServerImpl(int playerID) throws IOException {
-            super(playerID);
-        }
-
-        @Override
-        public void doComputation() {
-        }
-
-    }
-
     @Test
     public void connectRegionServers() throws InterruptedException, IOException {
         RegionServer a = new RegionServerImpl(0);
@@ -38,6 +26,18 @@ public class RelaySetupTest {
 
         assertEquals(true,
                 a.getRunStatus() & b.getRunStatus() & c.getRunStatus());
+
+    }
+
+    private class RegionServerImpl extends TestRegionServer {
+
+        public RegionServerImpl(int playerID) throws IOException {
+            super(playerID);
+        }
+
+        @Override
+        public void doComputation() {
+        }
 
     }
 

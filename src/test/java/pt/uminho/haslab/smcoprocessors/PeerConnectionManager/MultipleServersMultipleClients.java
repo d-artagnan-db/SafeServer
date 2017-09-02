@@ -14,23 +14,20 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public abstract class MultipleServersMultipleClients {
-    private static final Log LOG = LogFactory.getLog(MultipleServersMultipleClients.class
-            .getName());
-
     final static int NCLIENTS = 20;
     final static int NSERVERS = 5;
     final static int NMESSAGES = 10;
-
+    private static final Log LOG = LogFactory.getLog(MultipleServersMultipleClients.class
+            .getName());
+    final List<String> clientConnectionTargetAddress;
+    final List<Integer> clientConnectionTargetPort;
+    final CountDownLatch allServersStarted;
+    final CountDownLatch allClientsStarted;
+    final CountDownLatch allMessagesReceived;
     private final List<RegionServer> servers;
     private final List<RegionServer> clients;
     private final List<String> serverBindingAddressess;
     private final List<Integer> serverBindingPorts;
-    final List<String> clientConnectionTargetAddress;
-    final List<Integer> clientConnectionTargetPort;
-
-    final CountDownLatch allServersStarted;
-    final CountDownLatch allClientsStarted;
-    final CountDownLatch allMessagesReceived;
 
     MultipleServersMultipleClients(List<String> serverBindingAddressess,
                                    List<Integer> serverBindingPorts,

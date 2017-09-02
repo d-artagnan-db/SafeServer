@@ -4,8 +4,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import pt.uminho.haslab.smcoprocessors.middleware.helpers.TestLinkedRegions;
 import pt.uminho.haslab.smcoprocessors.middleware.helpers.RegionServer;
+import pt.uminho.haslab.smcoprocessors.middleware.helpers.TestLinkedRegions;
 import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
 import pt.uminho.haslab.testingutils.ValuesGenerator;
 

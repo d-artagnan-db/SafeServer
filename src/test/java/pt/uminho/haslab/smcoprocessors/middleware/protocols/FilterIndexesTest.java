@@ -5,8 +5,8 @@ import org.junit.runners.Parameterized;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
 import pt.uminho.haslab.smcoprocessors.SecretSearch.ContextPlayer;
 import pt.uminho.haslab.smcoprocessors.SharemindPlayer;
-import pt.uminho.haslab.smcoprocessors.middleware.helpers.TestLinkedRegions;
 import pt.uminho.haslab.smcoprocessors.middleware.helpers.RegionServer;
+import pt.uminho.haslab.smcoprocessors.middleware.helpers.TestLinkedRegions;
 import pt.uminho.haslab.smcoprocessors.middleware.helpers.TestRegionServer;
 import pt.uminho.haslab.smcoprocessors.protocolresults.FilteredIndexes;
 import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
@@ -28,11 +28,6 @@ public class FilterIndexesTest extends TestLinkedRegions {
 
     private final Map<Integer, Queue<FilteredIndexes>> recIndexes;
 
-    @Parameterized.Parameters
-    public static Collection nbitsValues() {
-        return ValuesGenerator.FilterIndexesGenerator();
-    }
-
     public FilterIndexesTest(List<Integer> playerSourceIDs,
                              List<BigInteger> indexes) throws IOException {
         this.playerSourceIDs = playerSourceIDs;
@@ -43,6 +38,11 @@ public class FilterIndexesTest extends TestLinkedRegions {
         for (int i = 0; i < 3; i++) {
             recIndexes.put(i, new LinkedList<FilteredIndexes>());
         }
+    }
+
+    @Parameterized.Parameters
+    public static Collection nbitsValues() {
+        return ValuesGenerator.FilterIndexesGenerator();
     }
 
     @Override

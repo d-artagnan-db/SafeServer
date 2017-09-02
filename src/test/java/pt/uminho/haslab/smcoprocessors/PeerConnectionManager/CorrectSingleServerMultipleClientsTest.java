@@ -21,26 +21,23 @@ import static org.junit.Assert.assertArrayEquals;
 @RunWith(Parameterized.class)
 public class CorrectSingleServerMultipleClientsTest extends SingleServerMultipleClients {
 
-    @Parameterized.Parameters
-    public static Collection nbitsValues() {
-        return ValuesGenerator.PeerConnectionManagerSingleServerTestValueGenerator();
-    }
-
     private static final Log LOG = LogFactory.getLog(CorrectSingleServerMultipleClientsTest.class.getName());
-
     private final String serverIp;
     private final int serverPort;
     private final byte[] messageToSend;
     private final List<byte[]> receivedMessages;
     private final CountDownLatch allClientsSent;
-
-
     public CorrectSingleServerMultipleClientsTest(String serverIp, int serverPort, byte[] messagesToSend) {
         this.serverIp = serverIp;
         this.serverPort = serverPort;
         this.messageToSend = messagesToSend;
         this.receivedMessages = new ArrayList<byte[]>();
         allClientsSent = new CountDownLatch(NCLIENTS);
+    }
+
+    @Parameterized.Parameters
+    public static Collection nbitsValues() {
+        return ValuesGenerator.PeerConnectionManagerSingleServerTestValueGenerator();
     }
 
     protected void validateResults() {

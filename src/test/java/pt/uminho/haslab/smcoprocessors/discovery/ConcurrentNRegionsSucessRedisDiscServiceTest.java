@@ -15,14 +15,13 @@ import java.util.Map;
 @RunWith(Parameterized.class)
 public class ConcurrentNRegionsSucessRedisDiscServiceTest extends ConcurrentNRegionsRedisDiscService {
 
+    public ConcurrentNRegionsSucessRedisDiscServiceTest(Map<Integer, List<BigInteger>> requestIDs, Map<Integer, List<BigInteger>> regionIDs, Map<Integer, List<String>> ips, Map<Integer, List<Integer>> ports) {
+        super(requestIDs, regionIDs, ips, ports);
+    }
+
     @Parameterized.Parameters
     public static Collection nbitsValues() {
         return ValuesGenerator.NRegionsRedisTestValueGenerator(10);
-    }
-
-
-    public ConcurrentNRegionsSucessRedisDiscServiceTest(Map<Integer, List<BigInteger>> requestIDs, Map<Integer, List<BigInteger>> regionIDs, Map<Integer, List<String>> ips, Map<Integer, List<Integer>> ports) {
-        super(requestIDs, regionIDs, ips, ports);
     }
 
     protected RegionServer createRegionServer(int playerID, int pos) throws IOException {

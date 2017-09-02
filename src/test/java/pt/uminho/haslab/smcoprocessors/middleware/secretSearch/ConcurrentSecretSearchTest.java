@@ -4,8 +4,8 @@ import pt.uminho.haslab.smcoprocessors.CMiddleware.MessageBroker;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.Relay;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
 import pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition;
-import pt.uminho.haslab.smcoprocessors.middleware.helpers.ConcurrentBatchTestPlayer;
 import pt.uminho.haslab.smcoprocessors.middleware.helpers.ConcurrentBatchProtocolTest;
+import pt.uminho.haslab.smcoprocessors.middleware.helpers.ConcurrentBatchTestPlayer;
 import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
 import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
 
@@ -42,7 +42,7 @@ public abstract class ConcurrentSecretSearchTest
                                                                RequestIdentifier requestID, int playerID, MessageBroker broker,
                                                                List<byte[]> firstValueSecret, List<byte[]> secondValueSecret,
                                                                int nBits) {
-        return new SecretSearchTestPlayer(relay, requestID, playerID, broker,
+        return new SecretSearchBatchTestPlayer(relay, requestID, playerID, broker,
                 firstValueSecret, secondValueSecret, nBits);
     }
 
@@ -75,13 +75,13 @@ public abstract class ConcurrentSecretSearchTest
 
     protected abstract List<Boolean> getSearchExpectedResult(Integer request);
 
-    protected class SecretSearchTestPlayer extends ConcurrentBatchTestPlayer {
+    protected class SecretSearchBatchTestPlayer extends ConcurrentBatchTestPlayer {
 
         private List<Boolean> searchRes;
 
-        public SecretSearchTestPlayer(Relay relay, RequestIdentifier requestID,
-                                      int playerID, MessageBroker broker, List<byte[]> firstVals,
-                                      List<byte[]> secondVals, int nBits) {
+        public SecretSearchBatchTestPlayer(Relay relay, RequestIdentifier requestID,
+                                           int playerID, MessageBroker broker, List<byte[]> firstVals,
+                                           List<byte[]> secondVals, int nBits) {
             super(relay, requestID, playerID, broker, firstVals, secondVals,
                     nBits);
         }

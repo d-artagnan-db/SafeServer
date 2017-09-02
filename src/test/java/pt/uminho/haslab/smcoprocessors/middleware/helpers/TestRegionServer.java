@@ -12,18 +12,13 @@ import java.io.IOException;
 
 public abstract class TestRegionServer extends Thread implements RegionServer {
 
-    protected final Relay relay;
-
-    protected final MessageBroker broker;
-
-    protected final SmpcConfiguration searchConf;
-
-    protected boolean runStatus;
-
-    protected final int playerID;
-
     private static final Log LOG = LogFactory.getLog(TestRegionServer.class
             .getName());
+    protected final Relay relay;
+    protected final MessageBroker broker;
+    protected final SmpcConfiguration searchConf;
+    protected final int playerID;
+    protected boolean runStatus;
 
     public TestRegionServer(int playerID) throws IOException {
 

@@ -1,8 +1,7 @@
-package pt.uminho.haslab.smcoprocessors.middleware.protocols;
+package pt.uminho.haslab.smcoprocessors.middleware.secretSearch;
 
 import pt.uminho.haslab.smcoprocessors.SecretSearch.AbstractSearchValue;
 import pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition;
-import pt.uminho.haslab.smcoprocessors.middleware.secretSearch.ConcurrentSecretSearchTest;
 import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
 import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
 
@@ -13,12 +12,12 @@ import java.util.List;
 
 import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.GreaterOrEqualThan;
 
-public class ConcurrentBatchGreaterThanProtocolTest
+public class ConcurrentBatchGreaterOrEqualThanSecretSearchTest
         extends
         ConcurrentSecretSearchTest {
 
-    public ConcurrentBatchGreaterThanProtocolTest(List<Integer> nbits,
-                                                  List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo)
+    public ConcurrentBatchGreaterOrEqualThanSecretSearchTest(List<Integer> nbits,
+                                                             List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo)
             throws IOException, InvalidNumberOfBits, InvalidSecretValue {
         super(nbits, valuesOne, valuesTwo);
     }

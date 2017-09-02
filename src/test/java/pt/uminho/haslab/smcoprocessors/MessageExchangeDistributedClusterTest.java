@@ -25,23 +25,19 @@ import java.util.concurrent.TimeUnit;
 * */
 public abstract class MessageExchangeDistributedClusterTest {
 
-    private static final Log LOG = LogFactory.getLog(MessageExchangeDistributedClusterTest.class.getName());
-
-    static int NREGIONS = 9;
-    static int NMESSAGES = 10;
     final static int DISC_SERVICE_SLEEP_TIME = 200;
     final static int DISC_SERVICE_INC_TIME = 100;
     final static int DISC_SERVICE_RETRIES = 3;
-
-    private final List<String> bindingAddress;
-    private final List<Integer> bindingPort;
+    private static final Log LOG = LogFactory.getLog(MessageExchangeDistributedClusterTest.class.getName());
+    static int NREGIONS = 9;
+    static int NMESSAGES = 10;
     final List<List<byte[]>> messagesToSend;
-    private final List<List<BigInteger>> requestIdentifier;
-
     final List<RegionServer> regionServers;
-
     final CountDownLatch serversStarted;
     final CountDownLatch totalMessagesCounter;
+    private final List<String> bindingAddress;
+    private final List<Integer> bindingPort;
+    private final List<List<BigInteger>> requestIdentifier;
     //final CountDownLatch clientsClosed;
 
 

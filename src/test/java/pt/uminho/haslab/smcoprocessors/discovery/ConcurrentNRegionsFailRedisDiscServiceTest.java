@@ -17,6 +17,8 @@ import static junit.framework.TestCase.assertEquals;
 @RunWith(Parameterized.class)
 public class ConcurrentNRegionsFailRedisDiscServiceTest extends ConcurrentNRegionsRedisDiscService {
 
+    private final static int nRegions = 10;
+    private final static int bannedRegions = 2;
     /*This class simulates a cluster where some regions fail at publishing their location.
     * In the class constructor it is selected at random some bannedPlayers and requestsIds in a
     * tuple (bannedPlayer, requestId) which are banned from sending their location to redis.
@@ -24,16 +26,8 @@ public class ConcurrentNRegionsFailRedisDiscServiceTest extends ConcurrentNRegio
     * */
     private final Map<Integer, Integer> bannedPlayers;
     private final Set<Integer> bannedRequestIDs;
-
-    private final static int nRegions = 10;
-    private final static int bannedRegions = 2;
     private final Random r;
     private final AtomicInteger fails;
-
-    @Parameterized.Parameters
-    public static Collection nbitsValues() {
-        return ValuesGenerator.NRegionsRedisTestValueGenerator(nRegions);
-    }
 
     public ConcurrentNRegionsFailRedisDiscServiceTest(Map<Integer, List<BigInteger>> requestIDs, Map<Integer, List<BigInteger>> regionIDs, Map<Integer, List<String>> ips, Map<Integer, List<Integer>> ports) {
         super(requestIDs, regionIDs, ips, ports);
@@ -54,6 +48,11 @@ public class ConcurrentNRegionsFailRedisDiscServiceTest extends ConcurrentNRegio
             bannedPlayers.put(pos, player);
             bannedRequestIDs.add(pos);
         }
+    }
+
+    @Parameterized.Parameters
+    public static Collection nbitsValues() {
+        return ValuesGenerator.NRegionsRedisTestValueGenerator(nRegions);
     }
 
     protected RegionServer createRegionServer(int playerID, int pos) throws IOException {

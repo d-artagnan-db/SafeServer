@@ -25,11 +25,6 @@ public class SendThenReceiveBatchMessageBrokerTest {
 
     private final List<List<BigInteger>> peerThree;
 
-    @Parameterized.Parameters
-    public static Collection nbitsValues() {
-        return ValuesGenerator.SendAndReceiveBatchMessageBrokerTest2();
-    }
-
     public SendThenReceiveBatchMessageBrokerTest(
             List<List<BigInteger>> peerOne, List<List<BigInteger>> peerTwo,
             List<List<BigInteger>> peerThree) {
@@ -38,58 +33,9 @@ public class SendThenReceiveBatchMessageBrokerTest {
         this.peerThree = peerThree;
     }
 
-    private class RegionServer extends TestRegionServer {
-
-        private final List<List<BigInteger>> toSend;
-
-        private final List<List<BigInteger>> recVal;
-
-        public int playerSource;
-        public int playerDest;
-
-        public RegionServer(int playerID, List<List<BigInteger>> toSend,
-                            int playerDest, int playerSource) throws IOException {
-            super(playerID);
-            this.toSend = toSend;
-            this.playerSource = playerSource;
-            this.playerDest = playerDest;
-            recVal = new ArrayList<List<BigInteger>>();
-
-        }
-
-        @Override
-        public void doComputation() {
-            long contextId = 0;
-            List<ContextPlayer> players = new ArrayList<ContextPlayer>();
-
-            for (List<BigInteger> value : toSend) {
-
-                List<byte[]> bvals = new ArrayList<byte[]>();
-
-                for (BigInteger val : value) {
-                    bvals.add(val.toByteArray());
-                }
-
-                byte[] reqID = ("" + contextId).getBytes();
-                byte[] regionID = "1".getBytes();
-                RequestIdentifier ident = new RequestIdentifier(reqID, regionID);
-                ContextPlayer r = new ContextPlayer(relay, ident, playerID,
-                        broker);
-
-                r.sendValueToPlayer(playerDest, bvals);
-                contextId++;
-                players.add(r);
-            }
-
-            for (ContextPlayer p : players) {
-                List<byte[]> rec = p.getValues(this.playerSource);
-                ArrayList<BigInteger> recVals = new ArrayList<BigInteger>();
-                for (byte[] r : rec) {
-                    recVals.add(new BigInteger(r));
-                }
-                recVal.add(recVals);
-            }
-        }
+    @Parameterized.Parameters
+    public static Collection nbitsValues() {
+        return ValuesGenerator.SendAndReceiveBatchMessageBrokerTest2();
     }
 
     @Test
@@ -170,6 +116,60 @@ public class SendThenReceiveBatchMessageBrokerTest {
                 assertEquals(peerTwo.get(i).get(j), a.recVal.get(i).get(j));
             }
 
+        }
+    }
+
+    private class RegionServer extends TestRegionServer {
+
+        private final List<List<BigInteger>> toSend;
+
+        private final List<List<BigInteger>> recVal;
+
+        public int playerSource;
+        public int playerDest;
+
+        public RegionServer(int playerID, List<List<BigInteger>> toSend,
+                            int playerDest, int playerSource) throws IOException {
+            super(playerID);
+            this.toSend = toSend;
+            this.playerSource = playerSource;
+            this.playerDest = playerDest;
+            recVal = new ArrayList<List<BigInteger>>();
+
+        }
+
+        @Override
+        public void doComputation() {
+            long contextId = 0;
+            List<ContextPlayer> players = new ArrayList<ContextPlayer>();
+
+            for (List<BigInteger> value : toSend) {
+
+                List<byte[]> bvals = new ArrayList<byte[]>();
+
+                for (BigInteger val : value) {
+                    bvals.add(val.toByteArray());
+                }
+
+                byte[] reqID = ("" + contextId).getBytes();
+                byte[] regionID = "1".getBytes();
+                RequestIdentifier ident = new RequestIdentifier(reqID, regionID);
+                ContextPlayer r = new ContextPlayer(relay, ident, playerID,
+                        broker);
+
+                r.sendValueToPlayer(playerDest, bvals);
+                contextId++;
+                players.add(r);
+            }
+
+            for (ContextPlayer p : players) {
+                List<byte[]> rec = p.getValues(this.playerSource);
+                ArrayList<BigInteger> recVals = new ArrayList<BigInteger>();
+                for (byte[] r : rec) {
+                    recVals.add(new BigInteger(r));
+                }
+                recVal.add(recVals);
+            }
         }
     }
 

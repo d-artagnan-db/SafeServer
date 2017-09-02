@@ -21,9 +21,8 @@ public abstract class SingleServerMultipleClients {
     final int NCLIENTS = 3;
 
     private final List<RegionServer> clients;
-
-    private RegionServer server;
     PeersConnectionManager clientPeerConnectionManager;
+    private RegionServer server;
 
     SingleServerMultipleClients() {
         clients = new ArrayList<RegionServer>();

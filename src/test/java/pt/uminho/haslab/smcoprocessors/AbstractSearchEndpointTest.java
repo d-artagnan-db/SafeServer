@@ -22,9 +22,8 @@ public abstract class AbstractSearchEndpointTest {
 
     static final Log LOG = LogFactory.getLog(AbstractSearchEndpointTest.class
             .getName());
-
-    private final Clusters clusters;
     protected final SmpcConfiguration config;
+    private final Clusters clusters;
 
     public AbstractSearchEndpointTest() throws Exception {
 

@@ -13,40 +13,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class ConcurrentBatchTestPlayer extends Thread
-        implements
-        Player {
+public class BatchTestPlayer implements Player {
 
-    private static final Log LOG = LogFactory.getLog(ConcurrentBatchTestPlayer.class
+    private static final Log LOG = LogFactory.getLog(BatchTestPlayer.class
             .getName());
-
-    protected final Map<Integer, List<List<byte[]>>> messagesSent;
-
-    protected final Map<Integer, List<List<byte[]>>> messagesReceived;
-
     protected final ContextPlayer player;
-
-    protected final List<byte[]> firstValueSecret;
-
-    protected final List<byte[]> secondValueSecret;
-
-    protected final int nBits;
-
-    protected List<byte[]> resultSecret;
-
+    private final Map<Integer, List<List<byte[]>>> messagesSent;
+    private final Map<Integer, List<List<byte[]>>> messagesReceived;
     protected RequestIdentifier requestID;
 
-    public ConcurrentBatchTestPlayer(Relay relay, RequestIdentifier requestID,
-                                     int playerID, MessageBroker broker, List<byte[]> firstVals,
-                                     List<byte[]> secondVals, int nBits) {
+    public BatchTestPlayer(Relay relay, RequestIdentifier requestID,
+                           int playerID, MessageBroker broker) {
         this.player = new ContextPlayer(relay, requestID, playerID, broker);
         messagesSent = new HashMap<Integer, List<List<byte[]>>>();
         messagesReceived = new HashMap<Integer, List<List<byte[]>>>();
-
-        firstValueSecret = firstVals;
-        secondValueSecret = secondVals;
-
-        this.nBits = nBits;
         this.requestID = requestID;
 
     }
@@ -81,25 +61,11 @@ public abstract class ConcurrentBatchTestPlayer extends Thread
         return player.getValues(rec);
     }
 
-    @Override
-    public void run() {
-
-        resultSecret = testingProtocol(firstValueSecret, secondValueSecret);
-
+    public Map<Integer, List<List<byte[]>>> getMessagesSent() {
+        return messagesSent;
     }
 
-    public List<byte[]> getResultSecret() {
-        return this.resultSecret;
+    public Map<Integer, List<List<byte[]>>> getMessagesReceived() {
+        return messagesReceived;
     }
-
-    public void startProtocol() {
-        this.start();
-    }
-
-    public void waitEndOfProtocol() throws InterruptedException {
-        this.join();
-    }
-
-    protected abstract List<byte[]> testingProtocol(
-            List<byte[]> firstValueSecret, List<byte[]> secondValueSecret);
 }
