@@ -184,7 +184,7 @@ public class ContextPlayer implements Player, SharemindPlayer {
          * happens it stores in playersMessages variable.
          */
         if (!playerBatchMessages.get(originPlayerId).isEmpty()) {
-           //LOG.debug("CP-3::"+this.playerID+"::"+originPlayerId+"::"+ Arrays.toString(this.requestID.getRequestID()));
+            //LOG.debug("CP-3::"+this.playerID+"::"+originPlayerId+"::"+ Arrays.toString(this.requestID.getRequestID()));
 
             return playerBatchMessages.get(originPlayerId).poll();
         }
@@ -220,7 +220,7 @@ public class ContextPlayer implements Player, SharemindPlayer {
         } catch (InterruptedException ex) {
             LOG.error(ex);
             throw new IllegalArgumentException(ex.getMessage());
-        } 
+        }
     }
 
     /**
@@ -251,7 +251,7 @@ public class ContextPlayer implements Player, SharemindPlayer {
         broker.protocolResultsRead(requestID);
 
         //broker.protocolResultsRead(requestID);
-        System.out.println("Results size is "+ results.size());
+        System.out.println("Results size is " + results.size());
         assert results.size() == 2;
         return results;
     }

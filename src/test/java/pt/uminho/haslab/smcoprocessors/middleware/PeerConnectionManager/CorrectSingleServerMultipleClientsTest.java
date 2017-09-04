@@ -27,6 +27,7 @@ public class CorrectSingleServerMultipleClientsTest extends SingleServerMultiple
     private final byte[] messageToSend;
     private final List<byte[]> receivedMessages;
     private final CountDownLatch allClientsSent;
+
     public CorrectSingleServerMultipleClientsTest(String serverIp, int serverPort, byte[] messagesToSend) {
         this.serverIp = serverIp;
         this.serverPort = serverPort;

@@ -5,7 +5,6 @@ import pt.uminho.haslab.smcoprocessors.protocolresults.SearchResults;
 import pt.uminho.haslab.smhbase.interfaces.Secret;
 import pt.uminho.haslab.smhbase.sharemindImp.SharemindSecret;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -244,7 +244,7 @@ public class SecureRegionScanner implements RegionScanner {
         LOG.debug("Going to filter results");
         for (int i = 0; i < condResults.size(); i++) {
             /*
-			 * LOG.debug("Loop index " + i + " of " + condResults.size());
+             * LOG.debug("Loop index " + i + " of " + condResults.size());
 			 * LOG.debug(player.getPlayerID() + " ID is " + new
 			 * String(rowIDS.get(i)) + " and has result " + condResults.get(i));
 			 */

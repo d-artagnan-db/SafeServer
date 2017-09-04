@@ -8,9 +8,7 @@ import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
 import pt.uminho.haslab.smcoprocessors.protocolresults.FilteredIndexes;
 
-import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,7 +56,7 @@ public class SharemindMessageBroker implements MessageBroker {
 
     }
 
-    public  void receiveBatchMessage(BatchShareMessage message) {
+    public void receiveBatchMessage(BatchShareMessage message) {
         lock.lock();
         RequestIdentifier requestID = new RequestIdentifier(message
                 .getRequestID().toByteArray(), message.getRegionID()
@@ -113,7 +111,7 @@ public class SharemindMessageBroker implements MessageBroker {
         RequestIdentifier requestID = new RequestIdentifier(message
                 .getRequestID().toByteArray(), message.getRegionID()
                 .toByteArray());
-        LOG.debug(message.getPlayerSource()+"::"+message.getPlayerDest()+"::"+Arrays.toString(requestID.getRequestID()) +" receivePotocol results");
+        LOG.debug(message.getPlayerSource() + "::" + message.getPlayerDest() + "::" + Arrays.toString(requestID.getRequestID()) + " receivePotocol results");
 
         try {
             protocolResultsLocks.lockOnRequest(requestID);
@@ -143,9 +141,9 @@ public class SharemindMessageBroker implements MessageBroker {
         try {
             filterIndexLocks.lockOnRequest(requestID);
             lock.unlock();
-            if(filterIndex.containsKey(requestID)){
+            if (filterIndex.containsKey(requestID)) {
                 filterIndex.get(requestID).add(message);
-            }else{
+            } else {
                 Queue values = new ConcurrentLinkedQueue<FilteredIndexes>();
                 values.add(message);
                 filterIndex.put(requestID, values);
@@ -168,7 +166,7 @@ public class SharemindMessageBroker implements MessageBroker {
              * Wait while protocol results do not arrive. Only two results
              * should arrive, one from each of the remaining players.
              */
-            while (!(protocolResults.containsKey(requestID)) ||  protocolResults
+            while (!(protocolResults.containsKey(requestID)) || protocolResults
                     .get(requestID).size() < 2) {
                 protocolResultsLocks.awaitForWrite(requestID);
             }
@@ -220,7 +218,6 @@ public class SharemindMessageBroker implements MessageBroker {
     }
 
 
-
     public void waitNewBatchMessage(RequestIdentifier requestID)
             throws InterruptedException {
         protocolBatchMessagesLocks.awaitForWrite(requestID);
@@ -228,8 +225,8 @@ public class SharemindMessageBroker implements MessageBroker {
     }
 
     public void allResultsRead(RequestIdentifier requestID) {
-       protocolResultsLocks.removeLock(requestID);
-       protocolResults.remove(requestID);
+        protocolResultsLocks.removeLock(requestID);
+        protocolResults.remove(requestID);
     }
 
     public void protocolResultsRead(RequestIdentifier requestID) {
@@ -237,8 +234,8 @@ public class SharemindMessageBroker implements MessageBroker {
     }
 
     public void allIndexesMessagesRead(RequestIdentifier requestID) {
-       filterIndexLocks.removeLock(requestID);
-       filterIndex.remove(requestID);
+        filterIndexLocks.removeLock(requestID);
+        filterIndex.remove(requestID);
     }
 
     public void indexMessageRead(RequestIdentifier requestID) {

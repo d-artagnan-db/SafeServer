@@ -7,9 +7,7 @@ import pt.uminho.haslab.smcoprocessors.SharemindPlayer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.And;
-import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.Or;
-import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.Xor;
+import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.*;
 
 public class ComposedSearchValue extends AbstractSearchValue {
 
@@ -43,7 +41,7 @@ public class ComposedSearchValue extends AbstractSearchValue {
                 res = res1 && res2;
             } else if (condition == Or) {
                 res = res1 || res2;
-            }else if (condition == Xor){
+            } else if (condition == Xor) {
                 res = res1 ^ res2;
             }
             result.add(res);

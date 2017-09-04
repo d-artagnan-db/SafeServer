@@ -84,7 +84,7 @@ public class PlayerResults {
 
             } else if (condition == GreaterOrEqualThan) {
                 SharemindSharedSecret secretResult = new SharemindSharedSecret(
-                        nBits+1, firstSecret, secondSecret, thirdSecret);
+                        nBits + 1, firstSecret, secondSecret, thirdSecret);
 
                 int result = secretResult.unshare().intValue();
 

@@ -28,6 +28,7 @@ public class MultipleServerMultipleClientsImplTest extends MultipleServersMultip
      * and port specified by a position i  in the clientConnectionTargetAddress list and clientConnectionTargetPort list.
      */
     private int currentClientBeingCreated;
+
     /**
      * To understand how this test works, it is important to notice that the number of clients is different from
      * the number of servers. Furthermore a Server can receive messages from multiple clients, but a client can only
