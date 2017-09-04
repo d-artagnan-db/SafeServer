@@ -1,4 +1,4 @@
-package pt.uminho.haslab.smcoprocessors.discovery;
+package pt.uminho.haslab.smcoprocessors.middleware.discovery;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -64,7 +64,7 @@ public abstract class ConcurrentNRegionsRedisDiscService
                 for (RegionLocation location : receivedLocations) {
                     boolean foundMatch = false;
                     int index = playerID;
-                    System.out.println("Current player is  " + index);
+                    //System.out.println("Current player is  " + index);
                     for (int i = 0; i < 2; i++) {
 
                         index = (index + 1) % 3;
@@ -72,8 +72,8 @@ public abstract class ConcurrentNRegionsRedisDiscService
                         String ip = ips.get(index).get(pos);
                         Integer port = ports.get(index).get(pos);
 
-                        System.out.println("Current index is " + index + " -> " + ip + ":" + port);
-                        System.out.println("Received Location " + location.getIp() + ":" + location.getPort());
+                        //System.out.println("Current index is " + index + " -> " + ip + ":" + port);
+                        //System.out.println("Received Location " + location.getIp() + ":" + location.getPort());
                         if (ip.equals(location.getIp()) &&
                                 port == location.getPort()) {
                             foundMatch |= true;

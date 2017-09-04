@@ -21,7 +21,6 @@ public class UnarySearchValue extends AbstractSearchValue {
         this.searchCondition = searchCondition;
     }
 
-    @Override
     public List<Boolean> evaluateCondition(List<byte[]> value,
                                            List<byte[]> rowID, SharemindPlayer p) {
         List<Boolean> results = new ArrayList<Boolean>();
@@ -31,14 +30,15 @@ public class UnarySearchValue extends AbstractSearchValue {
                     rowID, p);
 
             for (Boolean val : vals) {
+                //System.out.println("Original is "+val);
                 results.add(!val);
             }
             // return !searchCondition.evaluateCondition(value, rowID, p);
-        } else {
+        } /*else {
             for (byte[] value1 : value) {
                 results.add(Boolean.FALSE);
             }
-        }
+        }*/
 
         return results;
     }

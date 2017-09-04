@@ -119,7 +119,6 @@ public abstract class BatchProtocolTest extends TestLinkedRegions {
                         fVal, sVal, tVal);
 
                 int expectedResult = getExpectedResult(valuesOne.get(i).get(j), valuesTwo.get(i).get(j));
-                System.out.println("Comparing values " + result.unshare().intValue() + ":" + expectedResult);
                 assertEquals(result.unshare().intValue(), expectedResult);
             }
         }

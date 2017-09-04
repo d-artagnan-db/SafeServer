@@ -59,16 +59,6 @@ public class RelayClient extends Thread {
 
     }
 
-    /***
-     * Following functions should only be invoked by the Relay.
-     * sendTestMessage is the only Exception, which can be invoked by multiple clients
-     * and thus needs to be synchronized.
-     * */
-    public void sendBatchMessages(BatchShareMessage msgs)
-            throws IOException {
-        messagesAskedToSend.addAndGet(1);
-        sendToClient(3, msgs.toByteArray());
-    }
 
     public void sendProtocolResults(ResultsMessage msg) throws IOException {
         messagesAskedToSend.addAndGet(1);
@@ -78,6 +68,17 @@ public class RelayClient extends Thread {
     public void sendFilteredIndexes(FilterIndexMessage msg) throws IOException {
         messagesAskedToSend.addAndGet(1);
         sendToClient(2, msg.toByteArray());
+    }
+
+    /***
+     * Following functions should only be invoked by the Relay.
+     * sendTestMessage is the only Exception, which can be invoked by multiple clients
+     * and thus needs to be synchronized.
+     * */
+    public void sendBatchMessages(BatchShareMessage msgs)
+            throws IOException {
+        messagesAskedToSend.addAndGet(1);
+        sendToClient(3, msgs.toByteArray());
     }
 
     public synchronized void sendTestMessage(byte[] message) throws IOException {

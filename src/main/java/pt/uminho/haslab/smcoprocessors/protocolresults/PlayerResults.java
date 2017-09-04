@@ -20,7 +20,6 @@ public class PlayerResults {
     public PlayerResults(List<SearchResults> results, Condition condition,
                          int nBits) throws ResultsLengthMissmatch {
 
-        // System.out.println("ResRes size is "+ results.size());
         /*
          * for(int i =0; i < results.size(); i++){ results.get(i).printSize(); }
 		 */
@@ -85,12 +84,9 @@ public class PlayerResults {
 
             } else if (condition == GreaterOrEqualThan) {
                 SharemindSharedSecret secretResult = new SharemindSharedSecret(
-                        nBits, firstSecret, secondSecret, thirdSecret);
+                        nBits+1, firstSecret, secondSecret, thirdSecret);
 
                 int result = secretResult.unshare().intValue();
-
-                // System.out.println("Result is " + result + " for NBits "
-                // +nBits);
 
                 if (result == 0) {
                     resultIDS.add(Boolean.TRUE);

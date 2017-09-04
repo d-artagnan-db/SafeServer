@@ -15,7 +15,7 @@ public interface SearchCondition {
      * !GreaterOrEqualThan LesserOrEqualThan = !GreaterOrEqualThan && Equal
      */
     enum Condition {
-        Equal, GreaterOrEqualThan, Greater, Less, LessOrEqualThan, NotEqual, And, Or, Not, Nop
+        Equal, GreaterOrEqualThan, Greater, Less, LessOrEqualThan, NotEqual, And, Or, Not, Nop, Xor
     }
 
     /**
@@ -32,4 +32,5 @@ public interface SearchCondition {
                                     SharemindPlayer p);
 
     Condition getCondition();
+
 }

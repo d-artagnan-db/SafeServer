@@ -1,4 +1,4 @@
-package pt.uminho.haslab.smcoprocessors.discovery;
+package pt.uminho.haslab.smcoprocessors.middleware.discovery;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

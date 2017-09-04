@@ -1,88 +1,57 @@
-package pt.uminho.haslab.smcoprocessors.PeerConnectionManager;
+package pt.uminho.haslab.smcoprocessors.middleware.PeerConnectionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.MessageBroker;
+import pt.uminho.haslab.smcoprocessors.CMiddleware.PeersConnectionManager;
+import pt.uminho.haslab.smcoprocessors.CMiddleware.PeersConnectionManagerImpl;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.RelayServer;
 import pt.uminho.haslab.smcoprocessors.middleware.helpers.RegionServer;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public abstract class MultipleServersMultipleClients {
-    final static int NCLIENTS = 20;
-    final static int NSERVERS = 5;
-    final static int NMESSAGES = 10;
-    private static final Log LOG = LogFactory.getLog(MultipleServersMultipleClients.class
+public abstract class SingleServerMultipleClients {
+    private static final Log LOG = LogFactory.getLog(SingleServerMultipleClients.class
             .getName());
-    final List<String> clientConnectionTargetAddress;
-    final List<Integer> clientConnectionTargetPort;
-    final CountDownLatch allServersStarted;
-    final CountDownLatch allClientsStarted;
-    final CountDownLatch allMessagesReceived;
-    private final List<RegionServer> servers;
+
+    final int NCLIENTS = 3;
+
     private final List<RegionServer> clients;
-    private final List<String> serverBindingAddressess;
-    private final List<Integer> serverBindingPorts;
+    PeersConnectionManager clientPeerConnectionManager;
+    private RegionServer server;
 
-    MultipleServersMultipleClients(List<String> serverBindingAddressess,
-                                   List<Integer> serverBindingPorts,
-                                   List<String> clientConnectionTargetAddress,
-                                   List<Integer> clientConnectionTargetPort) {
-        this.serverBindingAddressess = serverBindingAddressess;
-        this.serverBindingPorts = serverBindingPorts;
-        this.clientConnectionTargetAddress = clientConnectionTargetAddress;
-        this.clientConnectionTargetPort = clientConnectionTargetPort;
-        this.servers = new ArrayList<RegionServer>();
-        this.clients = new ArrayList<RegionServer>();
-        allServersStarted = new CountDownLatch(NSERVERS);
-        allClientsStarted = new CountDownLatch(NCLIENTS);
-        allMessagesReceived = new CountDownLatch(NCLIENTS * NMESSAGES);
-
+    SingleServerMultipleClients() {
+        clients = new ArrayList<RegionServer>();
+        clientPeerConnectionManager = new PeersConnectionManagerImpl(6262);
     }
-
 
     @Test
     public void testProtocol() throws InterruptedException, IOException {
 
         //Function must initiate the server and wait for its correct initialization.
-        for (int i = 0; i < NSERVERS; i++) {
-            servers.add(createServer(serverBindingAddressess.get(i), serverBindingPorts.get(i)));
-        }
+        server = createServer();
         LOG.debug("Going to create clients");
         for (int i = 0; i < NCLIENTS; i++) {
-            RegionServer client = createClient(clientConnectionTargetAddress.get(i), clientConnectionTargetPort.get(i));
-            clients.add(client);
+            RegionServer server = createClient(i);
+            clients.add(server);
         }
 
         long start = System.nanoTime();
-        LOG.debug("Start Servers");
-        for (RegionServer server : servers) {
+        LOG.debug("Starting RegionServer");
+        for (RegionServer server : clients) {
             server.startRegionServer();
         }
         Thread.sleep(400);
-        allServersStarted.await();
-
-        LOG.debug("Start Clients");
-        for (RegionServer client : clients) {
-            client.startRegionServer();
-        }
-        LOG.debug("Await for clients to start");
-        allClientsStarted.await();
-        LOG.debug("Await for messages to be received");
-        allMessagesReceived.await();
-        LOG.debug("Stop Clients");
-        for (RegionServer client : clients) {
-            client.stopRegionServer();
-        }
-        LOG.debug("Stop Servers");
-        for (RegionServer server : servers) {
+        LOG.debug("Stopping Client regionServers");
+        for (RegionServer server : clients) {
             server.stopRegionServer();
         }
+        LOG.debug("Stopping Server");
+        server.stopRegionServer();
         long end = System.nanoTime();
         long duration = TimeUnit.SECONDS.convert(end - start,
                 TimeUnit.NANOSECONDS);
@@ -94,11 +63,14 @@ public abstract class MultipleServersMultipleClients {
 
     }
 
-    protected abstract RegionServer createServer(String s, Integer integer) throws IOException, InterruptedException;
-
-    protected abstract RegionServer createClient(String s, Integer integer);
-
     protected abstract void validateResults();
+
+    protected abstract RegionServer createClient(int i);
+
+
+    //Function must initiate the server and wait for its correct initialization.
+    protected abstract RegionServer createServer() throws IOException, InterruptedException;
+
 
     protected abstract class AbsPlayerServer extends Thread implements RegionServer {
 
@@ -163,6 +135,4 @@ public abstract class MultipleServersMultipleClients {
             return runStatus;
         }
     }
-
-
 }

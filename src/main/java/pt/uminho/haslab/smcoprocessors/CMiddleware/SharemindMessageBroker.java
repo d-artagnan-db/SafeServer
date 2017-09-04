@@ -6,7 +6,11 @@ import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
+import pt.uminho.haslab.smcoprocessors.protocolresults.FilteredIndexes;
 
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,8 +26,6 @@ public class SharemindMessageBroker implements MessageBroker {
 
     private final Lock lock;
 
-    // Locks for protocol messages exchange
-    private final RequestsLocks protocolMessagesLocks;
 
     // Locks for protocol results
     private final RequestsLocks protocolResultsLocks;
@@ -34,36 +36,36 @@ public class SharemindMessageBroker implements MessageBroker {
 
     private final Map<RequestIdentifier, Queue<BatchShareMessage>> batchMessagesReceived;
 
-    // protocol resuts messages received
+    // protocol results messages received
     private final Map<RequestIdentifier, Queue<ResultsMessage>> protocolResults;
 
-    private final Map<RequestIdentifier, FilterIndexMessage> filterIndex;
+    private final Map<RequestIdentifier, Queue<FilterIndexMessage>> filterIndex;
 
     private final CountDownLatch relayStarted;
 
     public SharemindMessageBroker() {
-        protocolMessagesLocks = new RequestsLocks();
         protocolResultsLocks = new RequestsLocks();
         filterIndexLocks = new RequestsLocks();
-
         protocolBatchMessagesLocks = new RequestsLocks();
 
         relayStarted = new CountDownLatch(1);
         lock = new ReentrantLock();
 
         protocolResults = new ConcurrentHashMap<RequestIdentifier, Queue<ResultsMessage>>();
-        filterIndex = new ConcurrentHashMap<RequestIdentifier, FilterIndexMessage>();
+        filterIndex = new ConcurrentHashMap<RequestIdentifier, Queue<FilterIndexMessage>>();
 
         batchMessagesReceived = new ConcurrentHashMap<RequestIdentifier, Queue<BatchShareMessage>>();
 
     }
 
-    public void receiveBatchMessage(BatchShareMessage message) {
+    public  void receiveBatchMessage(BatchShareMessage message) {
         lock.lock();
         RequestIdentifier requestID = new RequestIdentifier(message
                 .getRequestID().toByteArray(), message.getRegionID()
                 .toByteArray());
+        //LOG.debug(message.getPlayerSource()+"::"+message.getPlayerDest()+"::"+Arrays.toString(requestID.getRequestID()) +" MessageBroker received message " + message.getValuesList().size());
         try {
+            //LOG.debug("Going to lock on request "+ new BigInteger(requestID.getRequestID()));
             protocolBatchMessagesLocks.lockOnRequest(requestID);
             lock.unlock();
 
@@ -82,11 +84,37 @@ public class SharemindMessageBroker implements MessageBroker {
         }
     }
 
+    public Queue<BatchShareMessage> getReceivedBatchMessages(
+            RequestIdentifier requestId) {
+        lock.lock();
+
+        try {
+            //LOG.debug("Going to lock on request "+ new BigInteger(requestId.getRequestID()));
+            protocolBatchMessagesLocks.lockOnRequest(requestId);
+            lock.unlock();
+
+            // While there aren't messages for this request wait.
+            while (!batchMessagesReceived.containsKey(requestId)) {
+                //LOG.debug("Waiting on messages");
+                protocolBatchMessagesLocks.awaitForWrite(requestId);
+            }
+
+            return batchMessagesReceived.get(requestId);
+
+        } catch (InterruptedException ex) {
+            LOG.error(ex);
+            throw new IllegalArgumentException(ex.getMessage());
+        }
+    }
+
     public void receiveProtocolResults(ResultsMessage message) {
+        //LOG.debug("ReceivedProtocolResults");
         lock.lock();
         RequestIdentifier requestID = new RequestIdentifier(message
                 .getRequestID().toByteArray(), message.getRegionID()
                 .toByteArray());
+        LOG.debug(message.getPlayerSource()+"::"+message.getPlayerDest()+"::"+Arrays.toString(requestID.getRequestID()) +" receivePotocol results");
+
         try {
             protocolResultsLocks.lockOnRequest(requestID);
             lock.unlock();
@@ -104,14 +132,24 @@ public class SharemindMessageBroker implements MessageBroker {
     }
 
     public void receiveFilterIndex(FilterIndexMessage message) {
+        LOG.debug("ReceivedFilteredIndexes");
+
         lock.lock();
         RequestIdentifier requestID = new RequestIdentifier(message
                 .getRequestID().toByteArray(), message.getRegionID()
                 .toByteArray());
+        //LOG.debug(message.getPlayerSource()+"::"+message.getPlayerDest()+"::"+Arrays.toString(requestID.getRequestID()) +" receiveFilteredIndexes");
+
         try {
             filterIndexLocks.lockOnRequest(requestID);
             lock.unlock();
-            filterIndex.put(requestID, message);
+            if(filterIndex.containsKey(requestID)){
+                filterIndex.get(requestID).add(message);
+            }else{
+                Queue values = new ConcurrentLinkedQueue<FilteredIndexes>();
+                values.add(message);
+                filterIndex.put(requestID, values);
+            }
             filterIndexLocks.signalToRead(requestID);
 
         } finally {
@@ -120,28 +158,6 @@ public class SharemindMessageBroker implements MessageBroker {
 
     }
 
-    public Queue<BatchShareMessage> getReceivedBatchMessages(
-            RequestIdentifier requestId) {
-        lock.lock();
-
-        try {
-
-            protocolBatchMessagesLocks.lockOnRequest(requestId);
-            lock.unlock();
-
-            // While there arent messages for this request wait.
-            while (!batchMessagesReceived.containsKey(requestId)) {
-                LOG.debug("Waiting on messages");
-                protocolBatchMessagesLocks.awaitForWrite(requestId);
-            }
-
-            return batchMessagesReceived.get(requestId);
-
-        } catch (InterruptedException ex) {
-            LOG.error(ex);
-            throw new IllegalArgumentException(ex.getMessage());
-        }
-    }
 
     public Queue<ResultsMessage> getProtocolResults(RequestIdentifier requestID) {
         lock.lock();
@@ -152,9 +168,8 @@ public class SharemindMessageBroker implements MessageBroker {
              * Wait while protocol results do not arrive. Only two results
              * should arrive, one from each of the remaining players.
              */
-
-            while (!(protocolResults.containsKey(requestID) && protocolResults
-                    .get(requestID).size() == 2)) {
+            while (!(protocolResults.containsKey(requestID)) ||  protocolResults
+                    .get(requestID).size() < 2) {
                 protocolResultsLocks.awaitForWrite(requestID);
             }
             return protocolResults.get(requestID);
@@ -171,12 +186,13 @@ public class SharemindMessageBroker implements MessageBroker {
         try {
             filterIndexLocks.lockOnRequest(requestID);
             lock.unlock();
-            // While there arent messages for this request wait.
-            while (!filterIndex.containsKey(requestID)) {
+
+            // While there aren't messages for this request wait.
+            while (!filterIndex.containsKey(requestID) || filterIndex.get(requestID).size() == 0) {
                 filterIndexLocks.awaitForWrite(requestID);
             }
 
-            return filterIndex.get(requestID);
+            return filterIndex.get(requestID).poll();
 
         } catch (InterruptedException ex) {
             LOG.error(ex);
@@ -198,18 +214,12 @@ public class SharemindMessageBroker implements MessageBroker {
         batchMessagesReceived.remove(requestID);
     }
 
-    public void readMessages(RequestIdentifier requestID) {
-        protocolMessagesLocks.unlockOnRequest(requestID);
-    }
 
     public void readBatchMessages(RequestIdentifier requestID) {
         protocolBatchMessagesLocks.unlockOnRequest(requestID);
     }
 
-    public void waitNewMessage(RequestIdentifier requestID)
-            throws InterruptedException {
-        protocolMessagesLocks.awaitForWrite(requestID);
-    }
+
 
     public void waitNewBatchMessage(RequestIdentifier requestID)
             throws InterruptedException {
@@ -218,8 +228,8 @@ public class SharemindMessageBroker implements MessageBroker {
     }
 
     public void allResultsRead(RequestIdentifier requestID) {
-        protocolResultsLocks.removeLock(requestID);
-        protocolResults.remove(requestID);
+       protocolResultsLocks.removeLock(requestID);
+       protocolResults.remove(requestID);
     }
 
     public void protocolResultsRead(RequestIdentifier requestID) {
@@ -227,26 +237,19 @@ public class SharemindMessageBroker implements MessageBroker {
     }
 
     public void allIndexesMessagesRead(RequestIdentifier requestID) {
-        filterIndex.remove(requestID);
-        filterIndexLocks.removeLock(requestID);
+       filterIndexLocks.removeLock(requestID);
+       filterIndex.remove(requestID);
     }
 
-    public void indexeMessageRead(RequestIdentifier requestID) {
+    public void indexMessageRead(RequestIdentifier requestID) {
         filterIndexLocks.unlockOnRequest(requestID);
     }
 
-    public int numberOfLocksMessages() {
-        return this.protocolMessagesLocks.countLocks();
-    }
 
     public int numberofOfLocksResults() {
         return this.protocolResultsLocks.countLocks();
     }
 
-    public boolean lockExistsForMessagesOnRequest(RequestIdentifier requestID) {
-        return this.protocolMessagesLocks.lockExist(requestID);
-
-    }
 
     public boolean lockExistsForResultsOnRequest(RequestIdentifier requestID) {
         return this.protocolResultsLocks.lockExist(requestID);

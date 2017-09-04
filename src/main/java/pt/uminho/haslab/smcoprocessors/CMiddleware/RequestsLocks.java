@@ -1,14 +1,14 @@
 package pt.uminho.haslab.smcoprocessors.CMiddleware;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RequestsLocks {
 
     private final Map<RequestIdentifier, PlayerMessageLock> locks;
 
     public RequestsLocks() {
-        this.locks = new HashMap<RequestIdentifier, PlayerMessageLock>();
+        this.locks = new ConcurrentHashMap<RequestIdentifier, PlayerMessageLock>();
     }
 
     public void signalToRead(RequestIdentifier requestID) {
@@ -32,6 +32,9 @@ public class RequestsLocks {
 
     public void awaitForWrite(RequestIdentifier requestID)
             throws InterruptedException {
+
+        //System.out.println("Locks "+locks);
+        //System.out.println("Locks req "+ requestID + " - " +locks.get(requestID));
         locks.get(requestID).awaitForWrite();
     }
 

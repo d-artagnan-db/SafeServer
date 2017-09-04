@@ -1,4 +1,4 @@
-package pt.uminho.haslab.smcoprocessors.discovery;
+package pt.uminho.haslab.smcoprocessors.middleware.discovery;
 
 public class FailedRegionDiscovery extends Exception {
 

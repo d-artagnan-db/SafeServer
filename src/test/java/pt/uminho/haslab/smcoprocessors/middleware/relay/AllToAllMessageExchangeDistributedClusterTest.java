@@ -1,4 +1,4 @@
-package pt.uminho.haslab.smcoprocessors;
+package pt.uminho.haslab.smcoprocessors.middleware.relay;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
@@ -6,10 +6,11 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.*;
-import pt.uminho.haslab.smcoprocessors.discovery.DiscoveryService;
-import pt.uminho.haslab.smcoprocessors.discovery.FailedRegionDiscovery;
-import pt.uminho.haslab.smcoprocessors.discovery.RedisDiscoveryService;
-import pt.uminho.haslab.smcoprocessors.discovery.RegionLocation;
+import pt.uminho.haslab.smcoprocessors.TestMessageBroker;
+import pt.uminho.haslab.smcoprocessors.middleware.discovery.DiscoveryService;
+import pt.uminho.haslab.smcoprocessors.middleware.discovery.FailedRegionDiscovery;
+import pt.uminho.haslab.smcoprocessors.middleware.discovery.RedisDiscoveryService;
+import pt.uminho.haslab.smcoprocessors.middleware.discovery.RegionLocation;
 import pt.uminho.haslab.smcoprocessors.middleware.helpers.RegionServer;
 import pt.uminho.haslab.testingutils.ValuesGenerator;
 

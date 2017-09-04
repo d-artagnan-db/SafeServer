@@ -20,18 +20,13 @@ public interface MessageBroker {
 
     FilterIndexMessage getFilterIndexes(RequestIdentifier requestID);
 
-    void waitNewMessage(RequestIdentifier requestID)
-            throws InterruptedException;
-
-    void readMessages(RequestIdentifier requestID);
-
     void allResultsRead(RequestIdentifier requestID);
 
     void protocolResultsRead(RequestIdentifier requestID);
 
     void allIndexesMessagesRead(RequestIdentifier requestID);
 
-    void indexeMessageRead(RequestIdentifier requestID);
+    void indexMessageRead(RequestIdentifier requestID);
 
     void receiveBatchMessage(BatchShareMessage message);
 

@@ -1,4 +1,4 @@
-package pt.uminho.haslab.smcoprocessors.discovery;
+package pt.uminho.haslab.smcoprocessors.middleware.discovery;
 
 import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
 import pt.uminho.haslab.smcoprocessors.middleware.helpers.RegionServer;
@@ -45,7 +45,6 @@ public class ConcurrentSucessRedisDiscoveryServiceTest
             locations.put(playerID, playerLocations);
             runStatus = false;
             service.unregisterRegion(reqi);
-            // System.out.println("All values put");
 
         }
     }

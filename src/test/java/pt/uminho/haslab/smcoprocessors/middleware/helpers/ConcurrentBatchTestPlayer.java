@@ -83,9 +83,7 @@ public abstract class ConcurrentBatchTestPlayer extends Thread
 
     @Override
     public void run() {
-
         resultSecret = testingProtocol(firstValueSecret, secondValueSecret);
-
     }
 
     public List<byte[]> getResultSecret() {

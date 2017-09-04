@@ -4,8 +4,8 @@ import pt.uminho.haslab.smcoprocessors.CMiddleware.MessageBroker;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.Relay;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
 import pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition;
-import pt.uminho.haslab.smcoprocessors.middleware.helpers.ConcurrentBatchProtocolTest;
 import pt.uminho.haslab.smcoprocessors.middleware.helpers.ConcurrentBatchTestPlayer;
+import pt.uminho.haslab.smcoprocessors.middleware.helpers.ConcurrentBatchProtocolTest;
 import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
 import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
 
@@ -105,6 +105,7 @@ public abstract class ConcurrentSecretSearchTest
              * secretTwo >= secretOne secretTwo > secretOne secretTwo <
              * secretOne secretTwo <= SecretOne
              */
+
             SearchCondition condition = getSearchCondition(nBits,
                     secondValueSecret, 1);
             List<byte[]> ids = new ArrayList<byte[]>();
@@ -115,6 +116,8 @@ public abstract class ConcurrentSecretSearchTest
                     player);
             Integer playerID = player.getPlayerID();
             results.get(playerID).put(reqID, searchRes);
+            player.cleanResultsMatch();
+
 
         }
 
@@ -125,7 +128,11 @@ public abstract class ConcurrentSecretSearchTest
         @Override
         protected List<byte[]> testingProtocol(List<byte[]> firstValueSecret,
                                                List<byte[]> secondValueSecret) {
-            throw new UnsupportedOperationException("Not supported yet."); // To
+            throw new UnsupportedOperationException("Not supported yet.");
         }
+
+    }
+    protected int getExpectedResult(BigInteger valOne, BigInteger valtwo) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

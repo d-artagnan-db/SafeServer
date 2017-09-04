@@ -20,10 +20,11 @@ public class ConcurrentBatchEqualSearchTest extends ConcurrentSecretSearchTest {
         super(nbits, valuesOne, valuesTwo);
     }
 
+
     @Override
     protected SearchCondition getSearchCondition(int nBits,
                                                  List<byte[]> firstValueSecret, int i) {
-        return AbstractSearchValue.conditionTransformer(Equal, nBits + 1,
+        return AbstractSearchValue.conditionTransformer(Equal, nBits,
                 firstValueSecret, i);
     }
 

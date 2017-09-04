@@ -10,14 +10,14 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.GreaterOrEqualThan;
+import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.LessOrEqualThan;
 
-public class ConcurrentBatchGreaterOrEqualThanSecretSearchTest
+public class ConcurrentBatchLesserOrEqualThanSecretSearchTest
         extends
         ConcurrentSecretSearchTest {
 
-    public ConcurrentBatchGreaterOrEqualThanSecretSearchTest(List<Integer> nbits,
-                                                             List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo)
+    public ConcurrentBatchLesserOrEqualThanSecretSearchTest(List<Integer> nbits,
+                                                            List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo)
             throws IOException, InvalidNumberOfBits, InvalidSecretValue {
         super(nbits, valuesOne, valuesTwo);
     }
@@ -25,7 +25,7 @@ public class ConcurrentBatchGreaterOrEqualThanSecretSearchTest
     @Override
     protected SearchCondition getSearchCondition(int nBits,
                                                  List<byte[]> firstValueSecret, int i) {
-        return AbstractSearchValue.conditionTransformer(GreaterOrEqualThan,
+        return AbstractSearchValue.conditionTransformer(LessOrEqualThan,
                 nBits, firstValueSecret, i);
     }
 
@@ -34,10 +34,11 @@ public class ConcurrentBatchGreaterOrEqualThanSecretSearchTest
         List<BigInteger> secretOne = valuesOne.get(request);
         List<BigInteger> secretTwo = valuesTwo.get(request);
         List<Boolean> bool = new ArrayList<Boolean>();
+
         for (int i = 0; i < secretOne.size(); i++) {
             int comparisonResult = secretOne.get(i).compareTo(secretTwo.get(i));
             boolean expectedResult = comparisonResult == 0
-                    || comparisonResult == 1;
+                    || comparisonResult == -1;
             bool.add(expectedResult);
         }
         return bool;

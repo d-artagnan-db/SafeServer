@@ -5,7 +5,7 @@ import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
-import pt.uminho.haslab.smcoprocessors.discovery.*;
+import pt.uminho.haslab.smcoprocessors.middleware.discovery.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -132,44 +132,4 @@ public class IORelay implements Relay {
         discoveryService.unregisterRegion(requestIdentifier);
     }
 
-
-    public void cleanRequestRegister() {
-
-
-    }
-
-    private int calculateDestPlayer(int playerID, int playerDest) {
-        /**
-         * return 1 is connection two on NioRelay. return 0 is connection one on
-         * NioRelay. originPlayerId is the player destination from the three
-         * (0,1,2)
-         */
-
-        switch (playerID) {
-        /*
-         * if this player is 0 and wants to send to player one, then use
-		 * connection two on the nio relay. Use connection one if it goes to
-		 * player 2.
-		 */
-            case 0:
-                return playerDest == 1 ? 1 : 0;
-                /*
-                 * if this player is 1 and wants to send to player two, then use
-				 * connection two on the nio relay. Use connection one if it
-				 * goes to player 0.
-				 */
-            case 1:
-                return playerDest == 2 ? 1 : 0;
-                /*
-                 * if this player is 2 and wants to send to player zero, then
-				 * use connection two on the nio relay. Use connection one if it
-				 * goes to player 1.
-				 */
-            case 2:
-                return playerDest == 0 ? 1 : 0;
-        }
-
-		/* This does nothing, it just hides editors warnings of missing return statement */
-        return -1;
-    }
 }

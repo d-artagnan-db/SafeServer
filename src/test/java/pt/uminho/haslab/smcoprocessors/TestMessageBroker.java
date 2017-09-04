@@ -65,7 +65,7 @@ public abstract class TestMessageBroker implements MessageBroker {
         throw new UnsupportedMediaException("Method not currently supported on testing framework");
     }
 
-    public void indexeMessageRead(RequestIdentifier requestID) {
+    public void indexMessageRead(RequestIdentifier requestID) {
         throw new UnsupportedMediaException("Method not currently supported on testing framework");
     }
 

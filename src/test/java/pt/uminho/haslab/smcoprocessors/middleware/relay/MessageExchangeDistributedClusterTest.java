@@ -1,4 +1,4 @@
-package pt.uminho.haslab.smcoprocessors;
+package pt.uminho.haslab.smcoprocessors.middleware.relay;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

@@ -1,4 +1,4 @@
-package pt.uminho.haslab.smcoprocessors.PeerConnectionManager;
+package pt.uminho.haslab.smcoprocessors.middleware.PeerConnectionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

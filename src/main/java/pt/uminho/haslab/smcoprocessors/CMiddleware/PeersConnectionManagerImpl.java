@@ -23,15 +23,15 @@ public class PeersConnectionManagerImpl implements PeersConnectionManager {
 
     public synchronized RelayClient getRelayClient(String host, int port) {
         String key = host + ":" + port;
-        LOG.debug("GetRelayClient " + key);
+        //LOG.debug("GetRelayClient " + key);
         if (connectionToClients.containsKey(key)) {
-            LOG.debug("Found an already existing connection.");
+            //LOG.debug("Found an already existing connection.");
             return connectionToClients.get(key);
         } else {
-            LOG.debug("Creating a new connection");
+            //LOG.debug("Creating a new connection");
             RelayClient client = new RelayClient(playerBindPort, host, port);
             try {
-                LOG.debug("Connecting to target");
+                //LOG.debug("Connecting to target");
                 client.connectToTarget();
             } catch (InterruptedException e) {
                 LOG.error(e);
@@ -40,7 +40,7 @@ public class PeersConnectionManagerImpl implements PeersConnectionManager {
                 LOG.error(e);
                 throw new IllegalStateException(e);
             }
-            LOG.debug("Starting Client Thread");
+            //LOG.debug("Starting Client Thread");
             client.start();
             connectionToClients.put(key, client);
             return client;

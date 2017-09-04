@@ -4,7 +4,7 @@ import org.apache.hadoop.conf.Configuration;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.IORelay;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.MessageBroker;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.Relay;
-import pt.uminho.haslab.smcoprocessors.discovery.DiscoveryServiceConfiguration;
+import pt.uminho.haslab.smcoprocessors.middleware.discovery.DiscoveryServiceConfiguration;
 
 import java.io.IOException;
 

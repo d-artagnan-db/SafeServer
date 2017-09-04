@@ -5,6 +5,7 @@ import pt.uminho.haslab.smcoprocessors.protocolresults.SearchResults;
 import pt.uminho.haslab.smhbase.interfaces.Secret;
 import pt.uminho.haslab.smhbase.sharemindImp.SharemindSecret;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,10 +37,11 @@ public abstract class AbstractSearchValue implements SearchCondition {
             case LessOrEqualThan:
                 greaterEqualThan = new SearchValue(nBits, value,
                         GreaterOrEqualThan, targetPlayer);
+
                 equal = new SearchValue(nBits, value, Equal, targetPlayer);
                 SearchCondition notGreater = new UnarySearchValue(Not,
                         greaterEqualThan, targetPlayer);
-                return new ComposedSearchValue(Or, equal, notGreater,
+                return new ComposedSearchValue(Xor, equal, notGreater,
                         targetPlayer);
             case NotEqual:
                 equal = new SearchValue(nBits, value, Equal, targetPlayer);

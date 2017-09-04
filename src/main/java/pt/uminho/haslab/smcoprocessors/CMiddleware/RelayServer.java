@@ -95,6 +95,7 @@ public class RelayServer extends Thread {
     public void run() {
         try {
             while (running) {
+
                 Socket socketClient = serverSocket.accept();
                 Client client = new Client(socketClient, broker);
                 client.start();
