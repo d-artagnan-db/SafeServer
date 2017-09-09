@@ -1,5 +1,6 @@
 package pt.uminho.haslab.smcoprocessors.middleware.protocols;
 
+import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
 import pt.uminho.haslab.smcoprocessors.middleware.helpers.BatchProtocolTest;
 import pt.uminho.haslab.smcoprocessors.middleware.helpers.RegionServer;
 import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
@@ -32,7 +33,7 @@ public class BatchGreaterOrEqualThan extends BatchProtocolTest {
             super(playerID, firstValueSecrets, secondValueSecrets, nbits);
         }
 
-        public List<byte[]> executeProtocol(Player player, List<byte[]> secretOne, List<byte[]> secretTwo, int nBits) {
+        public List<byte[]> executeProtocol(Player player, List<byte[]> secretOne, List<byte[]> secretTwo, int nBits, RequestIdentifier ident) {
             SharemindSecretFunctions ssf = new SharemindSecretFunctions(nBits);
             try {
                 return ssf.greaterOrEqualThan(secretOne, secretTwo, player);

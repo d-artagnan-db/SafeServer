@@ -54,10 +54,10 @@ public abstract class ConcurrentSecretSearchTest
             List<Boolean> ressTwo = results.get(1).get(request);
             List<Boolean> ressThree = results.get(2).get(request);
 
-            List<Boolean> expecteds = getSearchExpectedResult(request);
+            List<Boolean> expectedValues = getSearchExpectedResult(request);
 
             for (int j = 0; j < ressOne.size(); j++) {
-                boolean expected = expecteds.get(j);
+                boolean expected = expectedValues.get(j);
                 boolean resOne = ressOne.get(j);
                 boolean resTwo = ressTwo.get(j);
                 boolean resThree = ressThree.get(j);
@@ -66,7 +66,6 @@ public abstract class ConcurrentSecretSearchTest
                 assertEquals(expected, resOne);
 
             }
-
         }
     }
 
@@ -101,7 +100,7 @@ public abstract class ConcurrentSecretSearchTest
              * Simulation of comparison of values inside hbase scan. The second
              * value is stored on the hbase the database. The first value is
              * request by the user to compare to the values stored in the db.
-             * The comparison should be made as follows: secretTwo == secretOne
+             * The comparisons should be made as follows: secretTwo == secretOne
              * secretTwo >= secretOne secretTwo > secretOne secretTwo <
              * secretOne secretTwo <= SecretOne
              */

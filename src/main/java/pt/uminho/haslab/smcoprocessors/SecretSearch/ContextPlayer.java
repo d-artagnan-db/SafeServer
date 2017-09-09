@@ -251,7 +251,7 @@ public class ContextPlayer implements Player, SharemindPlayer {
         broker.protocolResultsRead(requestID);
 
         //broker.protocolResultsRead(requestID);
-        System.out.println("Results size is " + results.size());
+        //System.out.println("Results size is " + results.size());
         assert results.size() == 2;
         return results;
     }

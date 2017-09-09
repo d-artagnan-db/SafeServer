@@ -151,7 +151,7 @@ public abstract class BatchProtocolTest extends TestLinkedRegions {
         }
 
         public abstract List<byte[]> executeProtocol(Player player, List<byte[]> secretOne, List<byte[]> secretTwo,
-                                                     int nBits);
+                                                     int nBits, RequestIdentifier ident);
 
         @Override
         public void doComputation() {
@@ -168,7 +168,7 @@ public abstract class BatchProtocolTest extends TestLinkedRegions {
                 RequestIdentifier ident = new RequestIdentifier(reqID, regionID);
                 relay.registerRequest(ident);
                 BatchTestPlayer player = new BatchTestPlayer(relay, ident, playerID, broker);
-                List<byte[]> result = executeProtocol(player, secretOne, secretTwo, valueNbits);
+                List<byte[]> result = executeProtocol(player, secretOne, secretTwo, valueNbits, ident);
 
                 results.add(result);
 

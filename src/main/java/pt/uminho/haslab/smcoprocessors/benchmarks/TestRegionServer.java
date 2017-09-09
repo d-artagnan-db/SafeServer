@@ -26,13 +26,11 @@ public abstract class TestRegionServer extends Thread implements RegionServer {
             .getName());
 
     public TestRegionServer(int playerID) throws IOException {
-        System.out.println("ola " + playerID);
         String resource = "hbase-site-" + playerID + ".xml";
 
         Configuration conf = new Configuration();
         conf.addResource(resource);
         searchConf = new SmpcConfiguration(conf);
-        System.out.println(" cebas " + searchConf.getnBits());
 
         broker = new SharemindMessageBroker();
 
@@ -70,7 +68,6 @@ public abstract class TestRegionServer extends Thread implements RegionServer {
 
     }
 
-    @Override
     public void stopRegionServer() throws IOException, InterruptedException {
         this.join();
     }

@@ -6,14 +6,17 @@ import pt.uminho.haslab.smcoprocessors.CMiddleware.MessageBroker;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.Relay;
 import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
 import pt.uminho.haslab.smcoprocessors.SecretSearch.ContextPlayer;
-import pt.uminho.haslab.smhbase.interfaces.Player;
+import pt.uminho.haslab.smcoprocessors.SharemindPlayer;
+import pt.uminho.haslab.smcoprocessors.protocolresults.FilteredIndexes;
+import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMissmatch;
+import pt.uminho.haslab.smcoprocessors.protocolresults.SearchResults;
 
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BatchTestPlayer implements Player {
+public class BatchTestPlayer implements SharemindPlayer {
 
     private static final Log LOG = LogFactory.getLog(BatchTestPlayer.class
             .getName());
@@ -67,5 +70,37 @@ public class BatchTestPlayer implements Player {
 
     public Map<Integer, List<List<byte[]>>> getMessagesReceived() {
         return messagesReceived;
+    }
+
+    public void sendProtocolResults(int destPlayer, SearchResults res) {
+        player.sendProtocolResults(destPlayer, res);
+    }
+
+    public List<SearchResults> getProtocolResults() throws ResultsLengthMissmatch {
+        return player.getProtocolResults();
+    }
+
+    public void cleanValues() {
+        player.cleanValues();
+    }
+
+    public void cleanResultsMatch() {
+        player.cleanResultsMatch();
+    }
+
+    public void sendFilteredIndexes(FilteredIndexes indexes) {
+        player.sendFilteredIndexes(indexes);
+    }
+
+    public FilteredIndexes getFilterIndexes() {
+        return player.getFilterIndexes();
+    }
+
+    public boolean isTargetPlayer() {
+        return player.isTargetPlayer();
+    }
+
+    public void setTargetPlayer() {
+        player.setTargetPlayer();
     }
 }
