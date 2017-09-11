@@ -1,10 +1,10 @@
 package pt.uminho.haslab.smcoprocessors;
 
 import org.apache.hadoop.conf.Configuration;
-import pt.uminho.haslab.smcoprocessors.CMiddleware.IORelay;
-import pt.uminho.haslab.smcoprocessors.CMiddleware.MessageBroker;
-import pt.uminho.haslab.smcoprocessors.CMiddleware.Relay;
-import pt.uminho.haslab.smcoprocessors.middleware.discovery.DiscoveryServiceConfiguration;
+import pt.uminho.haslab.smcoprocessors.comunication.IORelay;
+import pt.uminho.haslab.smcoprocessors.comunication.MessageBroker;
+import pt.uminho.haslab.smcoprocessors.comunication.Relay;
+import pt.uminho.haslab.smcoprocessors.discovery.DiscoveryServiceConfiguration;
 
 import java.io.IOException;
 
@@ -16,10 +16,8 @@ public class SmpcConfiguration {
     private final int relayPort;
     private final boolean isDevelopment;
 
-    //SMCP library configuration
+    //SMPC library configuration
     private final int nBits;
-    private final String secretFamily;
-    private final String secretQualifier;
     private final int batchSize;
     private final int preRandomElems;
 
@@ -39,8 +37,6 @@ public class SmpcConfiguration {
 
         //SMCP library configuration
         nBits = conf.getInt("smhbase.nbits", -1);
-        secretFamily = conf.get("smhbase.column.family");
-        secretQualifier = conf.get("smhbase.column.qualifier");
         batchSize = conf.getInt("smhbase.protocols.size", 20);
         preRandomElems = conf.getInt("smhbase.smpc.prerandom.size", 0);
 
@@ -66,14 +62,6 @@ public class SmpcConfiguration {
 
     public String getPlayerIDasString() {
         return String.valueOf(playerID);
-    }
-
-    public byte[] getSecretFamily() {
-        return this.secretFamily.getBytes();
-    }
-
-    public byte[] getSecretQualifier() {
-        return this.secretQualifier.getBytes();
     }
 
     public int getBatchSize() {

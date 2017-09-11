@@ -1,9 +1,9 @@
 package pt.uminho.haslab.smcoprocessors.benchmarks;
 
-import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
-import pt.uminho.haslab.smcoprocessors.SecretSearch.AbstractSearchValue;
-import pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition;
-import pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition;
+import pt.uminho.haslab.smcoprocessors.comunication.RequestIdentifier;
+import pt.uminho.haslab.smcoprocessors.secretSearch.AbstractSearchValue;
+import pt.uminho.haslab.smcoprocessors.secretSearch.SearchCondition;
+import pt.uminho.haslab.smcoprocessors.secretSearch.SearchCondition.Condition;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.Equal;
+import static pt.uminho.haslab.smcoprocessors.secretSearch.SearchCondition.Condition.Equal;
 
 /***
  * Simulator of a region server used to benchmark the SMPC protocols

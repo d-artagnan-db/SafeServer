@@ -3,11 +3,11 @@ package pt.uminho.haslab.smcoprocessors.middleware.PeerConnectionManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
-import pt.uminho.haslab.smcoprocessors.CMiddleware.MessageBroker;
-import pt.uminho.haslab.smcoprocessors.CMiddleware.PeersConnectionManager;
-import pt.uminho.haslab.smcoprocessors.CMiddleware.PeersConnectionManagerImpl;
-import pt.uminho.haslab.smcoprocessors.CMiddleware.RelayServer;
-import pt.uminho.haslab.smcoprocessors.middleware.helpers.RegionServer;
+import pt.uminho.haslab.smcoprocessors.comunication.MessageBroker;
+import pt.uminho.haslab.smcoprocessors.comunication.PeersConnectionManager;
+import pt.uminho.haslab.smcoprocessors.comunication.PeersConnectionManagerImpl;
+import pt.uminho.haslab.smcoprocessors.comunication.RelayServer;
+import pt.uminho.haslab.smcoprocessors.helpers.RegionServer;
 
 import java.io.IOException;
 import java.util.ArrayList;

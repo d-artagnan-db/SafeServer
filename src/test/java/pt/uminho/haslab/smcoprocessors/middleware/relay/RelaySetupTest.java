@@ -1,8 +1,8 @@
 package pt.uminho.haslab.smcoprocessors.middleware.relay;
 
 import org.junit.Test;
-import pt.uminho.haslab.smcoprocessors.middleware.helpers.RegionServer;
-import pt.uminho.haslab.smcoprocessors.middleware.helpers.TestRegionServer;
+import pt.uminho.haslab.smcoprocessors.helpers.RegionServer;
+import pt.uminho.haslab.smcoprocessors.helpers.TestRegionServer;
 
 import java.io.IOException;
 

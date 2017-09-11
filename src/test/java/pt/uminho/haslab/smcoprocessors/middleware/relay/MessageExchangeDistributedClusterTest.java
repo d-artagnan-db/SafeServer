@@ -3,7 +3,7 @@ package pt.uminho.haslab.smcoprocessors.middleware.relay;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
-import pt.uminho.haslab.smcoprocessors.middleware.helpers.RegionServer;
+import pt.uminho.haslab.smcoprocessors.helpers.RegionServer;
 
 import java.io.IOException;
 import java.math.BigInteger;

@@ -2,11 +2,11 @@ package pt.uminho.haslab.smcoprocessors.benchmarks;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import pt.uminho.haslab.smcoprocessors.CMiddleware.MessageBroker;
-import pt.uminho.haslab.smcoprocessors.CMiddleware.Relay;
-import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
-import pt.uminho.haslab.smcoprocessors.SecretSearch.ContextPlayer;
-import pt.uminho.haslab.smcoprocessors.SharemindPlayer;
+import pt.uminho.haslab.smcoprocessors.comunication.MessageBroker;
+import pt.uminho.haslab.smcoprocessors.comunication.Relay;
+import pt.uminho.haslab.smcoprocessors.comunication.RequestIdentifier;
+import pt.uminho.haslab.smcoprocessors.secretSearch.ContextPlayer;
+import pt.uminho.haslab.smcoprocessors.secretSearch.SharemindPlayer;
 import pt.uminho.haslab.smcoprocessors.protocolresults.FilteredIndexes;
 import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMissmatch;
 import pt.uminho.haslab.smcoprocessors.protocolresults.SearchResults;

@@ -3,8 +3,8 @@ package pt.uminho.haslab.smcoprocessors.middleware.relay;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
-import pt.uminho.haslab.smcoprocessors.SecretSearch.ContextPlayer;
+import pt.uminho.haslab.smcoprocessors.comunication.RequestIdentifier;
+import pt.uminho.haslab.smcoprocessors.secretSearch.ContextPlayer;
 import pt.uminho.haslab.smcoprocessors.benchmarks.TestRegionServer;
 import pt.uminho.haslab.testingutils.ValuesGenerator;
 

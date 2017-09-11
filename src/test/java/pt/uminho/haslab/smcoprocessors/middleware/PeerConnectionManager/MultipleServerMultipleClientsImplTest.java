@@ -4,12 +4,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import pt.uminho.haslab.smcoprocessors.CMiddleware.MessageBroker;
-import pt.uminho.haslab.smcoprocessors.CMiddleware.PeersConnectionManager;
-import pt.uminho.haslab.smcoprocessors.CMiddleware.PeersConnectionManagerImpl;
-import pt.uminho.haslab.smcoprocessors.CMiddleware.RelayClient;
-import pt.uminho.haslab.smcoprocessors.TestMessageBroker;
-import pt.uminho.haslab.smcoprocessors.middleware.helpers.RegionServer;
+import pt.uminho.haslab.smcoprocessors.comunication.MessageBroker;
+import pt.uminho.haslab.smcoprocessors.comunication.PeersConnectionManager;
+import pt.uminho.haslab.smcoprocessors.comunication.PeersConnectionManagerImpl;
+import pt.uminho.haslab.smcoprocessors.comunication.RelayClient;
+import pt.uminho.haslab.smcoprocessors.helpers.TestMessageBroker;
+import pt.uminho.haslab.smcoprocessors.helpers.RegionServer;
 import pt.uminho.haslab.testingutils.ValuesGenerator;
 
 import java.io.IOException;

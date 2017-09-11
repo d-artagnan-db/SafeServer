@@ -6,6 +6,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CoprocessorEnvironment;
 import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Operation;
 import org.apache.hadoop.hbase.client.OperationWithAttributes;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.coprocessor.BaseRegionObserver;
@@ -13,14 +14,16 @@ import org.apache.hadoop.hbase.coprocessor.ObserverContext;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.regionserver.RegionScanner;
-import pt.uminho.haslab.smcoprocessors.CMiddleware.MessageBroker;
-import pt.uminho.haslab.smcoprocessors.CMiddleware.Relay;
-import pt.uminho.haslab.smcoprocessors.CMiddleware.RequestIdentifier;
-import pt.uminho.haslab.smcoprocessors.CMiddleware.SharemindMessageBroker;
-import pt.uminho.haslab.smcoprocessors.SecretSearch.*;
-import pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition;
+import pt.uminho.haslab.smcoprocessors.comunication.MessageBroker;
+import pt.uminho.haslab.smcoprocessors.comunication.Relay;
+import pt.uminho.haslab.smcoprocessors.comunication.RequestIdentifier;
+import pt.uminho.haslab.smcoprocessors.comunication.SharemindMessageBroker;
+import pt.uminho.haslab.smcoprocessors.secretSearch.*;
+import pt.uminho.haslab.smcoprocessors.secretSearch.SearchCondition.Condition;
 import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsIdentifiersMissmatch;
 import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMissmatch;
+import pt.uminho.haslab.smcoprocessors.secureRegionScanner.Column;
+import pt.uminho.haslab.smcoprocessors.secureRegionScanner.SecureRegionScanner;
 import pt.uminho.haslab.smhbase.interfaces.Player;
 import pt.uminho.haslab.smhbase.sharemindImp.SharemindSecretFunctions;
 
@@ -28,7 +31,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;
 
-import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.*;
+import static pt.uminho.haslab.smcoprocessors.secretSearch.SearchCondition.Condition.*;
 
 public class SmpcCoprocessor extends BaseRegionObserver {
 
@@ -68,17 +71,20 @@ public class SmpcCoprocessor extends BaseRegionObserver {
             broker = new SharemindMessageBroker();
             relay = searchConf.createRelay(broker);
 
-            // Wait some time before tryng to connect with other region servers
+            // Wait some time before trying to connect with other region servers
             LOG.debug("Player " + searchConf.getPlayerID()
-                    + " is going to wait for other players");
+                    + " is waiting for Relay server to start");
             try {
                 waitServerStart();
             } catch (InterruptedException e1) {
                 LOG.error("Relay not booted correctly " + e1.getLocalizedMessage());
                 throw new IllegalStateException(e1);
             }
+
             initiateSharedResources(searchConf);
+
             if (searchConf.getPreRandomSize() > 0) {
+                LOG.debug("Defining "+ searchConf.getPreRandomSize()+" as the number of random numbers on  the smpc library");
                 SharemindSecretFunctions.initRandomElemes(
                         searchConf.getPreRandomSize(), searchConf.getnBits());
             }
@@ -146,11 +152,19 @@ public class SmpcCoprocessor extends BaseRegionObserver {
                 this.searchConf.getPlayerID(), broker);
     }
 
-    private List<Cell> secretGetSearch(byte[] secret,
-                                       OperationWithAttributes op, Condition cond,
+    public Column getSearchColumn(OperationWithAttributes op){
+        return new Column(op.getAttribute(OperationWithAttributes.))
+    }
+
+    private List<Cell> secretGetSearch(byte[] secret, OperationWithAttributes op,
                                        RegionCoprocessorEnvironment env, boolean stopOnMatch)
             throws IOException, ResultsLengthMissmatch,
             ResultsIdentifiersMissmatch {
+
+        /**
+         * The  Hbase column Famility and Column Qualifier in which the SecureREgionScanner searches is no longer defined
+         * by the HbaseRegionConfiguration, but byt the client.
+         */
 
         Column col = new Column(this.searchConf.getSecretFamily(),
                 this.searchConf.getSecretQualifier());
@@ -168,14 +182,14 @@ public class SmpcCoprocessor extends BaseRegionObserver {
         int targetPlayer = Integer.parseInt(targetPlayerS);
 
         if (this.searchConf.getPlayerID() == targetPlayer) {
-            LOG.debug("Is target player");
+            LOG.debug("This RegionServer Is target player for the request "+ ident.hashCode());
             ((SharemindPlayer) player).setTargetPlayer();
         }
         List<byte[]> secrets = new ArrayList<byte[]>();
         secrets.add(secret);
 
         SearchCondition searchCondition = AbstractSearchValue
-                .conditionTransformer(cond, nbits, secrets, targetPlayer);
+                .conditionTransformer(Equal, nbits, secrets, targetPlayer);
         SecureRegionScanner search = new SecureRegionScanner(searchCondition,
                 env, player, this.searchConf, stopOnMatch, col);
         List<Cell> results = new ArrayList<Cell>();
@@ -207,6 +221,7 @@ public class SmpcCoprocessor extends BaseRegionObserver {
         String targetPlayerS = new String(op.getAttribute("targetPlayer"));
         int targetPlayer = Integer.parseInt(targetPlayerS);
         LOG.debug("Is target player " + targetPlayer);
+
         if (this.searchConf.getPlayerID() == targetPlayer) {
             LOG.debug("Is going to set target Player");
             ((SharemindPlayer) player).setTargetPlayer();
@@ -301,8 +316,8 @@ public class SmpcCoprocessor extends BaseRegionObserver {
             try {
                 byte[] cachedID = get.getAttribute("cachedID");
                 if (cachedID == null) {
-                    LOG.debug("Going to performe a secret search on data");
-                    List<Cell> searchResults = secretGetSearch(row, get, Equal,
+                    LOG.debug("Going to perform a secret search on data");
+                    List<Cell> searchResults = secretGetSearch(row, get,
                             e.getEnvironment(), true);
 
                     results.addAll(searchResults);

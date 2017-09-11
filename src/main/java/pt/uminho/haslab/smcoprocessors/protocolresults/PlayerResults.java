@@ -1,14 +1,14 @@
 package pt.uminho.haslab.smcoprocessors.protocolresults;
 
-import pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition;
+import pt.uminho.haslab.smcoprocessors.secretSearch.SearchCondition.Condition;
 import pt.uminho.haslab.smhbase.sharemindImp.SharemindSharedSecret;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.Equal;
-import static pt.uminho.haslab.smcoprocessors.SecretSearch.SearchCondition.Condition.GreaterOrEqualThan;
+import static pt.uminho.haslab.smcoprocessors.secretSearch.SearchCondition.Condition.Equal;
+import static pt.uminho.haslab.smcoprocessors.secretSearch.SearchCondition.Condition.GreaterOrEqualThan;
 
 public class PlayerResults {
 
