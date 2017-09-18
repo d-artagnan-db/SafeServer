@@ -7,10 +7,10 @@ import java.util.List;
 public abstract class DiscoveryServiceAbs implements DiscoveryService {
 
     protected final int playerID;
-    private final String RegionServerIP;
     protected final int port;
-    private final String discoveryServeLocation;
     final String locationMessage;
+    private final String RegionServerIP;
+    private final String discoveryServeLocation;
 
     DiscoveryServiceAbs(String discoveryServiceLocation, int playerID,
                         String regionServerIP, int port) {
@@ -23,16 +23,18 @@ public abstract class DiscoveryServiceAbs implements DiscoveryService {
 
     protected abstract DiscoveryServiceClient getDiscoveryServiceClient();
 
-
     public void registerRegion(RequestIdentifier requestIdentifier) {
-        getDiscoveryServiceClient().sendCurrentLocationOfPlayerInRequest(requestIdentifier);
+        getDiscoveryServiceClient().sendCurrentLocationOfPlayerInRequest(
+                requestIdentifier);
     }
 
     public void unregisterRegion(RequestIdentifier requestIdentifier) {
-        getDiscoveryServiceClient().removeCurrentLocationOfPlayerInRequest(requestIdentifier);
+        getDiscoveryServiceClient().removeCurrentLocationOfPlayerInRequest(
+                requestIdentifier);
     }
 
-    public List<RegionLocation> discoverRegions(RequestIdentifier requestIdentifier) throws FailedRegionDiscovery {
+    public List<RegionLocation> discoverRegions(
+            RequestIdentifier requestIdentifier) throws FailedRegionDiscovery {
         return getDiscoveryServiceClient().getPeersLocation(requestIdentifier);
     }
 

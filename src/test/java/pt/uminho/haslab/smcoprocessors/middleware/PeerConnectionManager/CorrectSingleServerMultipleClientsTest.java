@@ -6,8 +6,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import pt.uminho.haslab.smcoprocessors.comunication.MessageBroker;
 import pt.uminho.haslab.smcoprocessors.comunication.RelayClient;
-import pt.uminho.haslab.smcoprocessors.helpers.TestMessageBroker;
 import pt.uminho.haslab.smcoprocessors.helpers.RegionServer;
+import pt.uminho.haslab.smcoprocessors.helpers.TestMessageBroker;
 import pt.uminho.haslab.testingutils.ValuesGenerator;
 
 import java.io.IOException;
@@ -19,16 +19,20 @@ import java.util.concurrent.CountDownLatch;
 import static org.junit.Assert.assertArrayEquals;
 
 @RunWith(Parameterized.class)
-public class CorrectSingleServerMultipleClientsTest extends SingleServerMultipleClients {
+public class CorrectSingleServerMultipleClientsTest
+        extends
+        SingleServerMultipleClients {
 
-    private static final Log LOG = LogFactory.getLog(CorrectSingleServerMultipleClientsTest.class.getName());
+    private static final Log LOG = LogFactory
+            .getLog(CorrectSingleServerMultipleClientsTest.class.getName());
     private final String serverIp;
     private final int serverPort;
     private final byte[] messageToSend;
     private final List<byte[]> receivedMessages;
     private final CountDownLatch allClientsSent;
 
-    public CorrectSingleServerMultipleClientsTest(String serverIp, int serverPort, byte[] messagesToSend) {
+    public CorrectSingleServerMultipleClientsTest(String serverIp,
+                                                  int serverPort, byte[] messagesToSend) {
         this.serverIp = serverIp;
         this.serverPort = serverPort;
         this.messageToSend = messagesToSend;
@@ -38,7 +42,8 @@ public class CorrectSingleServerMultipleClientsTest extends SingleServerMultiple
 
     @Parameterized.Parameters
     public static Collection nbitsValues() {
-        return ValuesGenerator.PeerConnectionManagerSingleServerTestValueGenerator();
+        return ValuesGenerator
+                .PeerConnectionManagerSingleServerTestValueGenerator();
     }
 
     protected void validateResults() {
@@ -51,7 +56,8 @@ public class CorrectSingleServerMultipleClientsTest extends SingleServerMultiple
         return new PlayerClient(i, serverIp, serverPort);
     }
 
-    protected RegionServer createServer() throws IOException, InterruptedException {
+    protected RegionServer createServer() throws IOException,
+            InterruptedException {
         MessageBrokerImpl mb = new MessageBrokerImpl();
         PlayerServer server = new PlayerServer(serverIp, serverPort, mb);
         server.startRegionServer();
@@ -72,7 +78,8 @@ public class CorrectSingleServerMultipleClientsTest extends SingleServerMultiple
 
     private class PlayerServer extends AbsPlayerServer {
 
-        PlayerServer(String bindingAddress, int bindingPort, MessageBroker broker) throws IOException {
+        PlayerServer(String bindingAddress, int bindingPort,
+                     MessageBroker broker) throws IOException {
             super(bindingAddress, bindingPort, broker);
         }
 
@@ -89,7 +96,6 @@ public class CorrectSingleServerMultipleClientsTest extends SingleServerMultiple
         }
     }
 
-
     private class PlayerClient extends AbsPlayerClient {
 
         PlayerClient(int playerID, String ip, int port) {
@@ -98,7 +104,8 @@ public class CorrectSingleServerMultipleClientsTest extends SingleServerMultiple
 
         @Override
         public void run() {
-            RelayClient client = clientPeerConnectionManager.getRelayClient(ip, port);
+            RelayClient client = clientPeerConnectionManager.getRelayClient(ip,
+                    port);
             try {
                 client.sendTestMessage(messageToSend);
                 allClientsSent.countDown();

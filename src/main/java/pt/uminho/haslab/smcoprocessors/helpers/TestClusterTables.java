@@ -7,6 +7,7 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
+import pt.uminho.haslab.smcoprocessors.OperationAttributesIdentifiers;
 import pt.uminho.haslab.smcoprocessors.SmpcConfiguration;
 import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
 import pt.uminho.haslab.smhbase.interfaces.Dealer;
@@ -19,6 +20,7 @@ import pt.uminho.haslab.testingutils.ClusterTables;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class TestClusterTables extends ClusterTables {
@@ -34,26 +36,33 @@ public class TestClusterTables extends ClusterTables {
      * Returns -1 if no match is found on the search. Otherwise it returns the
      * row key
      */
-    public int equalEndpoint(int nbits, SharedSecret cmpValue, int requestID,
-                             SmpcConfiguration config) throws Throwable {
-        LOG.debug("Entering equalEndpoint function " + nbits + " val "
-                + cmpValue.unshare() + " request " + requestID);
+    public int equalEndpoint(SharedSecret cmpValue, int requestID,
+                             String secretFamily, String secretQualifier) throws Throwable {
+        LOG.debug(" val " + cmpValue.unshare() + " request " + requestID);
 
         int playerID = 1;
-        SharemindSharedSecret ssecret = (SharemindSharedSecret) cmpValue;
+        SharemindSharedSecret sSecret = (SharemindSharedSecret) cmpValue;
         List<Get> gets = new ArrayList<Get>();
 
-        Get getC1 = new Get(ssecret.getU1().toByteArray());
-        Get getC2 = new Get(ssecret.getU2().toByteArray());
-        Get getC3 = new Get(ssecret.getU3().toByteArray());
+        Get getC1 = new Get(sSecret.getU1().toByteArray());
+        Get getC2 = new Get(sSecret.getU2().toByteArray());
+        Get getC3 = new Get(sSecret.getU3().toByteArray());
         gets.add(getC1);
         gets.add(getC2);
         gets.add(getC3);
         byte[] requestIDba = ("" + requestID).getBytes();
         byte[] playerIDba = ("" + playerID).getBytes();
         for (Get get : gets) {
-            get.setAttribute("targetPlayer", playerIDba);
-            get.setAttribute("requestID", requestIDba);
+            get.setAttribute(OperationAttributesIdentifiers.TargetPlayer,
+                    playerIDba);
+            get.setAttribute(OperationAttributesIdentifiers.RequestIdentifier,
+                    requestIDba);
+            get.setAttribute(OperationAttributesIdentifiers.ProtectedColumn,
+                    "true".getBytes());
+            get.setAttribute(OperationAttributesIdentifiers.SecretFamily,
+                    secretFamily.getBytes());
+            get.setAttribute(OperationAttributesIdentifiers.SecretQualifier,
+                    secretQualifier.getBytes());
         }
 
         ClusterResults results = this.get(gets);
@@ -145,21 +154,30 @@ public class TestClusterTables extends ClusterTables {
         return scans;
     }
 
-    public List<Result> scanEndpoint(int nBits, byte[] startRow,
-                                     byte[] stopRow, int requestID, SmpcConfiguration config,
-                                     Dealer dealer) throws IOException, InterruptedException,
-            InvalidSecretValue {
+    public List<Result> scanEndpoint(byte[] startRow, byte[] stopRow,
+                                     int requestID, SmpcConfiguration config, Dealer dealer,
+                                     String secretFamily, String secretQualifier) throws IOException,
+            InterruptedException, InvalidSecretValue {
 
         int playerID = 1;
-        LOG.debug("Start row are " + startRow + " / " + stopRow);
+        LOG.debug("Start row are " + Arrays.toString(startRow) + " / "
+                + Arrays.toString(stopRow));
         List<Scan> scans = getScans(dealer, startRow, stopRow);
 
         byte[] requestIDba = ("" + requestID).getBytes();
         byte[] playerIDba = ("" + playerID).getBytes();
 
         for (Scan scan : scans) {
-            scan.setAttribute("targetPlayer", playerIDba);
-            scan.setAttribute("requestID", requestIDba);
+            scan.setAttribute(OperationAttributesIdentifiers.TargetPlayer,
+                    playerIDba);
+            scan.setAttribute(OperationAttributesIdentifiers.RequestIdentifier,
+                    requestIDba);
+            scan.setAttribute(OperationAttributesIdentifiers.ProtectedColumn,
+                    "true".getBytes());
+            scan.setAttribute(OperationAttributesIdentifiers.SecretFamily,
+                    secretFamily.getBytes());
+            scan.setAttribute(OperationAttributesIdentifiers.SecretQualifier,
+                    secretQualifier.getBytes());
         }
 
         ClusterScanResult results = this.scan(scans);
@@ -175,14 +193,11 @@ public class TestClusterTables extends ClusterTables {
             return new ArrayList<Result>();
         }
 
-        results.setColumnFamily(config.getSecretFamily());
-        results.setColumnQualifier(config.getSecretQualifier());
+        results.setColumnFamily(secretFamily.getBytes());
+        results.setColumnQualifier(secretQualifier.getBytes());
         results.setNbits(config.getnBits());
 
-        List<Result> dResults = results.getDecodedResults();
-
-        return dResults;
-
+        return results.getDecodedResults();
     }
 
 }

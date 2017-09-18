@@ -6,7 +6,6 @@ import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
 import pt.uminho.haslab.smcoprocessors.discovery.*;
-import pt.uminho.haslab.smcoprocessors.middleware.discovery.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -22,7 +21,8 @@ public class IORelay implements Relay {
     private boolean running;
 
     public IORelay(String bindingAddress, int bindingPort,
-                   MessageBroker broker, DiscoveryServiceConfiguration conf) throws IOException {
+                   MessageBroker broker, DiscoveryServiceConfiguration conf)
+            throws IOException {
 
         server = new RelayServer(bindingAddress, bindingPort, broker);
         discoveryService = new RedisDiscoveryService(conf);
@@ -78,6 +78,7 @@ public class IORelay implements Relay {
     public void bootRelay() {
 
         try {
+            LOG.debug("Initiated server booting");
             int bp = server.getBindingPort();
             this.startServer();
             LOG.info(bp + " completed booting phase");
@@ -87,15 +88,18 @@ public class IORelay implements Relay {
         }
     }
 
-    private RelayClient getTargetClient(int playerID, RequestIdentifier requestIdentifier) {
+    private RelayClient getTargetClient(int playerID,
+                                        RequestIdentifier requestIdentifier) {
         RelayClient client = null;
 
         try {
-            List<RegionLocation> locations = this.discoveryService.discoverRegions(requestIdentifier);
+            List<RegionLocation> locations = this.discoveryService
+                    .discoverRegions(requestIdentifier);
 
             for (RegionLocation location : locations) {
                 if (location.getPlayerID() == playerID) {
-                    client = peerConnectionManager.getRelayClient(location.getIp(), location.getPort());
+                    client = peerConnectionManager.getRelayClient(
+                            location.getIp(), location.getPort());
                     break;
                 }
             }
@@ -108,19 +112,22 @@ public class IORelay implements Relay {
 
     public synchronized void sendBatchMessages(BatchShareMessage msg)
             throws IOException {
-        RequestIdentifier ident = new RequestIdentifier(msg.getRequestID().toByteArray(), msg.getRegionID().toByteArray());
+        RequestIdentifier ident = new RequestIdentifier(msg.getRequestID()
+                .toByteArray(), msg.getRegionID().toByteArray());
         getTargetClient(msg.getPlayerDest(), ident).sendBatchMessages(msg);
     }
 
     public synchronized void sendProtocolResults(ResultsMessage msg)
             throws IOException {
-        RequestIdentifier ident = new RequestIdentifier(msg.getRequestID().toByteArray(), msg.getRegionID().toByteArray());
+        RequestIdentifier ident = new RequestIdentifier(msg.getRequestID()
+                .toByteArray(), msg.getRegionID().toByteArray());
         getTargetClient(msg.getPlayerDest(), ident).sendProtocolResults(msg);
     }
 
     public synchronized void sendFilteredIndexes(FilterIndexMessage msg)
             throws IOException {
-        RequestIdentifier ident = new RequestIdentifier(msg.getRequestID().toByteArray(), msg.getRegionID().toByteArray());
+        RequestIdentifier ident = new RequestIdentifier(msg.getRequestID()
+                .toByteArray(), msg.getRegionID().toByteArray());
         getTargetClient(msg.getPlayerDest(), ident).sendFilteredIndexes(msg);
 
     }

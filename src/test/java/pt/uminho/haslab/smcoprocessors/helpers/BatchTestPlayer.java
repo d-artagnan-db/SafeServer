@@ -5,11 +5,11 @@ import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.smcoprocessors.comunication.MessageBroker;
 import pt.uminho.haslab.smcoprocessors.comunication.Relay;
 import pt.uminho.haslab.smcoprocessors.comunication.RequestIdentifier;
+import pt.uminho.haslab.smcoprocessors.protocolresults.FilteredIndexes;
+import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMismatch;
+import pt.uminho.haslab.smcoprocessors.protocolresults.SearchResults;
 import pt.uminho.haslab.smcoprocessors.secretSearch.ContextPlayer;
 import pt.uminho.haslab.smcoprocessors.secretSearch.SharemindPlayer;
-import pt.uminho.haslab.smcoprocessors.protocolresults.FilteredIndexes;
-import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMissmatch;
-import pt.uminho.haslab.smcoprocessors.protocolresults.SearchResults;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -76,7 +76,8 @@ public class BatchTestPlayer implements SharemindPlayer {
         player.sendProtocolResults(destPlayer, res);
     }
 
-    public List<SearchResults> getProtocolResults() throws ResultsLengthMissmatch {
+    public List<SearchResults> getProtocolResults()
+            throws ResultsLengthMismatch {
         return player.getProtocolResults();
     }
 

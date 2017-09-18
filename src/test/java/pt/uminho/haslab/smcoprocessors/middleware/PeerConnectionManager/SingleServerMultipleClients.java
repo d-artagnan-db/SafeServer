@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public abstract class SingleServerMultipleClients {
-    private static final Log LOG = LogFactory.getLog(SingleServerMultipleClients.class
-            .getName());
+    private static final Log LOG = LogFactory
+            .getLog(SingleServerMultipleClients.class.getName());
 
     final int NCLIENTS = 3;
 
@@ -32,7 +32,8 @@ public abstract class SingleServerMultipleClients {
     @Test
     public void testProtocol() throws InterruptedException, IOException {
 
-        //Function must initiate the server and wait for its correct initialization.
+        // Function must initiate the server and wait for its correct
+        // initialization.
         server = createServer();
         LOG.debug("Going to create clients");
         for (int i = 0; i < NCLIENTS; i++) {
@@ -67,12 +68,14 @@ public abstract class SingleServerMultipleClients {
 
     protected abstract RegionServer createClient(int i);
 
+    // Function must initiate the server and wait for its correct
+    // initialization.
+    protected abstract RegionServer createServer() throws IOException,
+            InterruptedException;
 
-    //Function must initiate the server and wait for its correct initialization.
-    protected abstract RegionServer createServer() throws IOException, InterruptedException;
-
-
-    protected abstract class AbsPlayerServer extends Thread implements RegionServer {
+    protected abstract class AbsPlayerServer extends Thread
+            implements
+            RegionServer {
 
         protected final String bindingAddress;
         protected final int bindingPort;
@@ -80,7 +83,8 @@ public abstract class SingleServerMultipleClients {
         protected final RelayServer server;
         protected boolean runStatus;
 
-        AbsPlayerServer(String bindingAddress, int bindingPort, MessageBroker broker) throws IOException {
+        AbsPlayerServer(String bindingAddress, int bindingPort,
+                        MessageBroker broker) throws IOException {
             this.bindingAddress = bindingAddress;
             this.bindingPort = bindingPort;
             this.broker = broker;
@@ -106,13 +110,14 @@ public abstract class SingleServerMultipleClients {
 
     }
 
-    protected abstract class AbsPlayerClient extends Thread implements RegionServer {
+    protected abstract class AbsPlayerClient extends Thread
+            implements
+            RegionServer {
 
         protected final int playerID;
         protected final String ip;
         protected final int port;
         protected boolean runStatus;
-
 
         AbsPlayerClient(int playerID, String ip, int port) {
             this.playerID = playerID;

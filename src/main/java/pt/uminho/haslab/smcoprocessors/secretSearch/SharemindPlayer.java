@@ -1,7 +1,7 @@
 package pt.uminho.haslab.smcoprocessors.secretSearch;
 
 import pt.uminho.haslab.smcoprocessors.protocolresults.FilteredIndexes;
-import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMissmatch;
+import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMismatch;
 import pt.uminho.haslab.smcoprocessors.protocolresults.SearchResults;
 import pt.uminho.haslab.smhbase.interfaces.Player;
 
@@ -20,9 +20,9 @@ public interface SharemindPlayer extends Player {
      * result that contains the real HBase keys.
      *
      * @return
-     * @throws pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMissmatch
+     * @throws ResultsLengthMismatch
      */
-    List<SearchResults> getProtocolResults() throws ResultsLengthMissmatch;
+    List<SearchResults> getProtocolResults() throws ResultsLengthMismatch;
 
     void cleanValues();
 

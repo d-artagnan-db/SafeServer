@@ -6,7 +6,8 @@ import java.util.List;
 
 /**
  * Class used to hold the results from a single party after executing a protocol
- * on multiple database entries. Contains multiple results of an mpc protocols operation.Similar to DataIdentifiers.
+ * on multiple database entries. Contains multiple results of an mpc protocols
+ * operation.Similar to DataIdentifiers.
  */
 public class SearchResults {
 
@@ -16,9 +17,9 @@ public class SearchResults {
     private final List<byte[]> identifiers;
 
     public SearchResults(List<byte[]> secrets, List<byte[]> identifiers)
-            throws ResultsLengthMissmatch {
+            throws ResultsLengthMismatch {
         if (secrets.size() != identifiers.size()) {
-            throw new ResultsLengthMissmatch();
+            throw new ResultsLengthMismatch();
         }
         this.secrets = secrets;
         this.identifiers = identifiers;
@@ -37,7 +38,7 @@ public class SearchResults {
                 + identifiers.size());
     }
 
-    public DataIdentifiers toDataIdentifier() throws ResultsLengthMissmatch {
+    public DataIdentifiers toDataIdentifier() throws ResultsLengthMismatch {
         List<BigInteger> bSecrets = new ArrayList<BigInteger>();
         List<BigInteger> bIdentifiers = new ArrayList<BigInteger>();
 

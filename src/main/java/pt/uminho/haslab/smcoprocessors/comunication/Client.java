@@ -64,13 +64,13 @@ public class Client extends Thread {
                 new BatchShareHandler(message).handle();
                 break;
             }
-            //Message issued to close connection.
+            // Message issued to close connection.
             case 99: {
                 LOG.debug("Received message to close " + clientSocket.getPort());
                 toClose = true;
                 break;
             }
-            //Message used for UnitTests
+            // Message used for UnitTests
             case 999: {
                 new TestMessageHandler(message).handle();
                 break;

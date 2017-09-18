@@ -13,7 +13,9 @@ import java.util.List;
 import static pt.uminho.haslab.smcoprocessors.secretSearch.SearchCondition.Condition.GreaterOrEqualThan;
 
 public class BatchGreaterOrEqualThanSecretSearchTest extends SecretSearchTest {
-    public BatchGreaterOrEqualThanSecretSearchTest(List<Integer> nbits, List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo) throws IOException, InvalidNumberOfBits, InvalidSecretValue {
+    public BatchGreaterOrEqualThanSecretSearchTest(List<Integer> nbits,
+                                                   List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo)
+            throws IOException, InvalidNumberOfBits, InvalidSecretValue {
         super(nbits, valuesOne, valuesTwo);
     }
 
@@ -30,7 +32,8 @@ public class BatchGreaterOrEqualThanSecretSearchTest extends SecretSearchTest {
         return bool;
     }
 
-    protected SearchCondition getSearchCondition(int nBits, List<byte[]> firstValueSecret, int i) {
+    protected SearchCondition getSearchCondition(int nBits,
+                                                 List<byte[]> firstValueSecret, int i) {
         return AbstractSearchValue.conditionTransformer(GreaterOrEqualThan,
                 nBits, firstValueSecret, i);
     }

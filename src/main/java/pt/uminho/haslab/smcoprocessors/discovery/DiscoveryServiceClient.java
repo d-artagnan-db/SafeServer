@@ -19,10 +19,11 @@ public interface DiscoveryServiceClient {
 
     /**
      * After the invocation of this method the discovery service should remove
-     * the entry that a given player is simulated by the RegionServer, the address of the RegionServer and
-     * the request it is processing.
+     * the entry that a given player is simulated by the RegionServer, the
+     * address of the RegionServer and the request it is processing.
      */
-    void removeCurrentLocationOfPlayerInRequest(RequestIdentifier requestIdentifier);
+    void removeCurrentLocationOfPlayerInRequest(
+            RequestIdentifier requestIdentifier);
 
     /**
      * This method attempts to retrieve the location of the RegionServers
@@ -36,6 +37,7 @@ public interface DiscoveryServiceClient {
      *
      * @return
      */
-    List<RegionLocation> getPeersLocation(RequestIdentifier requestIdentifier) throws FailedRegionDiscovery;
+    List<RegionLocation> getPeersLocation(RequestIdentifier requestIdentifier)
+            throws FailedRegionDiscovery;
 
 }

@@ -12,14 +12,15 @@ import java.util.List;
 
 import static pt.uminho.haslab.smcoprocessors.secretSearch.SearchCondition.Condition.Equal;
 
-public class ConcurrentBatchEqualSecretSearchTest extends ConcurrentSecretSearchTest {
+public class ConcurrentBatchEqualSecretSearchTest
+        extends
+        ConcurrentSecretSearchTest {
 
     public ConcurrentBatchEqualSecretSearchTest(List<Integer> nbits,
                                                 List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo)
             throws IOException, InvalidNumberOfBits, InvalidSecretValue {
         super(nbits, valuesOne, valuesTwo);
     }
-
 
     @Override
     protected SearchCondition getSearchCondition(int nBits,

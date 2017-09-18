@@ -23,7 +23,6 @@ public class EqualSearchEndpointTest extends AbstractSearchEndpointTest {
         BigInteger nVal = values.get(0).add(BigInteger.ONE);
         while (vals.contains(nVal)) {
             nVal.add(BigInteger.ONE);
-
         }
 
         return nVal;
@@ -33,7 +32,7 @@ public class EqualSearchEndpointTest extends AbstractSearchEndpointTest {
     public void searchEndpointComparision(Dealer dealer,
                                           List<BigInteger> values, TestClusterTables tables, int nbits)
             throws Throwable {
-        LOG.debug("Going to enter searcEndpointComparison");
+        LOG.debug("Going to enter searchEndpointComparison");
 
 		/*
          * For each values stored, go through the list again and secret share
@@ -58,15 +57,19 @@ public class EqualSearchEndpointTest extends AbstractSearchEndpointTest {
 			 * nbits used on the dealer +1. nbits+1. Explanation on the
 			 * description of the paramters of the region server and smhbase.
 			 */
-            LOG.debug("Exepecting row " + i);
-            int result = tables.equalEndpoint(nbits + 1, secret, 1, config);
+            LOG.debug("Expecting row " + i);
+            LOG.debug("Request id is " + i);
+            // Only the row key is returned to assertTestEquality
+            int result = tables.equalEndpoint(secret, i, secretFamily,
+                    secretQualifier);
 
             assertEquals(i, result);
         }
 
         BigInteger value = getNonStoredValue(values);
         SharedSecret secret = dealer.share(value);
-        int result = tables.equalEndpoint(nbits + 1, secret, 1, config);
+        int result = tables.equalEndpoint(secret, values.size() + 1, secretFamily,
+                secretQualifier);
         assertEquals(-1, result);
         long end = System.nanoTime();
         long duration = TimeUnit.SECONDS.convert(end - start,

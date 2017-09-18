@@ -1,12 +1,12 @@
 package pt.uminho.haslab.smcoprocessors.protocolresults;
 
-public class ResultsLengthMissmatch extends Exception {
+public class ResultsLengthMismatch extends Exception {
 
     /**
      * Creates a new instance of <code>ResultsLenghtDontMatch</code> without
      * detail message.
      */
-    public ResultsLengthMissmatch() {
+    public ResultsLengthMismatch() {
     }
 
     /**
@@ -15,7 +15,7 @@ public class ResultsLengthMissmatch extends Exception {
      *
      * @param msg the detail message.
      */
-    public ResultsLengthMissmatch(String msg) {
+    public ResultsLengthMismatch(String msg) {
         super(msg);
     }
 }

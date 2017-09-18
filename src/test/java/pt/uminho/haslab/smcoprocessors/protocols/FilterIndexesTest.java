@@ -3,12 +3,12 @@ package pt.uminho.haslab.smcoprocessors.protocols;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import pt.uminho.haslab.smcoprocessors.comunication.RequestIdentifier;
-import pt.uminho.haslab.smcoprocessors.secretSearch.ContextPlayer;
-import pt.uminho.haslab.smcoprocessors.secretSearch.SharemindPlayer;
 import pt.uminho.haslab.smcoprocessors.helpers.RegionServer;
 import pt.uminho.haslab.smcoprocessors.helpers.TestLinkedRegions;
 import pt.uminho.haslab.smcoprocessors.helpers.TestRegionServer;
 import pt.uminho.haslab.smcoprocessors.protocolresults.FilteredIndexes;
+import pt.uminho.haslab.smcoprocessors.secretSearch.ContextPlayer;
+import pt.uminho.haslab.smcoprocessors.secretSearch.SharemindPlayer;
 import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
 import pt.uminho.haslab.testingutils.ValuesGenerator;
 

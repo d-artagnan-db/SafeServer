@@ -13,7 +13,9 @@ import java.util.List;
 import static pt.uminho.haslab.smcoprocessors.secretSearch.SearchCondition.Condition.Equal;
 
 public class BatchEqualSecretSearchTest extends SecretSearchTest {
-    public BatchEqualSecretSearchTest(List<Integer> nbits, List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo) throws IOException, InvalidNumberOfBits, InvalidSecretValue {
+    public BatchEqualSecretSearchTest(List<Integer> nbits,
+                                      List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo)
+            throws IOException, InvalidNumberOfBits, InvalidSecretValue {
         super(nbits, valuesOne, valuesTwo);
     }
 
@@ -27,9 +29,10 @@ public class BatchEqualSecretSearchTest extends SecretSearchTest {
         return bool;
     }
 
-    protected SearchCondition getSearchCondition(int nBits, List<byte[]> firstValueSecret, int i) {
-        return AbstractSearchValue.conditionTransformer(Equal, nBits, firstValueSecret, i);
+    protected SearchCondition getSearchCondition(int nBits,
+                                                 List<byte[]> firstValueSecret, int i) {
+        return AbstractSearchValue.conditionTransformer(Equal, nBits,
+                firstValueSecret, i);
     }
-
 
 }

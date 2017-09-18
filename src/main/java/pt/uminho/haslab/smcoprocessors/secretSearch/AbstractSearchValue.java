@@ -1,6 +1,6 @@
 package pt.uminho.haslab.smcoprocessors.secretSearch;
 
-import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMissmatch;
+import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMismatch;
 import pt.uminho.haslab.smcoprocessors.protocolresults.SearchResults;
 import pt.uminho.haslab.smhbase.interfaces.Secret;
 import pt.uminho.haslab.smhbase.sharemindImp.SharemindSecret;
@@ -11,6 +11,13 @@ import java.util.List;
 import static pt.uminho.haslab.smcoprocessors.secretSearch.SearchCondition.Condition.*;
 
 public abstract class AbstractSearchValue implements SearchCondition {
+
+    protected final Condition condition;
+    protected final int targetPlayer;
+    public AbstractSearchValue(Condition condition, int targetPlayer) {
+        this.condition = condition;
+        this.targetPlayer = targetPlayer;
+    }
 
     public static SearchCondition conditionTransformer(Condition op, int nBits,
                                                        List<byte[]> value, int targetPlayer) {
@@ -51,20 +58,12 @@ public abstract class AbstractSearchValue implements SearchCondition {
 
     }
 
-    protected final Condition condition;
-    protected final int targetPlayer;
-
-    public AbstractSearchValue(Condition condition, int targetPlayer) {
-        this.condition = condition;
-        this.targetPlayer = targetPlayer;
-    }
-
     public Condition getCompare() {
         return condition;
     }
 
     protected SearchResults createSearchResults(Secret secret, byte[] id)
-            throws ResultsLengthMissmatch {
+            throws ResultsLengthMismatch {
         List<byte[]> secrets = new ArrayList<byte[]>();
         List<byte[]> ids = new ArrayList<byte[]>();
 
@@ -76,7 +75,7 @@ public abstract class AbstractSearchValue implements SearchCondition {
     }
 
     protected SearchResults createBatchSearchResults(List<byte[]> secrets,
-                                                     List<byte[]> ids) throws ResultsLengthMissmatch {
+                                                     List<byte[]> ids) throws ResultsLengthMismatch {
         return new SearchResults(secrets, ids);
 
     }

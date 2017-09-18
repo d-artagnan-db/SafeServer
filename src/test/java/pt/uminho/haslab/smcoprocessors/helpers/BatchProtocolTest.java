@@ -26,8 +26,8 @@ import static junit.framework.TestCase.assertEquals;
 @RunWith(Parameterized.class)
 public abstract class BatchProtocolTest extends TestLinkedRegions {
 
-    protected static final Log LOG = LogFactory
-            .getLog(BatchProtocolTest.class.getName());
+    protected static final Log LOG = LogFactory.getLog(BatchProtocolTest.class
+            .getName());
 
     protected final List<Integer> nbits;
     protected final List<List<BigInteger>> valuesOne;
@@ -36,7 +36,8 @@ public abstract class BatchProtocolTest extends TestLinkedRegions {
     protected final Map<Integer, List<List<byte[]>>> secretsTwo;
 
     public BatchProtocolTest(List<Integer> nbits,
-                             List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo) throws IOException, InvalidNumberOfBits, InvalidSecretValue {
+                             List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo)
+            throws IOException, InvalidNumberOfBits, InvalidSecretValue {
         super();
         this.nbits = nbits;
         this.valuesOne = valuesOne;
@@ -101,7 +102,8 @@ public abstract class BatchProtocolTest extends TestLinkedRegions {
         return ValuesGenerator.TwoBatchValuesGenerator();
     }
 
-    protected abstract int getExpectedResult(BigInteger valOne, BigInteger valtwo);
+    protected abstract int getExpectedResult(BigInteger valOne,
+                                             BigInteger valtwo);
 
     protected void validateResults() throws InvalidSecretValue {
         for (int i = 0; i < nbits.size(); i++) {
@@ -118,7 +120,8 @@ public abstract class BatchProtocolTest extends TestLinkedRegions {
                 SharemindSharedSecret result = new SharemindSharedSecret(1,
                         fVal, sVal, tVal);
 
-                int expectedResult = getExpectedResult(valuesOne.get(i).get(j), valuesTwo.get(i).get(j));
+                int expectedResult = getExpectedResult(valuesOne.get(i).get(j),
+                        valuesTwo.get(i).get(j));
                 assertEquals(result.unshare().intValue(), expectedResult);
             }
         }
@@ -134,7 +137,8 @@ public abstract class BatchProtocolTest extends TestLinkedRegions {
 
         private final List<List<byte[]>> results;
 
-        public ProtoRegionServer(int playerID, List<List<byte[]>> firstValueSecrets,
+        public ProtoRegionServer(int playerID,
+                                 List<List<byte[]>> firstValueSecrets,
                                  List<List<byte[]>> secondValueSecrets, List<Integer> nbits)
                 throws IOException {
             super(playerID);
@@ -150,8 +154,9 @@ public abstract class BatchProtocolTest extends TestLinkedRegions {
             return results.get(index);
         }
 
-        public abstract List<byte[]> executeProtocol(Player player, List<byte[]> secretOne, List<byte[]> secretTwo,
-                                                     int nBits, RequestIdentifier ident);
+        public abstract List<byte[]> executeProtocol(Player player,
+                                                     List<byte[]> secretOne, List<byte[]> secretTwo, int nBits,
+                                                     RequestIdentifier ident);
 
         @Override
         public void doComputation() {
@@ -167,8 +172,10 @@ public abstract class BatchProtocolTest extends TestLinkedRegions {
 
                 RequestIdentifier ident = new RequestIdentifier(reqID, regionID);
                 relay.registerRequest(ident);
-                BatchTestPlayer player = new BatchTestPlayer(relay, ident, playerID, broker);
-                List<byte[]> result = executeProtocol(player, secretOne, secretTwo, valueNbits, ident);
+                BatchTestPlayer player = new BatchTestPlayer(relay, ident,
+                        playerID, broker);
+                List<byte[]> result = executeProtocol(player, secretOne,
+                        secretTwo, valueNbits, ident);
 
                 results.add(result);
 

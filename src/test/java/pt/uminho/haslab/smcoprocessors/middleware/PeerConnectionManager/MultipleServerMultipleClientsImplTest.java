@@ -8,8 +8,8 @@ import pt.uminho.haslab.smcoprocessors.comunication.MessageBroker;
 import pt.uminho.haslab.smcoprocessors.comunication.PeersConnectionManager;
 import pt.uminho.haslab.smcoprocessors.comunication.PeersConnectionManagerImpl;
 import pt.uminho.haslab.smcoprocessors.comunication.RelayClient;
-import pt.uminho.haslab.smcoprocessors.helpers.TestMessageBroker;
 import pt.uminho.haslab.smcoprocessors.helpers.RegionServer;
+import pt.uminho.haslab.smcoprocessors.helpers.TestMessageBroker;
 import pt.uminho.haslab.testingutils.ValuesGenerator;
 
 import java.io.IOException;
@@ -18,30 +18,39 @@ import java.util.*;
 import static junit.framework.TestCase.assertEquals;
 
 @RunWith(Parameterized.class)
-public class MultipleServerMultipleClientsImplTest extends MultipleServersMultipleClients {
+public class MultipleServerMultipleClientsImplTest
+        extends
+        MultipleServersMultipleClients {
 
-    private static final Log LOG = LogFactory.getLog(CorrectSingleServerMultipleClientsTest.class.getName());
+    private static final Log LOG = LogFactory
+            .getLog(CorrectSingleServerMultipleClientsTest.class.getName());
     private final Map<String, MessageBrokerImpl> messageBrokers;
     private final List<List<byte[]>> messagesToSend;
     /**
-     * Index to keep track of the current client being created. Each Client is composed of a binding address
-     * and port specified by a position i  in the clientConnectionTargetAddress list and clientConnectionTargetPort list.
+     * Index to keep track of the current client being created. Each Client is
+     * composed of a binding address and port specified by a position i in the
+     * clientConnectionTargetAddress list and clientConnectionTargetPort list.
      */
     private int currentClientBeingCreated;
 
     /**
-     * To understand how this test works, it is important to notice that the number of clients is different from
-     * the number of servers. Furthermore a Server can receive messages from multiple clients, but a client can only
-     * send to a single server. To verify that the test was correct, check that the received messages on each server
-     * contains the messages sent from every client. Another way to verify this is to go client by client and check that
-     * the messages sent are a subset of the messages received by the server.
+     * To understand how this test works, it is important to notice that the
+     * number of clients is different from the number of servers. Furthermore a
+     * Server can receive messages from multiple clients, but a client can only
+     * send to a single server. To verify that the test was correct, check that
+     * the received messages on each server contains the messages sent from
+     * every client. Another way to verify this is to go client by client and
+     * check that the messages sent are a subset of the messages received by the
+     * server.
      **/
-    public MultipleServerMultipleClientsImplTest(List<String> serverBindingAddressees,
-                                                 List<Integer> serverBindingPorts,
-                                                 List<String> clientConnectionTargetAddress,
-                                                 List<Integer> clientConnectionTargetPort,
-                                                 List<List<byte[]>> messagesToSend) {
-        super(serverBindingAddressees, serverBindingPorts, clientConnectionTargetAddress, clientConnectionTargetPort);
+    public MultipleServerMultipleClientsImplTest(
+            List<String> serverBindingAddressees,
+            List<Integer> serverBindingPorts,
+            List<String> clientConnectionTargetAddress,
+            List<Integer> clientConnectionTargetPort,
+            List<List<byte[]>> messagesToSend) {
+        super(serverBindingAddressees, serverBindingPorts,
+                clientConnectionTargetAddress, clientConnectionTargetPort);
         messageBrokers = new HashMap<String, MessageBrokerImpl>();
         this.messagesToSend = messagesToSend;
         currentClientBeingCreated = 0;
@@ -49,11 +58,15 @@ public class MultipleServerMultipleClientsImplTest extends MultipleServersMultip
 
     @Parameterized.Parameters
     public static Collection nbitsValues() {
-        return ValuesGenerator.PeerConnectionManagerMultipleServerTestValueGenerator(NSERVERS, NCLIENTS, NMESSAGES);
+        return ValuesGenerator
+                .PeerConnectionManagerMultipleServerTestValueGenerator(
+                        NSERVERS, NCLIENTS, NMESSAGES);
     }
 
-    protected RegionServer createServer(String bindingAddress, Integer bindingPort) throws IOException, InterruptedException {
-        MessageBrokerImpl mb = new MessageBrokerImpl(bindingAddress, bindingPort);
+    protected RegionServer createServer(String bindingAddress,
+                                        Integer bindingPort) throws IOException, InterruptedException {
+        MessageBrokerImpl mb = new MessageBrokerImpl(bindingAddress,
+                bindingPort);
         PlayerServer server = new PlayerServer(bindingAddress, bindingPort, mb);
         String serverKey = bindingAddress + ":" + bindingPort;
         this.messageBrokers.put(serverKey, mb);
@@ -61,8 +74,11 @@ public class MultipleServerMultipleClientsImplTest extends MultipleServersMultip
         return server;
     }
 
-    protected RegionServer createClient(String bindingAddress, Integer bindingPort) {
-        PlayerClient client = new PlayerClient(currentClientBeingCreated, bindingAddress, bindingPort, messagesToSend.get(currentClientBeingCreated));
+    protected RegionServer createClient(String bindingAddress,
+                                        Integer bindingPort) {
+        PlayerClient client = new PlayerClient(currentClientBeingCreated,
+                bindingAddress, bindingPort,
+                messagesToSend.get(currentClientBeingCreated));
         currentClientBeingCreated += 1;
         return client;
     }
@@ -89,7 +105,8 @@ public class MultipleServerMultipleClientsImplTest extends MultipleServersMultip
                     }
                 }
             }
-            LOG.debug("Comparing number of messages " + clientMessagesToSend.size() + "-" + matches);
+            LOG.debug("Comparing number of messages "
+                    + clientMessagesToSend.size() + "-" + matches);
             assertEquals(clientMessagesToSend.size(), matches);
         }
     }
@@ -127,7 +144,8 @@ public class MultipleServerMultipleClientsImplTest extends MultipleServersMultip
 
     private class PlayerServer extends AbsPlayerServer {
 
-        PlayerServer(String bindingAddress, int bindingPort, MessageBroker broker) throws IOException {
+        PlayerServer(String bindingAddress, int bindingPort,
+                     MessageBroker broker) throws IOException {
             super(bindingAddress, bindingPort, broker);
         }
 
@@ -157,7 +175,8 @@ public class MultipleServerMultipleClientsImplTest extends MultipleServersMultip
         private final List<byte[]> messagesToSend;
         private final PeersConnectionManager connectionManager;
 
-        PlayerClient(int playerID, String ip, int port, List<byte[]> messagesToSend) {
+        PlayerClient(int playerID, String ip, int port,
+                     List<byte[]> messagesToSend) {
             super(playerID, ip, port);
             this.messagesToSend = messagesToSend;
             connectionManager = new PeersConnectionManagerImpl(0);

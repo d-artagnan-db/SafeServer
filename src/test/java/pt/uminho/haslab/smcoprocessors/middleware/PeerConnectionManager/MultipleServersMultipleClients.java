@@ -17,8 +17,8 @@ public abstract class MultipleServersMultipleClients {
     final static int NCLIENTS = 20;
     final static int NSERVERS = 5;
     final static int NMESSAGES = 10;
-    private static final Log LOG = LogFactory.getLog(MultipleServersMultipleClients.class
-            .getName());
+    private static final Log LOG = LogFactory
+            .getLog(MultipleServersMultipleClients.class.getName());
     final List<String> clientConnectionTargetAddress;
     final List<Integer> clientConnectionTargetPort;
     final CountDownLatch allServersStarted;
@@ -45,17 +45,20 @@ public abstract class MultipleServersMultipleClients {
 
     }
 
-
     @Test
     public void testProtocol() throws InterruptedException, IOException {
 
-        //Function must initiate the server and wait for its correct initialization.
+        // Function must initiate the server and wait for its correct
+        // initialization.
         for (int i = 0; i < NSERVERS; i++) {
-            servers.add(createServer(serverBindingAddressess.get(i), serverBindingPorts.get(i)));
+            servers.add(createServer(serverBindingAddressess.get(i),
+                    serverBindingPorts.get(i)));
         }
         LOG.debug("Going to create clients");
         for (int i = 0; i < NCLIENTS; i++) {
-            RegionServer client = createClient(clientConnectionTargetAddress.get(i), clientConnectionTargetPort.get(i));
+            RegionServer client = createClient(
+                    clientConnectionTargetAddress.get(i),
+                    clientConnectionTargetPort.get(i));
             clients.add(client);
         }
 
@@ -94,13 +97,16 @@ public abstract class MultipleServersMultipleClients {
 
     }
 
-    protected abstract RegionServer createServer(String s, Integer integer) throws IOException, InterruptedException;
+    protected abstract RegionServer createServer(String s, Integer integer)
+            throws IOException, InterruptedException;
 
     protected abstract RegionServer createClient(String s, Integer integer);
 
     protected abstract void validateResults();
 
-    protected abstract class AbsPlayerServer extends Thread implements RegionServer {
+    protected abstract class AbsPlayerServer extends Thread
+            implements
+            RegionServer {
 
         protected final String bindingAddress;
         protected final int bindingPort;
@@ -108,7 +114,8 @@ public abstract class MultipleServersMultipleClients {
         protected final RelayServer server;
         protected boolean runStatus;
 
-        AbsPlayerServer(String bindingAddress, int bindingPort, MessageBroker broker) throws IOException {
+        AbsPlayerServer(String bindingAddress, int bindingPort,
+                        MessageBroker broker) throws IOException {
             this.bindingAddress = bindingAddress;
             this.bindingPort = bindingPort;
             this.broker = broker;
@@ -134,13 +141,14 @@ public abstract class MultipleServersMultipleClients {
 
     }
 
-    protected abstract class AbsPlayerClient extends Thread implements RegionServer {
+    protected abstract class AbsPlayerClient extends Thread
+            implements
+            RegionServer {
 
         protected final int playerID;
         protected final String ip;
         protected final int port;
         protected boolean runStatus;
-
 
         AbsPlayerClient(int playerID, String ip, int port) {
             this.playerID = playerID;
@@ -163,6 +171,5 @@ public abstract class MultipleServersMultipleClients {
             return runStatus;
         }
     }
-
 
 }

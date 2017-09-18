@@ -30,7 +30,6 @@ public class RelayServer extends Thread {
 
     private CountDownLatch mainLoopClosed;
 
-
     public RelayServer(final String bindingAddress, final int bindingPort,
                        final MessageBroker broker) throws IOException {
         this.bindingPort = bindingPort;
@@ -61,23 +60,29 @@ public class RelayServer extends Thread {
         }
         running = false;
 
-        //Client to trigger loop to  force thread to verify running state and exit
-        RelayClient closeClient = new RelayClient(bindingPort, bindingAddress, bindingPort);
-        closeClient.connectToTarget();
-        closeClient.start();
-        closeClient.shutdown();
-
+        voidClient();
         LOG.debug(this.bindingPort + " server has running state of " + running);
-        //Wait for main loop to exit and close server socket.
+        // Wait for main loop to exit and close server socket.
         mainLoopClosed.await();
         LOG.debug("All clients closed");
         serverSocket.close();
 
     }
 
-    public void forceShutdown() throws IOException {
+    /*Client to trigger loop to force thread to verify running state and close server*/
+    private void voidClient() throws IOException, InterruptedException {
+
+        RelayClient closeClient = new RelayClient(bindingPort, bindingAddress,
+                bindingPort);
+        closeClient.connectToTarget();
+        closeClient.start();
+        closeClient.shutdown();
+
+    }
+
+    public void forceShutdown() throws IOException, InterruptedException {
         running = false;
-        serverSocket.close();
+        voidClient();
     }
 
     public void startServer() {

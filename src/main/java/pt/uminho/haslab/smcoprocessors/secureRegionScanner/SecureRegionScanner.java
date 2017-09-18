@@ -8,9 +8,9 @@ import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.regionserver.RegionScanner;
-import pt.uminho.haslab.smcoprocessors.secretSearch.SharemindPlayer;
 import pt.uminho.haslab.smcoprocessors.SmpcConfiguration;
 import pt.uminho.haslab.smcoprocessors.secretSearch.SearchCondition;
+import pt.uminho.haslab.smcoprocessors.secretSearch.SharemindPlayer;
 import pt.uminho.haslab.smhbase.interfaces.Player;
 
 import java.io.IOException;
@@ -31,46 +31,12 @@ public class SecureRegionScanner implements RegionScanner {
     private final boolean stopOnMatch;
 
     private final Column col;
-
-    private boolean isFilterDone;
-
-    private boolean hasMore;
-
     private final Scan scan;
     private final RegionScanner scanner;
-
     private final BatchCache resultsCache;
-
     private final Batcher batcher;
-
-    private class BatchCache {
-
-        private Queue<List<Cell>> cells;
-
-        public BatchCache() {
-            cells = new LinkedList<List<Cell>>();
-        }
-
-        public void addListCells(List<List<Cell>> cells) {
-            for (List<Cell> lCells : cells) {
-                this.cells.add(lCells);
-            }
-        }
-
-        public void addCells(List<Cell> cells) {
-            this.cells.add(cells);
-        }
-
-        public List<Cell> getNext() {
-            return this.cells.poll();
-
-        }
-
-        public boolean isBatchEmpty() {
-            return cells.isEmpty();
-        }
-
-    }
+    private boolean isFilterDone;
+    private boolean hasMore;
 
     public SecureRegionScanner(SearchCondition searchValue,
                                RegionCoprocessorEnvironment env, Player player,
@@ -121,53 +87,6 @@ public class SecureRegionScanner implements RegionScanner {
     public boolean nextRaw(List<Cell> result, int limit) throws IOException {
         LOG.debug("Next raw with limit was issued");
         throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    private class BatchGetResult {
-        private List<byte[]> rowIDS;
-        private List<byte[]> protectedValues;
-        private List<List<Cell>> localCells;
-
-        public BatchGetResult() {
-            rowIDS = new ArrayList<byte[]>();
-            protectedValues = new ArrayList<byte[]>();
-            localCells = new ArrayList<List<Cell>>();
-        }
-
-        public BatchGetResult(List<byte[]> rowIDS,
-                              List<byte[]> protectedValues, List<List<Cell>> localCells) {
-            this.rowIDS = rowIDS;
-            this.protectedValues = protectedValues;
-            this.localCells = localCells;
-        }
-
-        public List<byte[]> getRowIDS() {
-            return rowIDS;
-        }
-
-        public void setRowIDS(List<byte[]> rowIDS) {
-            this.rowIDS = rowIDS;
-        }
-
-        public List<byte[]> getProtectedValues() {
-            return protectedValues;
-        }
-
-        public void setProtectedValues(List<byte[]> protectedValues) {
-            this.protectedValues = protectedValues;
-        }
-
-        public List<List<Cell>> getLocalCells() {
-            return localCells;
-        }
-
-        public void setLocalCells(List<List<Cell>> localCells) {
-            this.localCells = localCells;
-        }
-
-        public boolean isEmpty() {
-            return rowIDS.isEmpty();
-        }
     }
 
     private BatchGetResult loadBatch() throws IOException {
@@ -245,8 +164,8 @@ public class SecureRegionScanner implements RegionScanner {
         }
         LOG.debug("Going to filter results");
         for (int i = 0; i < condResults.size(); i++) {
-            /*
-             * LOG.debug("Loop index " + i + " of " + condResults.size());
+			/*
+			 * LOG.debug("Loop index " + i + " of " + condResults.size());
 			 * LOG.debug(player.getPlayerID() + " ID is " + new
 			 * String(rowIDS.get(i)) + " and has result " + condResults.get(i));
 			 */
@@ -261,7 +180,7 @@ public class SecureRegionScanner implements RegionScanner {
     public boolean next(List<Cell> results) throws IOException {
         LOG.debug("Next in SecureRegionScanner was issued ");
 
-        LOG.debug("ResultsCach empty? " + resultsCache.isBatchEmpty());
+        LOG.debug("ResultsCache empty? " + resultsCache.isBatchEmpty());
         if (resultsCache.isBatchEmpty()) {
             List<List<Cell>> fRows = new ArrayList<List<Cell>>();
 
@@ -306,6 +225,82 @@ public class SecureRegionScanner implements RegionScanner {
 
         ((SharemindPlayer) player).cleanValues();
         scanner.close();
+    }
+
+    private class BatchCache {
+
+        private Queue<List<Cell>> cells;
+
+        public BatchCache() {
+            cells = new LinkedList<List<Cell>>();
+        }
+
+        public void addListCells(List<List<Cell>> cells) {
+            for (List<Cell> lCells : cells) {
+                this.cells.add(lCells);
+            }
+        }
+
+        public void addCells(List<Cell> cells) {
+            this.cells.add(cells);
+        }
+
+        public List<Cell> getNext() {
+            return this.cells.poll();
+
+        }
+
+        public boolean isBatchEmpty() {
+            return cells.isEmpty();
+        }
+
+    }
+
+    private class BatchGetResult {
+        private List<byte[]> rowIDS;
+        private List<byte[]> protectedValues;
+        private List<List<Cell>> localCells;
+
+        public BatchGetResult() {
+            rowIDS = new ArrayList<byte[]>();
+            protectedValues = new ArrayList<byte[]>();
+            localCells = new ArrayList<List<Cell>>();
+        }
+
+        public BatchGetResult(List<byte[]> rowIDS,
+                              List<byte[]> protectedValues, List<List<Cell>> localCells) {
+            this.rowIDS = rowIDS;
+            this.protectedValues = protectedValues;
+            this.localCells = localCells;
+        }
+
+        public List<byte[]> getRowIDS() {
+            return rowIDS;
+        }
+
+        public void setRowIDS(List<byte[]> rowIDS) {
+            this.rowIDS = rowIDS;
+        }
+
+        public List<byte[]> getProtectedValues() {
+            return protectedValues;
+        }
+
+        public void setProtectedValues(List<byte[]> protectedValues) {
+            this.protectedValues = protectedValues;
+        }
+
+        public List<List<Cell>> getLocalCells() {
+            return localCells;
+        }
+
+        public void setLocalCells(List<List<Cell>> localCells) {
+            this.localCells = localCells;
+        }
+
+        public boolean isEmpty() {
+            return rowIDS.isEmpty();
+        }
     }
 
 }

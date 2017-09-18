@@ -6,11 +6,11 @@ import org.junit.runners.Parameterized;
 import pt.uminho.haslab.smcoprocessors.comunication.MessageBroker;
 import pt.uminho.haslab.smcoprocessors.comunication.Relay;
 import pt.uminho.haslab.smcoprocessors.comunication.RequestIdentifier;
+import pt.uminho.haslab.smcoprocessors.helpers.TestRegionServer;
+import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMismatch;
+import pt.uminho.haslab.smcoprocessors.protocolresults.SearchResults;
 import pt.uminho.haslab.smcoprocessors.secretSearch.ContextPlayer;
 import pt.uminho.haslab.smcoprocessors.secretSearch.SharemindPlayer;
-import pt.uminho.haslab.smcoprocessors.helpers.TestRegionServer;
-import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMissmatch;
-import pt.uminho.haslab.smcoprocessors.protocolresults.SearchResults;
 import pt.uminho.haslab.testingutils.ValuesGenerator;
 
 import java.io.IOException;
@@ -27,11 +27,11 @@ public class ProtocolResultsTest {
 
     /**
      * This list contains a sequence of player IDs, that dictates the target of
-     * player that must receive the results of protocol.
-     * Each value in the list has one of the following possible values (0,1,2)
-     * that is a playerID. The size of the list dictates how many concurrent
-     * players are created by each RegionServer. The index of the list is used
-     * as the requestID used to exchange messages.
+     * player that must receive the results of protocol. Each value in the list
+     * has one of the following possible values (0,1,2) that is a playerID. The
+     * size of the list dictates how many concurrent players are created by each
+     * RegionServer. The index of the list is used as the requestID used to
+     * exchange messages.
      */
     private final List<Integer> playerDestIDs;
     // Number of messages to exchange between players;
@@ -95,23 +95,35 @@ public class ProtocolResultsTest {
                     break;
             }
 
-            for (byte[] peerOneResults : receivedPeerResults.get(0).getSecrets()) {
-                peerOneConvertedReceivedPeerReults.add(new BigInteger(peerOneResults));
+            for (byte[] peerOneResults : receivedPeerResults.get(0)
+                    .getSecrets()) {
+                peerOneConvertedReceivedPeerReults.add(new BigInteger(
+                        peerOneResults));
             }
-            for (byte[] peerOneResults : receivedPeerResults.get(1).getSecrets()) {
-                peerTwoConvertedReceivedPeerReults.add(new BigInteger(peerOneResults));
+            for (byte[] peerOneResults : receivedPeerResults.get(1)
+                    .getSecrets()) {
+                peerTwoConvertedReceivedPeerReults.add(new BigInteger(
+                        peerOneResults));
             }
             /*
-            System.out.println(Arrays.toString(peerOneValues.toArray()));
-            System.out.println(Arrays.toString(peerTwoValues.toArray()));
-            System.out.println(Arrays.toString(peerOneConvertedReceivedPeerReults.toArray()));
-            System.out.println(Arrays.toString(peerTwoConvertedReceivedPeerReults.toArray()));*/
+             * System.out.println(Arrays.toString(peerOneValues.toArray()));
+			 * System.out.println(Arrays.toString(peerTwoValues.toArray()));
+			 * System
+			 * .out.println(Arrays.toString(peerOneConvertedReceivedPeerReults
+			 * .toArray()));
+			 * System.out.println(Arrays.toString(peerTwoConvertedReceivedPeerReults
+			 * .toArray()));
+			 */
 
             assertEquals(peerOneValues.size(), peerTwoValues.size());
-            assertEquals(peerOneValues.size(), peerOneConvertedReceivedPeerReults.size());
-            assertEquals(peerOneValues.size(), peerTwoConvertedReceivedPeerReults.size());
-            assertEquals(peerOneValues.size(), peerOneConvertedReceivedPeerReults.size());
-            assertEquals(peerOneValues.size(), peerTwoConvertedReceivedPeerReults.size());
+            assertEquals(peerOneValues.size(),
+                    peerOneConvertedReceivedPeerReults.size());
+            assertEquals(peerOneValues.size(),
+                    peerTwoConvertedReceivedPeerReults.size());
+            assertEquals(peerOneValues.size(),
+                    peerOneConvertedReceivedPeerReults.size());
+            assertEquals(peerOneValues.size(),
+                    peerTwoConvertedReceivedPeerReults.size());
 
             /**
              * Check if the results sent to the Dest player all arrive and in
@@ -119,7 +131,8 @@ public class ProtocolResultsTest {
              * than the first value from one of the list must match.
              */
 
-            if (!peerOneValues.get(0).equals(peerOneConvertedReceivedPeerReults.get(0))) {
+            if (!peerOneValues.get(0).equals(
+                    peerOneConvertedReceivedPeerReults.get(0))) {
                 List<BigInteger> aux = peerOneConvertedReceivedPeerReults;
                 peerOneConvertedReceivedPeerReults = peerTwoConvertedReceivedPeerReults;
                 peerTwoConvertedReceivedPeerReults = aux;
@@ -262,7 +275,7 @@ public class ProtocolResultsTest {
                     player.cleanValues();
                 }
 
-            } catch (ResultsLengthMissmatch ex) {
+            } catch (ResultsLengthMismatch ex) {
                 throw new IllegalStateException(ex);
             }
 

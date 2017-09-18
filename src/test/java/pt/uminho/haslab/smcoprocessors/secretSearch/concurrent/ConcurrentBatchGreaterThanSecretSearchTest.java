@@ -12,13 +12,19 @@ import java.util.List;
 
 import static pt.uminho.haslab.smcoprocessors.secretSearch.SearchCondition.Condition.Greater;
 
-public class ConcurrentBatchGreaterThanSecretSearchTest extends ConcurrentSecretSearchTest {
-    public ConcurrentBatchGreaterThanSecretSearchTest(List<Integer> nbits, List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo) throws IOException, InvalidNumberOfBits, InvalidSecretValue {
+public class ConcurrentBatchGreaterThanSecretSearchTest
+        extends
+        ConcurrentSecretSearchTest {
+    public ConcurrentBatchGreaterThanSecretSearchTest(List<Integer> nbits,
+                                                      List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo)
+            throws IOException, InvalidNumberOfBits, InvalidSecretValue {
         super(nbits, valuesOne, valuesTwo);
     }
 
-    protected SearchCondition getSearchCondition(int nBits, List<byte[]> firstValueSecret, int i) {
-        return AbstractSearchValue.conditionTransformer(Greater, nBits, firstValueSecret, i);
+    protected SearchCondition getSearchCondition(int nBits,
+                                                 List<byte[]> firstValueSecret, int i) {
+        return AbstractSearchValue.conditionTransformer(Greater, nBits,
+                firstValueSecret, i);
     }
 
     protected List<Boolean> getSearchExpectedResult(Integer request) {

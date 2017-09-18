@@ -1,6 +1,5 @@
 package pt.uminho.haslab.smcoprocessors.comunication;
 
-import com.sun.xml.internal.ws.server.UnsupportedMediaException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
@@ -23,7 +22,6 @@ public class SharemindMessageBroker implements MessageBroker {
             .getLog(SharemindMessageBroker.class.getName());
 
     private final Lock lock;
-
 
     // Locks for protocol results
     private final RequestsLocks protocolResultsLocks;
@@ -61,9 +59,12 @@ public class SharemindMessageBroker implements MessageBroker {
         RequestIdentifier requestID = new RequestIdentifier(message
                 .getRequestID().toByteArray(), message.getRegionID()
                 .toByteArray());
-        //LOG.debug(message.getPlayerSource()+"::"+message.getPlayerDest()+"::"+Arrays.toString(requestID.getRequestID()) +" MessageBroker received message " + message.getValuesList().size());
+        // LOG.debug(message.getPlayerSource()+"::"+message.getPlayerDest()+"::"+Arrays.toString(requestID.getRequestID())
+        // +" MessageBroker received message " +
+        // message.getValuesList().size());
         try {
-            //LOG.debug("Going to lock on request "+ new BigInteger(requestID.getRequestID()));
+            // LOG.debug("Going to lock on request "+ new
+            // BigInteger(requestID.getRequestID()));
             protocolBatchMessagesLocks.lockOnRequest(requestID);
             lock.unlock();
 
@@ -87,13 +88,14 @@ public class SharemindMessageBroker implements MessageBroker {
         lock.lock();
 
         try {
-            //LOG.debug("Going to lock on request "+ new BigInteger(requestId.getRequestID()));
+            // LOG.debug("Going to lock on request "+ new
+            // BigInteger(requestId.getRequestID()));
             protocolBatchMessagesLocks.lockOnRequest(requestId);
             lock.unlock();
 
             // While there aren't messages for this request wait.
             while (!batchMessagesReceived.containsKey(requestId)) {
-                //LOG.debug("Waiting on messages");
+                // LOG.debug("Waiting on messages");
                 protocolBatchMessagesLocks.awaitForWrite(requestId);
             }
 
@@ -106,12 +108,14 @@ public class SharemindMessageBroker implements MessageBroker {
     }
 
     public void receiveProtocolResults(ResultsMessage message) {
-        //LOG.debug("ReceivedProtocolResults");
+        // LOG.debug("ReceivedProtocolResults");
         lock.lock();
         RequestIdentifier requestID = new RequestIdentifier(message
                 .getRequestID().toByteArray(), message.getRegionID()
                 .toByteArray());
-        LOG.debug(message.getPlayerSource() + "::" + message.getPlayerDest() + "::" + Arrays.toString(requestID.getRequestID()) + " receivePotocol results");
+        LOG.debug(message.getPlayerSource() + "::" + message.getPlayerDest()
+                + "::" + Arrays.toString(requestID.getRequestID())
+                + " receivePotocol results");
 
         try {
             protocolResultsLocks.lockOnRequest(requestID);
@@ -136,7 +140,8 @@ public class SharemindMessageBroker implements MessageBroker {
         RequestIdentifier requestID = new RequestIdentifier(message
                 .getRequestID().toByteArray(), message.getRegionID()
                 .toByteArray());
-        //LOG.debug(message.getPlayerSource()+"::"+message.getPlayerDest()+"::"+Arrays.toString(requestID.getRequestID()) +" receiveFilteredIndexes");
+        // LOG.debug(message.getPlayerSource()+"::"+message.getPlayerDest()+"::"+Arrays.toString(requestID.getRequestID())
+        // +" receiveFilteredIndexes");
 
         try {
             filterIndexLocks.lockOnRequest(requestID);
@@ -156,7 +161,6 @@ public class SharemindMessageBroker implements MessageBroker {
 
     }
 
-
     public Queue<ResultsMessage> getProtocolResults(RequestIdentifier requestID) {
         lock.lock();
         try {
@@ -166,8 +170,8 @@ public class SharemindMessageBroker implements MessageBroker {
              * Wait while protocol results do not arrive. Only two results
              * should arrive, one from each of the remaining players.
              */
-            while (!(protocolResults.containsKey(requestID)) || protocolResults
-                    .get(requestID).size() < 2) {
+            while (!(protocolResults.containsKey(requestID))
+                    || protocolResults.get(requestID).size() < 2) {
                 protocolResultsLocks.awaitForWrite(requestID);
             }
             return protocolResults.get(requestID);
@@ -186,7 +190,8 @@ public class SharemindMessageBroker implements MessageBroker {
             lock.unlock();
 
             // While there aren't messages for this request wait.
-            while (!filterIndex.containsKey(requestID) || filterIndex.get(requestID).size() == 0) {
+            while (!filterIndex.containsKey(requestID)
+                    || filterIndex.get(requestID).size() == 0) {
                 filterIndexLocks.awaitForWrite(requestID);
             }
 
@@ -212,11 +217,9 @@ public class SharemindMessageBroker implements MessageBroker {
         batchMessagesReceived.remove(requestID);
     }
 
-
     public void readBatchMessages(RequestIdentifier requestID) {
         protocolBatchMessagesLocks.unlockOnRequest(requestID);
     }
-
 
     public void waitNewBatchMessage(RequestIdentifier requestID)
             throws InterruptedException {
@@ -242,22 +245,21 @@ public class SharemindMessageBroker implements MessageBroker {
         filterIndexLocks.unlockOnRequest(requestID);
     }
 
-
     public int numberofOfLocksResults() {
         return this.protocolResultsLocks.countLocks();
     }
-
 
     public boolean lockExistsForResultsOnRequest(RequestIdentifier requestID) {
         return this.protocolResultsLocks.lockExist(requestID);
     }
 
     /**
-     * Method only used for unitTest class implementations.
-     * Should be ignored on a concrete implementation
+     * Method only used for unitTest class implementations. Should be ignored on
+     * a concrete implementation
      */
     public void receiveTestMessage(byte[] message) {
-        throw new UnsupportedMediaException("This method should only be used for testing purposes");
+        throw new UnsupportedOperationException(
+                "This method should only be used for testing purposes");
 
     }
 }

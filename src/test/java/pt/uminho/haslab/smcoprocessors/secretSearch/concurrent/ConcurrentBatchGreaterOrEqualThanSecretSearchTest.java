@@ -16,9 +16,10 @@ public class ConcurrentBatchGreaterOrEqualThanSecretSearchTest
         extends
         ConcurrentSecretSearchTest {
 
-    public ConcurrentBatchGreaterOrEqualThanSecretSearchTest(List<Integer> nbits,
-                                                             List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo)
-            throws IOException, InvalidNumberOfBits, InvalidSecretValue {
+    public ConcurrentBatchGreaterOrEqualThanSecretSearchTest(
+            List<Integer> nbits, List<List<BigInteger>> valuesOne,
+            List<List<BigInteger>> valuesTwo) throws IOException,
+            InvalidNumberOfBits, InvalidSecretValue {
         super(nbits, valuesOne, valuesTwo);
     }
 

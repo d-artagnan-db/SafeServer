@@ -3,9 +3,9 @@ package pt.uminho.haslab.smcoprocessors.secretSearch.concurrent;
 import pt.uminho.haslab.smcoprocessors.comunication.MessageBroker;
 import pt.uminho.haslab.smcoprocessors.comunication.Relay;
 import pt.uminho.haslab.smcoprocessors.comunication.RequestIdentifier;
-import pt.uminho.haslab.smcoprocessors.secretSearch.SearchCondition;
 import pt.uminho.haslab.smcoprocessors.helpers.ConcurrentBatchProtocolTest;
 import pt.uminho.haslab.smcoprocessors.helpers.ConcurrentBatchTestPlayer;
+import pt.uminho.haslab.smcoprocessors.secretSearch.SearchCondition;
 import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
 import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
 
@@ -42,8 +42,8 @@ public abstract class ConcurrentSecretSearchTest
                                                                RequestIdentifier requestID, int playerID, MessageBroker broker,
                                                                List<byte[]> firstValueSecret, List<byte[]> secondValueSecret,
                                                                int nBits) {
-        return new SecretSearchBatchTestPlayer(relay, requestID, playerID, broker,
-                firstValueSecret, secondValueSecret, nBits);
+        return new SecretSearchBatchTestPlayer(relay, requestID, playerID,
+                broker, firstValueSecret, secondValueSecret, nBits);
     }
 
     @Override
@@ -74,12 +74,19 @@ public abstract class ConcurrentSecretSearchTest
 
     protected abstract List<Boolean> getSearchExpectedResult(Integer request);
 
-    protected class SecretSearchBatchTestPlayer extends ConcurrentBatchTestPlayer {
+    protected int getExpectedResult(BigInteger valOne, BigInteger valtwo) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    protected class SecretSearchBatchTestPlayer
+            extends
+            ConcurrentBatchTestPlayer {
 
         private List<Boolean> searchRes;
 
-        public SecretSearchBatchTestPlayer(Relay relay, RequestIdentifier requestID,
-                                           int playerID, MessageBroker broker, List<byte[]> firstVals,
+        public SecretSearchBatchTestPlayer(Relay relay,
+                                           RequestIdentifier requestID, int playerID,
+                                           MessageBroker broker, List<byte[]> firstVals,
                                            List<byte[]> secondVals, int nBits) {
             super(relay, requestID, playerID, broker, firstVals, secondVals,
                     nBits);
@@ -117,7 +124,6 @@ public abstract class ConcurrentSecretSearchTest
             results.get(playerID).put(reqID, searchRes);
             player.cleanResultsMatch();
 
-
         }
 
         public List<Boolean> getSearchRes() {
@@ -130,9 +136,5 @@ public abstract class ConcurrentSecretSearchTest
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
-    }
-
-    protected int getExpectedResult(BigInteger valOne, BigInteger valtwo) {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

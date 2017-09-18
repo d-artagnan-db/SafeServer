@@ -3,27 +3,22 @@ package pt.uminho.haslab.smcoprocessors.benchmarks;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import pt.uminho.haslab.smcoprocessors.SmpcConfiguration;
 import pt.uminho.haslab.smcoprocessors.comunication.MessageBroker;
 import pt.uminho.haslab.smcoprocessors.comunication.Relay;
 import pt.uminho.haslab.smcoprocessors.comunication.SharemindMessageBroker;
-import pt.uminho.haslab.smcoprocessors.SmpcConfiguration;
 
 import java.io.IOException;
 
 public abstract class TestRegionServer extends Thread implements RegionServer {
 
-    protected final Relay relay;
-
-    protected final MessageBroker broker;
-
-    protected final SmpcConfiguration searchConf;
-
-    protected boolean runStatus;
-
-    protected final int playerID;
-
     private static final Log LOG = LogFactory.getLog(TestRegionServer.class
             .getName());
+    protected final Relay relay;
+    protected final MessageBroker broker;
+    protected final SmpcConfiguration searchConf;
+    protected final int playerID;
+    protected boolean runStatus;
 
     public TestRegionServer(int playerID) throws IOException {
         String resource = "hbase-site-" + playerID + ".xml";

@@ -10,6 +10,7 @@ public interface DiscoveryService {
 
     void unregisterRegion(RequestIdentifier requestIdentifier);
 
-    List<RegionLocation> discoverRegions(RequestIdentifier requestIdentifier) throws FailedRegionDiscovery;
+    List<RegionLocation> discoverRegions(RequestIdentifier requestIdentifier)
+            throws FailedRegionDiscovery;
 
 }

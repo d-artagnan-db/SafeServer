@@ -3,10 +3,10 @@ package pt.uminho.haslab.smcoprocessors.helpers;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import pt.uminho.haslab.smcoprocessors.SmpcConfiguration;
 import pt.uminho.haslab.smcoprocessors.comunication.MessageBroker;
 import pt.uminho.haslab.smcoprocessors.comunication.Relay;
 import pt.uminho.haslab.smcoprocessors.comunication.SharemindMessageBroker;
-import pt.uminho.haslab.smcoprocessors.SmpcConfiguration;
 
 import java.io.IOException;
 

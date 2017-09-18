@@ -1,10 +1,10 @@
 package pt.uminho.haslab.smcoprocessors.secretSearch.linear;
 
 import pt.uminho.haslab.smcoprocessors.comunication.RequestIdentifier;
-import pt.uminho.haslab.smcoprocessors.secretSearch.SearchCondition;
-import pt.uminho.haslab.smcoprocessors.secretSearch.SharemindPlayer;
 import pt.uminho.haslab.smcoprocessors.helpers.BatchProtocolTest;
 import pt.uminho.haslab.smcoprocessors.helpers.RegionServer;
+import pt.uminho.haslab.smcoprocessors.secretSearch.SearchCondition;
+import pt.uminho.haslab.smcoprocessors.secretSearch.SharemindPlayer;
 import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
 import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
 import pt.uminho.haslab.smhbase.interfaces.Player;
@@ -22,7 +22,9 @@ public abstract class SecretSearchTest extends BatchProtocolTest {
 
     private final Map<Integer, Map<Integer, List<Boolean>>> results;
 
-    public SecretSearchTest(List<Integer> nbits, List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo) throws IOException, InvalidNumberOfBits, InvalidSecretValue {
+    public SecretSearchTest(List<Integer> nbits,
+                            List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo)
+            throws IOException, InvalidNumberOfBits, InvalidSecretValue {
         super(nbits, valuesOne, valuesTwo);
 
         results = new HashMap<Integer, Map<Integer, List<Boolean>>>();
@@ -55,20 +57,34 @@ public abstract class SecretSearchTest extends BatchProtocolTest {
     }
 
     protected RegionServer createRegionServer(int playerID) throws IOException {
-        return new RegionServerImpl(playerID, secretsOne.get(playerID), secretsTwo.get(playerID), nbits);
+        return new RegionServerImpl(playerID, secretsOne.get(playerID),
+                secretsTwo.get(playerID), nbits);
+    }
+
+    protected abstract List<Boolean> getSearchExpectedResult(Integer request);
+
+    protected abstract SearchCondition getSearchCondition(int nBits,
+                                                          List<byte[]> firstValueSecret, int i);
+
+    protected int getExpectedResult(BigInteger valOne, BigInteger valtwo) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     private class RegionServerImpl extends ProtoRegionServer {
 
-        public RegionServerImpl(int playerID, List<List<byte[]>> firstValueSecrets, List<List<byte[]>> secondValueSecrets, List<Integer> nbits) throws IOException {
+        public RegionServerImpl(int playerID,
+                                List<List<byte[]>> firstValueSecrets,
+                                List<List<byte[]>> secondValueSecrets, List<Integer> nbits)
+                throws IOException {
             super(playerID, firstValueSecrets, secondValueSecrets, nbits);
         }
 
-        public List<byte[]> executeProtocol(Player player, List<byte[]> secretOne, List<byte[]> secretTwo, int nBits, RequestIdentifier ident) {
+        public List<byte[]> executeProtocol(Player player,
+                                            List<byte[]> secretOne, List<byte[]> secretTwo, int nBits,
+                                            RequestIdentifier ident) {
             SharemindPlayer splayer = (SharemindPlayer) player;
             Integer reqID = Integer.parseInt(new String(ident.getRequestID()));
             BigInteger rowID = BigInteger.valueOf(reqID);
-
 
             if (player.getPlayerID() == 1) {
                 splayer.setTargetPlayer();
@@ -88,22 +104,15 @@ public abstract class SecretSearchTest extends BatchProtocolTest {
             for (int i = 0; i < secretOne.size(); i++) {
                 ids.add(rowID.toByteArray());
             }
-            List<Boolean> searchRes = condition.evaluateCondition(secretOne, ids, splayer);
+            List<Boolean> searchRes = condition.evaluateCondition(secretOne,
+                    ids, splayer);
             Integer playerId = player.getPlayerID();
             results.get(playerId).put(reqID, searchRes);
             splayer.cleanResultsMatch();
-            //This result should not be used by classes that iextend the SecretSearchTest
+            // This result should not be used by classes that iextend the
+            // SecretSearchTest
             return null;
         }
-    }
-
-    protected abstract List<Boolean> getSearchExpectedResult(Integer request);
-
-    protected abstract SearchCondition getSearchCondition(int nBits,
-                                                          List<byte[]> firstValueSecret, int i);
-
-    protected int getExpectedResult(BigInteger valOne, BigInteger valtwo) {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

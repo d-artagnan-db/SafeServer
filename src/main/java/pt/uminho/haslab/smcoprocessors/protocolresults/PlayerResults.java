@@ -18,9 +18,9 @@ public class PlayerResults {
 
     /* TODO: this function has to validate if the protocol results are all ok. */
     public PlayerResults(List<SearchResults> results, Condition condition,
-                         int nBits) throws ResultsLengthMissmatch {
+                         int nBits) throws ResultsLengthMismatch {
 
-        /*
+		/*
          * for(int i =0; i < results.size(); i++){ results.get(i).printSize(); }
 		 */
 
@@ -28,7 +28,7 @@ public class PlayerResults {
 
         for (SearchResults d : results) {
             if (nIdentifiers != d.getIdentifiers().size()) {
-                throw new ResultsLengthMissmatch();
+                throw new ResultsLengthMismatch();
             }
         }
         this.condition = condition;
@@ -42,9 +42,9 @@ public class PlayerResults {
      * protocols.
      *
      * @return BigInteger with the corresponding Index
-     * @throws pt.uminho.haslab.smcoprocessors.protocolresults.ResultsIdentifiersMissmatch
+     * @throws ResultsIdentifiersMismatch
      */
-    public List<Boolean> declassify() throws ResultsIdentifiersMissmatch {
+    public List<Boolean> declassify() throws ResultsIdentifiersMismatch {
         int nIdentifiers = results.get(0).getIdentifiers().size();
 
         List<Boolean> resultIDS = new ArrayList<Boolean>();
@@ -68,7 +68,7 @@ public class PlayerResults {
 
             if (!firstIdent.equals(secondIdent)
                     || !secondIdent.equals(thirdIdent)) {
-                throw new ResultsIdentifiersMissmatch();
+                throw new ResultsIdentifiersMismatch();
             }
 
             if (condition == Equal) {

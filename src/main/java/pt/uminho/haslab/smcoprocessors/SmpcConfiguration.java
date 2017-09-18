@@ -10,18 +10,18 @@ import java.io.IOException;
 
 public class SmpcConfiguration {
 
-    //IORelay configuration
+    // IORelay configuration
     private final int playerID;
     private final String relayHost;
     private final int relayPort;
     private final boolean isDevelopment;
 
-    //SMPC library configuration
+    // SMPC library configuration
     private final int nBits;
     private final int batchSize;
     private final int preRandomElems;
 
-    //DiscoveryService configuration
+    // DiscoveryService configuration
     private final int sleepTime;
     private final int incTime;
     private final int retries;
@@ -29,26 +29,29 @@ public class SmpcConfiguration {
 
     public SmpcConfiguration(Configuration conf) {
 
-        //IORelay configuration
+        // IORelay configuration
         playerID = conf.getInt("smhbase.player.id", -1);
         relayHost = conf.get("smhbase.relay.host");
         relayPort = conf.getInt("smhbase.relay.port", -1);
         isDevelopment = conf.getBoolean("hbase.coprocessor.development", true);
 
-        //SMCP library configuration
+        // SMCP library configuration
         nBits = conf.getInt("smhbase.nbits", -1);
         batchSize = conf.getInt("smhbase.protocols.size", 20);
         preRandomElems = conf.getInt("smhbase.smpc.prerandom.size", 0);
 
-        //DiscoveryService configuration
-        discoveryServiceLocation = conf.get("smhbase.discovery.location", "localhost");
+        // DiscoveryService configuration
+        discoveryServiceLocation = conf.get("smhbase.discovery.location",
+                "localhost");
         sleepTime = conf.getInt("smhbase.discovery.sleepTime", 200);
         incTime = conf.getInt("smhbase.discovery.incTime", 100);
         retries = conf.getInt("smhbase.discovery.retries", 5);
     }
 
     public Relay createRelay(MessageBroker broker) throws IOException {
-        DiscoveryServiceConfiguration conf = new DiscoveryServiceConfiguration(discoveryServiceLocation, playerID, relayHost, relayPort, sleepTime, incTime, retries);
+        DiscoveryServiceConfiguration conf = new DiscoveryServiceConfiguration(
+                discoveryServiceLocation, playerID, relayHost, relayPort,
+                sleepTime, incTime, retries);
         return new IORelay(relayHost, relayPort, broker, conf);
     }
 

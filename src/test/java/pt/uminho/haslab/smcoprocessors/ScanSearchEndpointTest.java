@@ -34,8 +34,8 @@ public abstract class ScanSearchEndpointTest extends AbstractSearchEndpointTest 
         startKey = getStartKey(shelper);
         stopKey = getStopKey(shelper);
 
-        List<Result> results = tables.scanEndpoint(nbits, startKey, stopKey, 1,
-                config, dealer);
+        List<Result> results = tables.scanEndpoint(startKey, stopKey, 1,
+                config, dealer, secretFamily, secretQualifier);
 
         boolean res = shelper.validateResults(results);
         assertEquals(true, res);

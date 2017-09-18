@@ -15,9 +15,9 @@ public class DataIdentifiers {
     private final List<BigInteger> identifiers;
 
     public DataIdentifiers(List<BigInteger> secrets,
-                           List<BigInteger> identifiers) throws ResultsLengthMissmatch {
+                           List<BigInteger> identifiers) throws ResultsLengthMismatch {
         if (secrets.size() != identifiers.size()) {
-            throw new ResultsLengthMissmatch();
+            throw new ResultsLengthMismatch();
         }
         this.secrets = secrets;
         this.identifiers = identifiers;

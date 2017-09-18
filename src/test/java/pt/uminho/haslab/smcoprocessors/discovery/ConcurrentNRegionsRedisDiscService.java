@@ -2,8 +2,8 @@ package pt.uminho.haslab.smcoprocessors.discovery;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import pt.uminho.haslab.smcoprocessors.helpers.TestDistributedCluster;
 import pt.uminho.haslab.smcoprocessors.benchmarks.RegionServer;
+import pt.uminho.haslab.smcoprocessors.helpers.TestDistributedCluster;
 import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
 
 import java.io.IOException;
@@ -15,14 +15,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static junit.framework.TestCase.assertEquals;
 
-
 public abstract class ConcurrentNRegionsRedisDiscService
         extends
         TestDistributedCluster {
 
     protected static final Log LOG = LogFactory
             .getLog(ConcurrentNRegionsRedisDiscService.class.getName());
-
 
     protected final static int DISC_SERVICE_SLEEP_TIME = 2000;
     protected final static int DISC_SERVICE_INC_TIME = 1000;
@@ -35,8 +33,10 @@ public abstract class ConcurrentNRegionsRedisDiscService
 
     protected final Map<Integer, Map<Integer, List<RegionLocation>>> locations;
 
-    public ConcurrentNRegionsRedisDiscService(Map<Integer, List<BigInteger>> requestIDs,
-                                              Map<Integer, List<BigInteger>> regionIDs, Map<Integer, List<String>> ips, Map<Integer, List<Integer>> ports) {
+    public ConcurrentNRegionsRedisDiscService(
+            Map<Integer, List<BigInteger>> requestIDs,
+            Map<Integer, List<BigInteger>> regionIDs,
+            Map<Integer, List<String>> ips, Map<Integer, List<Integer>> ports) {
         super(requestIDs.get(0).size());
 
         this.requestIDs = requestIDs;
@@ -56,7 +56,8 @@ public abstract class ConcurrentNRegionsRedisDiscService
 
             for (Integer pos : locations.get(playerID).keySet()) {
 
-                List<RegionLocation> receivedLocations = locations.get(playerID).get(pos);
+                List<RegionLocation> receivedLocations = locations
+                        .get(playerID).get(pos);
                 assertEquals(2, locations.get(playerID).get(pos).size());
 
                 boolean allMatch = true;
@@ -64,7 +65,7 @@ public abstract class ConcurrentNRegionsRedisDiscService
                 for (RegionLocation location : receivedLocations) {
                     boolean foundMatch = false;
                     int index = playerID;
-                    //System.out.println("Current player is  " + index);
+                    // System.out.println("Current player is  " + index);
                     for (int i = 0; i < 2; i++) {
 
                         index = (index + 1) % 3;
@@ -72,10 +73,12 @@ public abstract class ConcurrentNRegionsRedisDiscService
                         String ip = ips.get(index).get(pos);
                         Integer port = ports.get(index).get(pos);
 
-                        //System.out.println("Current index is " + index + " -> " + ip + ":" + port);
-                        //System.out.println("Received Location " + location.getIp() + ":" + location.getPort());
-                        if (ip.equals(location.getIp()) &&
-                                port == location.getPort()) {
+                        // System.out.println("Current index is " + index +
+                        // " -> " + ip + ":" + port);
+                        // System.out.println("Received Location " +
+                        // location.getIp() + ":" + location.getPort());
+                        if (ip.equals(location.getIp())
+                                && port == location.getPort()) {
                             foundMatch |= true;
                         }
                     }

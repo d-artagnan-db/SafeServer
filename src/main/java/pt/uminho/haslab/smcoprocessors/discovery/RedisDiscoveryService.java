@@ -11,17 +11,17 @@ import java.util.List;
 
 public class RedisDiscoveryService extends DiscoveryServiceAbs {
 
+    private static final Log LOG = LogFactory
+            .getLog(RedisDiscoveryService.class.getName());
     private final Jedis jedis;
     private final DiscoveryServiceClient client;
     private final int sleepTime;
     private final int incTime;
     private final int retries;
 
-    private static final Log LOG = LogFactory
-            .getLog(RedisDiscoveryService.class.getName());
-
     public RedisDiscoveryService(DiscoveryServiceConfiguration conf) {
-        super(conf.getDiscoveryServiceLocation(), conf.getPlayerID(), conf.getRegionServerIP(), conf.getPort());
+        super(conf.getDiscoveryServiceLocation(), conf.getPlayerID(), conf
+                .getRegionServerIP(), conf.getPort());
         jedis = new Jedis(conf.getDiscoveryServiceLocation());
         client = new Client();
         this.sleepTime = conf.getSleepTime();
@@ -40,6 +40,11 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
         this.retries = retries;
     }
 
+    @Override
+    protected DiscoveryServiceClient getDiscoveryServiceClient() {
+        return client;
+    }
+
     private class Client implements DiscoveryServiceClient {
 
         private String getKey(RequestIdentifier requestIdentifier) {
@@ -52,13 +57,16 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
         public synchronized void sendCurrentLocationOfPlayerInRequest(
                 RequestIdentifier requestIdentifier) {
             String key = getKey(requestIdentifier);
-            /*LOG.debug("Going to put on redis " + key + "<->"
-                    + locationMessage);*/
+            /*
+             * LOG.debug("Going to put on redis " + key + "<->" +
+			 * locationMessage);
+			 */
             jedis.lpush(key, locationMessage);
 
         }
 
-        public synchronized void removeCurrentLocationOfPlayerInRequest(RequestIdentifier requestIdentifier) {
+        public synchronized void removeCurrentLocationOfPlayerInRequest(
+                RequestIdentifier requestIdentifier) {
             String key = getKey(requestIdentifier);
             jedis.del(key);
         }
@@ -81,7 +89,8 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
                 String[] subs = result.split(":");
 
                 if (Integer.parseInt(subs[0]) != playerID) {
-                    RegionLocation rl = new RegionLocation(Integer.parseInt(subs[0]), subs[1],
+                    RegionLocation rl = new RegionLocation(
+                            Integer.parseInt(subs[0]), subs[1],
                             Integer.parseInt(subs[2]));
                     regionResult.add(rl);
                 }
@@ -89,18 +98,19 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
             return regionResult;
         }
 
-        public synchronized List<RegionLocation> getPeersLocation(RequestIdentifier requestIdentifier)
+        public synchronized List<RegionLocation> getPeersLocation(
+                RequestIdentifier requestIdentifier)
                 throws FailedRegionDiscovery {
             boolean run = true;
             List<String> clients = new ArrayList<String>();
             String key = getKey(requestIdentifier);
 
-            //LOG.debug("Going to read");
+            // LOG.debug("Going to read");
             int sleepTimeInc = sleepTime;
             int nAttempts = 0;
 
             while (run) {
-                //LOG.debug("going to get key " + key);
+                // LOG.debug("going to get key " + key);
                 clients = jedis.lrange(key, 0, -1);
 
                 if (clients.size() >= 3) {
@@ -124,12 +134,6 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
             return parseJedisResult(clients);
         }
 
-
-    }
-
-    @Override
-    protected DiscoveryServiceClient getDiscoveryServiceClient() {
-        return client;
     }
 
 }

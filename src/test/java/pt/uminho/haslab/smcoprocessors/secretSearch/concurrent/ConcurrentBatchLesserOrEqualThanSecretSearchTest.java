@@ -16,17 +16,18 @@ public class ConcurrentBatchLesserOrEqualThanSecretSearchTest
         extends
         ConcurrentSecretSearchTest {
 
-    public ConcurrentBatchLesserOrEqualThanSecretSearchTest(List<Integer> nbits,
-                                                            List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo)
-            throws IOException, InvalidNumberOfBits, InvalidSecretValue {
+    public ConcurrentBatchLesserOrEqualThanSecretSearchTest(
+            List<Integer> nbits, List<List<BigInteger>> valuesOne,
+            List<List<BigInteger>> valuesTwo) throws IOException,
+            InvalidNumberOfBits, InvalidSecretValue {
         super(nbits, valuesOne, valuesTwo);
     }
 
     @Override
     protected SearchCondition getSearchCondition(int nBits,
                                                  List<byte[]> firstValueSecret, int i) {
-        return AbstractSearchValue.conditionTransformer(LessOrEqualThan,
-                nBits, firstValueSecret, i);
+        return AbstractSearchValue.conditionTransformer(LessOrEqualThan, nBits,
+                firstValueSecret, i);
     }
 
     @Override

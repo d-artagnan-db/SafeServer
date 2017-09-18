@@ -6,7 +6,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CoprocessorEnvironment;
 import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.Operation;
 import org.apache.hadoop.hbase.client.OperationWithAttributes;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.coprocessor.BaseRegionObserver;
@@ -18,10 +17,9 @@ import pt.uminho.haslab.smcoprocessors.comunication.MessageBroker;
 import pt.uminho.haslab.smcoprocessors.comunication.Relay;
 import pt.uminho.haslab.smcoprocessors.comunication.RequestIdentifier;
 import pt.uminho.haslab.smcoprocessors.comunication.SharemindMessageBroker;
+import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsIdentifiersMismatch;
+import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMismatch;
 import pt.uminho.haslab.smcoprocessors.secretSearch.*;
-import pt.uminho.haslab.smcoprocessors.secretSearch.SearchCondition.Condition;
-import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsIdentifiersMissmatch;
-import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMissmatch;
 import pt.uminho.haslab.smcoprocessors.secureRegionScanner.Column;
 import pt.uminho.haslab.smcoprocessors.secureRegionScanner.SecureRegionScanner;
 import pt.uminho.haslab.smhbase.interfaces.Player;
@@ -29,7 +27,10 @@ import pt.uminho.haslab.smhbase.sharemindImp.SharemindSecretFunctions;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static pt.uminho.haslab.smcoprocessors.secretSearch.SearchCondition.Condition.*;
 
@@ -70,21 +71,24 @@ public class SmpcCoprocessor extends BaseRegionObserver {
             wasFirst = true;
             broker = new SharemindMessageBroker();
             relay = searchConf.createRelay(broker);
-
+            relay.bootRelay();
             // Wait some time before trying to connect with other region servers
             LOG.debug("Player " + searchConf.getPlayerID()
                     + " is waiting for Relay server to start");
             try {
                 waitServerStart();
             } catch (InterruptedException e1) {
-                LOG.error("Relay not booted correctly " + e1.getLocalizedMessage());
+                LOG.error("Relay not booted correctly "
+                        + e1.getLocalizedMessage());
                 throw new IllegalStateException(e1);
             }
 
             initiateSharedResources(searchConf);
 
             if (searchConf.getPreRandomSize() > 0) {
-                LOG.debug("Defining "+ searchConf.getPreRandomSize()+" as the number of random numbers on  the smpc library");
+                LOG.debug("Defining "
+                        + searchConf.getPreRandomSize()
+                        + " as the number of random numbers on  the smpc library");
                 SharemindSecretFunctions.initRandomElemes(
                         searchConf.getPreRandomSize(), searchConf.getnBits());
             }
@@ -106,8 +110,8 @@ public class SmpcCoprocessor extends BaseRegionObserver {
                  * In development mode clusters are not concurrent and the stop
 				 * requests by default waits for the other players to cancel
 				 * their channel. This only happens if every relay stops the
-				 * execution concurerntly. This way the server socket is simpli
-				 * closed.
+				 * execution concurrently. This way the server socket is forced
+				 * to close.
 				 */
                 relay.forceStopRelay();
             }
@@ -129,7 +133,6 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 
     }
 
-
     /**
      * Helping function that checks if the region server player has started the
      * resources required to execute MPC. This is required because a
@@ -145,6 +148,7 @@ public class SmpcCoprocessor extends BaseRegionObserver {
     private void waitServerStart() throws InterruptedException {
         LOG.debug("Waiting for signal of Relay Start");
         broker.waitRelayStart();
+        LOG.debug("Relay start signal received");
     }
 
     private Player getPlayer(RequestIdentifier identifier) {
@@ -152,80 +156,90 @@ public class SmpcCoprocessor extends BaseRegionObserver {
                 this.searchConf.getPlayerID(), broker);
     }
 
-    public Column getSearchColumn(OperationWithAttributes op){
-        return new Column(op.getAttribute(OperationWithAttributes.))
+    private Column getSearchColumn(OperationWithAttributes op) {
+
+        byte[] secretFamily = op
+                .getAttribute(OperationAttributesIdentifiers.SecretFamily);
+        byte[] secretQualifier = op
+                .getAttribute(OperationAttributesIdentifiers.SecretQualifier);
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("SecretFamily " + new String(secretFamily));
+            LOG.debug("SecretQualifier " + new String(secretQualifier));
+        }
+        return new Column(secretFamily, secretQualifier);
+
     }
 
-    private List<Cell> secretGetSearch(byte[] secret, OperationWithAttributes op,
-                                       RegionCoprocessorEnvironment env, boolean stopOnMatch)
-            throws IOException, ResultsLengthMissmatch,
-            ResultsIdentifiersMissmatch {
+    private RequestIdentifier getRequestIdentifier(OperationWithAttributes op,
+                                                   RegionCoprocessorEnvironment env) {
 
-        /**
-         * The  Hbase column Famility and Column Qualifier in which the SecureREgionScanner searches is no longer defined
-         * by the HbaseRegionConfiguration, but byt the client.
-         */
-
-        Column col = new Column(this.searchConf.getSecretFamily(),
-                this.searchConf.getSecretQualifier());
-        byte[] requestID = op.getAttribute("requestID");
+        byte[] requestID = op
+                .getAttribute(OperationAttributesIdentifiers.RequestIdentifier);
         byte[] regionID = env.getRegion().getStartKey();
-        LOG.debug("RequestID " + Arrays.toString(requestID));
-        LOG.debug("RegionID " + Arrays.toString(regionID));
 
-        RequestIdentifier ident = new RequestIdentifier(requestID, regionID);
-        relay.registerRequest(ident);
-        Player player = getPlayer(ident);
-        int nbits = this.searchConf.getnBits();
-        String targetPlayerS = new String(op.getAttribute("targetPlayer"));
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("RequestID " + new String(requestID));
+            LOG.debug("RegionID " + new String(regionID));
+        }
+        return new RequestIdentifier(requestID, regionID);
+
+    }
+
+    private int checkTargetPlayer(Player player, OperationWithAttributes op,
+                                  RequestIdentifier ident) {
+        String targetPlayerS = new String(op
+                .getAttribute(OperationAttributesIdentifiers.TargetPlayer));
         LOG.debug("TargetPlayer " + targetPlayerS);
         int targetPlayer = Integer.parseInt(targetPlayerS);
 
         if (this.searchConf.getPlayerID() == targetPlayer) {
-            LOG.debug("This RegionServer Is target player for the request "+ ident.hashCode());
+            LOG.debug("This RegionServer is target player for the request "
+                    + ident.hashCode());
             ((SharemindPlayer) player).setTargetPlayer();
         }
+        return targetPlayer;
+    }
+
+    private List<Cell> secretGetSearch(byte[] secret,
+                                       OperationWithAttributes op, RegionCoprocessorEnvironment env) throws IOException, ResultsLengthMismatch,
+            ResultsIdentifiersMismatch {
+
+        Column col = getSearchColumn(op);
+        RequestIdentifier ident = getRequestIdentifier(op, env);
+        relay.registerRequest(ident);
+        Player player = getPlayer(ident);
+        int nbits = this.searchConf.getnBits();
+        int targetPlayer = checkTargetPlayer(player, op, ident);
+
         List<byte[]> secrets = new ArrayList<byte[]>();
         secrets.add(secret);
-
+        LOG.debug("Creating search condition with " + nbits + " nbits " + " and the secret " + new BigInteger(secret));
         SearchCondition searchCondition = AbstractSearchValue
                 .conditionTransformer(Equal, nbits, secrets, targetPlayer);
+        LOG.debug("Created secure RegionScanner");
         SecureRegionScanner search = new SecureRegionScanner(searchCondition,
-                env, player, this.searchConf, stopOnMatch, col);
+                env, player, this.searchConf, true, col);
+        LOG.debug("Iterating over RegionScanner to find match");
         List<Cell> results = new ArrayList<Cell>();
         search.next(results);
         search.close();
+        LOG.debug("Found match " + results);
         return results;
 
     }
 
     private RegionScanner secretScanSearch(byte[] startRow, byte[] stopRow,
                                            OperationWithAttributes op, RegionCoprocessorEnvironment env,
-                                           Filter filter) throws IOException, ResultsLengthMissmatch,
-            ResultsIdentifiersMissmatch {
+                                           Filter filter) throws IOException, ResultsLengthMismatch,
+            ResultsIdentifiersMismatch {
 
-        Column col = new Column(this.searchConf.getSecretFamily(),
-                this.searchConf.getSecretQualifier());
-
-        byte[] requestID = op.getAttribute("requestID");
-        byte[] regionID = env.getRegion().getStartKey();
-
-        LOG.debug("RequestID is " + Arrays.toString(requestID));
-        LOG.debug("RegionID is " + Arrays.toString(regionID));
-
-        RequestIdentifier ident = new RequestIdentifier(requestID, regionID);
+        Column col = getSearchColumn(op);
+        RequestIdentifier ident = getRequestIdentifier(op, env);
         relay.registerRequest(ident);
         Player player = getPlayer(ident);
-
         int nbits = this.searchConf.getnBits();
-        String targetPlayerS = new String(op.getAttribute("targetPlayer"));
-        int targetPlayer = Integer.parseInt(targetPlayerS);
-        LOG.debug("Is target player " + targetPlayer);
-
-        if (this.searchConf.getPlayerID() == targetPlayer) {
-            LOG.debug("Is going to set target Player");
-            ((SharemindPlayer) player).setTargetPlayer();
-        }
+        int targetPlayer = checkTargetPlayer(player, op, ident);
 
         SearchCondition startKeySearch = null;
         SearchCondition endKeySearch = null;
@@ -259,7 +273,6 @@ public class SmpcCoprocessor extends BaseRegionObserver {
             keySearch = new NopSearchValue(Nop, targetPlayer);
         }
 
-        boolean stopOnMatch = false;
         SearchCondition finalCondition = keySearch;
 
         // if (filter != null) {
@@ -289,53 +302,70 @@ public class SmpcCoprocessor extends BaseRegionObserver {
         // }
 
         return new SecureRegionScanner(finalCondition, env, player,
-                this.searchConf, stopOnMatch, col);
+                this.searchConf, false, col);
 
     }
 
     private List<Cell> getRowWithoutSearch(byte[] rowID) throws IOException {
         // Get that bypasses this observer or it will call preGetOP again.
         Get get = new Get(rowID);
-        List<Cell> cells = env.getRegion().get(get, false);
-        return cells;
+        return env.getRegion().get(get, false);
+    }
+
+    private boolean isProtectedColumn(OperationWithAttributes op) {
+        byte[] isProtected = op
+                .getAttribute(OperationAttributesIdentifiers.ProtectedColumn);
+        return isProtected != null;
     }
 
     @Override
     public void preGetOp(final ObserverContext<RegionCoprocessorEnvironment> e,
                          final Get get, final List<Cell> results) throws IOException {
 
-        LOG.debug("start of preGetOp function");
-        String table = env.getRegion().getTableDesc().getNameAsString();
+        boolean protectedColumn = isProtectedColumn(get);
+		/* *
+		 * Verifies if the get is going to process over a protected columns. The
+		 * systems is only considering a get over a single protected column.
+		 */
+        if (protectedColumn) {
+            LOG.debug("Protected column");
 
-        if (!table.contains("hbase")) {
+            String table = env.getRegion().getTableDesc().getNameAsString();
 
-            LOG.debug("preGetOp evaluated on table " + table);
+            if (!table.contains("hbase")) {
 
-            byte[] row = get.getRow();
+                LOG.debug("preGetOp evaluated on table " + table);
 
-            try {
-                byte[] cachedID = get.getAttribute("cachedID");
-                if (cachedID == null) {
-                    LOG.debug("Going to perform a secret search on data");
-                    List<Cell> searchResults = secretGetSearch(row, get,
-                            e.getEnvironment(), true);
+                byte[] row = get.getRow();
 
-                    results.addAll(searchResults);
-                } else {
-                    LOG.debug("Going to direct row access");
-                    List<Cell> res = getRowWithoutSearch(cachedID);
-                    results.addAll(res);
+                try {
+
+                    byte[] directAccess = get.getAttribute(OperationAttributesIdentifiers.DirectAccess);
+                    LOG.debug("DirectAccess " + directAccess + " getRow " + new BigInteger(row));
+
+                    if (directAccess == null) {
+                        LOG.debug("Going to perform a secret search on data");
+                        List<Cell> searchResults = secretGetSearch(row, get,
+                                e.getEnvironment());
+
+                        results.addAll(searchResults);
+                    } else {
+                        // If the direct access row exists, it has the rowID to retrieve.
+                        LOG.debug("Going to direct row access");
+                        List<Cell> res = getRowWithoutSearch(directAccess);
+                        results.addAll(res);
+                    }
+                    e.bypass();
+
+                } catch (ResultsLengthMismatch ex) {
+                    LOG.error(ex);
+                    throw new IllegalStateException(ex);
+                } catch (ResultsIdentifiersMismatch ex) {
+                    LOG.error(ex);
+                    throw new IllegalStateException(ex);
                 }
-                e.bypass();
 
-            } catch (ResultsLengthMissmatch ex) {
-                LOG.error(ex);
-                throw new IllegalStateException(ex);
-            } catch (ResultsIdentifiersMissmatch ex) {
-                LOG.error(ex);
-                throw new IllegalStateException(ex);
             }
-
         }
     }
 
@@ -344,48 +374,57 @@ public class SmpcCoprocessor extends BaseRegionObserver {
             final ObserverContext<RegionCoprocessorEnvironment> c,
             final Scan scan, final RegionScanner s) {
 
-        LOG.debug("start of postScannerOpen function");
+		/* *
+		 * Verifies if the Scan is going to process over a protected columns.
+		 * The systems is only considering a Scan over a single protected
+		 * column.
+		 */
+        boolean protectedColumn = isProtectedColumn(scan);
 
-        String table = env.getRegion().getTableDesc().getNameAsString();
+        if (protectedColumn) {
+            LOG.debug("Protected column ");
+            String table = env.getRegion().getTableDesc().getNameAsString();
 
-        if (!table.contains("hbase")) {
-            LOG.debug("postScannerOpen evaluated on " + table);
+            if (!table.contains("hbase")) {
+                LOG.debug("postScannerOpen evaluated on " + table);
+                try {
 
-            try {
+                    byte[] startRow = scan.getStartRow();
+                    byte[] endRow = scan.getStopRow();
 
-                byte[] startRow = scan.getStartRow();
-                byte[] endRow = scan.getStopRow();
+                    if (startRow.length == 0) {
+                        LOG.debug("Starting row does not contain a value");
+                    } else {
+                        LOG.debug("Startting row is "
+                                + new BigInteger(startRow));
+                    }
 
-                if (startRow.length == 0) {
-                    LOG.debug("Starting row does not contain a value");
-                } else {
-                    LOG.debug("Startting row is " + new BigInteger(startRow));
+                    if (endRow.length == 0) {
+                        LOG.debug("Ending Row does not contain a value");
+                    } else {
+                        LOG.debug("Ending row is " + new BigInteger(endRow));
+                    }
+
+                    LOG.debug("Going to evalauate secretScanSearchr");
+
+                    RegionCoprocessorEnvironment ev = c.getEnvironment();
+                    Filter f = scan.getFilter();
+
+                    return secretScanSearch(startRow, endRow, scan, ev, f);
+
+                } catch (ResultsLengthMismatch ex) {
+                    LOG.error(ex);
+                    throw new IllegalStateException(ex);
+                } catch (ResultsIdentifiersMismatch ex) {
+                    LOG.error(ex);
+                    throw new IllegalStateException(ex);
+                } catch (IOException ex) {
+                    LOG.debug(ex);
+                    throw new IllegalStateException(ex);
                 }
-
-                if (endRow.length == 0) {
-                    LOG.debug("Ending Row does not contain a value");
-                } else {
-                    LOG.debug("Ending row is " + new BigInteger(endRow));
-                }
-
-                LOG.debug("Going to evalauate secretScanSearchr");
-
-                RegionCoprocessorEnvironment ev = c.getEnvironment();
-                Filter f = scan.getFilter();
-
-                return secretScanSearch(startRow, endRow, scan, ev, f);
-
-            } catch (ResultsLengthMissmatch ex) {
-                LOG.error(ex);
-                throw new IllegalStateException(ex);
-            } catch (ResultsIdentifiersMissmatch ex) {
-                LOG.error(ex);
-                throw new IllegalStateException(ex);
-            } catch (IOException ex) {
-                LOG.debug(ex);
-                throw new IllegalStateException(ex);
             }
         }
+
         return s;
     }
 

@@ -29,7 +29,7 @@ public class TestCoprocessorBoot {
     public void tearDown() throws IOException, InterruptedException {
         clusters.tearDown();
         // Wait for ports to be free for next tests
-        Thread.sleep(30000);
+        Thread.sleep(10000);
     }
 
     @Test

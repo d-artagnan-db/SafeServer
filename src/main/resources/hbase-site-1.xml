@@ -56,14 +56,6 @@
         </value>
     </property>
     <property>
-        <name>smhbase.column.family</name>
-        <value>columns</value>
-    </property>
-    <property>
-        <name>smhbase.column.qualifier</name>
-        <value>shareKey</value>
-    </property>
-    <property>
         <name>smhbase.player.id</name>
         <value>1</value>
     </property>

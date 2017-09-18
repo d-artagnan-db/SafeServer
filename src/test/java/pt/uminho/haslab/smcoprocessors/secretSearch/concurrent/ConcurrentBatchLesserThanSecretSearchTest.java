@@ -12,15 +12,20 @@ import java.util.List;
 
 import static pt.uminho.haslab.smcoprocessors.secretSearch.SearchCondition.Condition.Less;
 
+public class ConcurrentBatchLesserThanSecretSearchTest
+        extends
+        ConcurrentSecretSearchTest {
 
-public class ConcurrentBatchLesserThanSecretSearchTest extends ConcurrentSecretSearchTest {
-
-    public ConcurrentBatchLesserThanSecretSearchTest(List<Integer> nbits, List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo) throws IOException, InvalidNumberOfBits, InvalidSecretValue {
+    public ConcurrentBatchLesserThanSecretSearchTest(List<Integer> nbits,
+                                                     List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo)
+            throws IOException, InvalidNumberOfBits, InvalidSecretValue {
         super(nbits, valuesOne, valuesTwo);
     }
 
-    protected SearchCondition getSearchCondition(int nBits, List<byte[]> firstValueSecret, int i) {
-        return AbstractSearchValue.conditionTransformer(Less, nBits, firstValueSecret, i);
+    protected SearchCondition getSearchCondition(int nBits,
+                                                 List<byte[]> firstValueSecret, int i) {
+        return AbstractSearchValue.conditionTransformer(Less, nBits,
+                firstValueSecret, i);
     }
 
     protected List<Boolean> getSearchExpectedResult(Integer request) {

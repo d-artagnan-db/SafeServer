@@ -10,7 +10,7 @@ import pt.uminho.haslab.smcoprocessors.comunication.MessageBroker;
 import pt.uminho.haslab.smcoprocessors.comunication.Relay;
 import pt.uminho.haslab.smcoprocessors.comunication.RequestIdentifier;
 import pt.uminho.haslab.smcoprocessors.protocolresults.FilteredIndexes;
-import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMissmatch;
+import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMismatch;
 import pt.uminho.haslab.smcoprocessors.protocolresults.SearchResults;
 import pt.uminho.haslab.smhbase.interfaces.Player;
 
@@ -20,8 +20,8 @@ import java.util.*;
 
 /**
  * A PlayerRequest is what SharemindValue interacts with, to him it is the
- * current player. But on the HBase context it also contains the information of a
- * request and knows how to handle the the commands from the ShareValue. It
+ * current player. But on the HBase context it also contains the information of
+ * a request and knows how to handle the the commands from the ShareValue. It
  * knows how to communicate with the relay to send the values to the correct
  * place. For the Message Broker it is also a player that receives messages.
  * <p>
@@ -48,9 +48,6 @@ public class ContextPlayer implements Player, SharemindPlayer {
     private final int playerID;
 
     private final MessageBroker broker;
-
-    private boolean isTargetPlayer;
-
     /**
      * When reading messages from the messageBroker, if the messages is not from
      * the expected player, then store it in in the queue already sorted. Before
@@ -58,8 +55,8 @@ public class ContextPlayer implements Player, SharemindPlayer {
      * exists.
      */
     private final Map<Integer, Queue<List<byte[]>>> playerBatchMessages;
-
     private final BatchShareMessage.Builder bmBuilder;
+    private boolean isTargetPlayer;
 
     public ContextPlayer(Relay relay, RequestIdentifier requestID,
                          int playerID, MessageBroker broker) {
@@ -87,7 +84,8 @@ public class ContextPlayer implements Player, SharemindPlayer {
                     .setRequestID(ByteString.copyFrom(requestID.getRequestID()))
                     .setRegionID(ByteString.copyFrom(requestID.getRegionID()))
                     .setPlayerDest(destPlayer);
-            //LOG.debug("sendValueToPlayer :: "+playerID+"::"+destPlayer+"::"+ Arrays.toString(requestID.getRequestID()) +"::"+values.size());
+            // LOG.debug("sendValueToPlayer :: "+playerID+"::"+destPlayer+"::"+
+            // Arrays.toString(requestID.getRequestID()) +"::"+values.size());
             List<ByteString> bsl = new ArrayList<ByteString>();
             for (byte[] val : values) {
                 ByteString bsVal = ByteString.copyFrom(val);
@@ -173,7 +171,8 @@ public class ContextPlayer implements Player, SharemindPlayer {
      * @return BigInteger of the value sent from originPlayerId.
      */
     public List<byte[]> getValues(Integer originPlayerId) {
-        //LOG.debug("CP-0-"+this.playerID+"::"+originPlayerId+"::"+ Arrays.toString(this.requestID.getRequestID()));
+        // LOG.debug("CP-0-"+this.playerID+"::"+originPlayerId+"::"+
+        // Arrays.toString(this.requestID.getRequestID()));
 
         // LOG.debug("Going to call getValue");
         /**
@@ -183,7 +182,8 @@ public class ContextPlayer implements Player, SharemindPlayer {
          * happens it stores in playersMessages variable.
          */
         if (!playerBatchMessages.get(originPlayerId).isEmpty()) {
-            //LOG.debug("CP-3::"+this.playerID+"::"+originPlayerId+"::"+ Arrays.toString(this.requestID.getRequestID()));
+            // LOG.debug("CP-3::"+this.playerID+"::"+originPlayerId+"::"+
+            // Arrays.toString(this.requestID.getRequestID()));
 
             return playerBatchMessages.get(originPlayerId).poll();
         }
@@ -208,11 +208,14 @@ public class ContextPlayer implements Player, SharemindPlayer {
                 // LOG.debug("Going to call again getValue");
                 playerBatchMessages.get(shareMessage.getPlayerSource()).add(
                         recMessages);
-                //LOG.debug("CP-2-"+this.playerID+"::"+originPlayerId+"::"+ Arrays.toString(this.requestID.getRequestID()));
+                // LOG.debug("CP-2-"+this.playerID+"::"+originPlayerId+"::"+
+                // Arrays.toString(this.requestID.getRequestID()));
 
                 return this.getValues(originPlayerId);
             } else {
-                //LOG.debug("CP-3-"+this.playerID+"::"+originPlayerId+"::"+ Arrays.toString(this.requestID.getRequestID()) +recMessages.size() );
+                // LOG.debug("CP-3-"+this.playerID+"::"+originPlayerId+"::"+
+                // Arrays.toString(this.requestID.getRequestID())
+                // +recMessages.size() );
                 return recMessages;
             }
 
@@ -224,12 +227,13 @@ public class ContextPlayer implements Player, SharemindPlayer {
 
     /**
      * The output should be SearchResults and not DataIdentifiers. That way the
-     * result would be consistent with the output of secretSearch.
-     * This function returns the SeachResults receives the results computed from the other parties, thus the result
-     * returned by this function should be a list with size equal to two.
+     * result would be consistent with the output of secretSearch. This function
+     * returns the SeachResults receives the results computed from the other
+     * parties, thus the result returned by this function should be a list with
+     * size equal to two.
      */
     public List<SearchResults> getProtocolResults()
-            throws ResultsLengthMissmatch {
+            throws ResultsLengthMismatch {
         Queue<ResultsMessage> messages = broker.getProtocolResults(requestID);
         List<SearchResults> results = new ArrayList<SearchResults>();
 
@@ -249,17 +253,19 @@ public class ContextPlayer implements Player, SharemindPlayer {
         messages.clear();
         broker.protocolResultsRead(requestID);
 
-        //broker.protocolResultsRead(requestID);
-        //System.out.println("Results size is " + results.size());
+        // broker.protocolResultsRead(requestID);
+        // System.out.println("Results size is " + results.size());
         assert results.size() == 2;
         return results;
     }
 
     public FilteredIndexes getFilterIndexes() {
-        //LOG.debug(Thread.currentThread().getId()+":"+playerID+ " going to getFilterIndexes");
+        // LOG.debug(Thread.currentThread().getId()+":"+playerID+
+        // " going to getFilterIndexes");
         FilterIndexMessage recMessage = broker.getFilterIndexes(requestID);
         broker.indexMessageRead(requestID);
-        //LOG.debug(Thread.currentThread().getId()+":"+playerID+ " filterIndexesRead");
+        // LOG.debug(Thread.currentThread().getId()+":"+playerID+
+        // " filterIndexesRead");
 
         List<byte[]> indexes = new ArrayList<byte[]>();
 
@@ -267,7 +273,7 @@ public class ContextPlayer implements Player, SharemindPlayer {
             indexes.add(bs.toByteArray());
         }
 
-        //broker.indexeMessageRead(requestID);
+        // broker.indexeMessageRead(requestID);
         return new FilteredIndexes(indexes);
 
     }

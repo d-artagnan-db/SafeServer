@@ -51,12 +51,6 @@
         <value>16262</value>
     </property>
     <property>
-        <name>hbase.coprocessor.master.classes</name>
-        <value>
-            pt.uminho.haslab.smcoprocessors.RegionCoordinator
-        </value>
-    </property>
-    <property>
         <name>hbase.hregion.max.filesize</name>
         <value>5000000</value>
     </property>

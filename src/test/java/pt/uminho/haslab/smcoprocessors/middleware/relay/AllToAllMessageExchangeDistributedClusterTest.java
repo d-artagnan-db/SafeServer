@@ -6,12 +6,12 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import pt.uminho.haslab.smcoprocessors.comunication.*;
-import pt.uminho.haslab.smcoprocessors.helpers.TestMessageBroker;
 import pt.uminho.haslab.smcoprocessors.discovery.DiscoveryService;
 import pt.uminho.haslab.smcoprocessors.discovery.FailedRegionDiscovery;
 import pt.uminho.haslab.smcoprocessors.discovery.RedisDiscoveryService;
 import pt.uminho.haslab.smcoprocessors.discovery.RegionLocation;
 import pt.uminho.haslab.smcoprocessors.helpers.RegionServer;
+import pt.uminho.haslab.smcoprocessors.helpers.TestMessageBroker;
 import pt.uminho.haslab.testingutils.ValuesGenerator;
 
 import java.io.IOException;
@@ -23,27 +23,39 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
-public class AllToAllMessageExchangeDistributedClusterTest extends MessageExchangeDistributedClusterTest {
+public class AllToAllMessageExchangeDistributedClusterTest
+        extends
+        MessageExchangeDistributedClusterTest {
 
-    private static final Log LOG = LogFactory.getLog(AllToAllMessageExchangeDistributedClusterTest.class.getName());
-    private static final byte[] regionIndentifier = new BigInteger("0").toByteArray();
+    private static final Log LOG = LogFactory
+            .getLog(AllToAllMessageExchangeDistributedClusterTest.class
+                    .getName());
+    private static final byte[] regionIndentifier = new BigInteger("0")
+            .toByteArray();
 
-    public AllToAllMessageExchangeDistributedClusterTest(List<String> bindingAddress, List<Integer> bindingPort, List<List<byte[]>> messagesToSend, List<List<BigInteger>> requestIdentifier) {
+    public AllToAllMessageExchangeDistributedClusterTest(
+            List<String> bindingAddress, List<Integer> bindingPort,
+            List<List<byte[]>> messagesToSend,
+            List<List<BigInteger>> requestIdentifier) {
         super(bindingAddress, bindingPort, messagesToSend, requestIdentifier);
         if (NREGIONS % 2 == 0) {
             /**
-             * In this test we want every region to connect to every other region and process a different region.
-             * Thus each region will have two connections per request and the number of regions must be a odd number,
-             * so every region can connect with every other region with the RedisDiscoveryService and
-             * PeerConnectionManager. This test simulates what could happen in a correct deployment, with every
-             * Region connection to just other two Regions.
+             * In this test we want every region to connect to every other
+             * region and process a different region. Thus each region will have
+             * two connections per request and the number of regions must be a
+             * odd number, so every region can connect with every other region
+             * with the RedisDiscoveryService and PeerConnectionManager. This
+             * test simulates what could happen in a correct deployment, with
+             * every Region connection to just other two Regions.
              *
-             * The test works as follows, given a Number of regions multiple of 3 for instance 6.
-             * [a|b|c|d|e] -> Array with regions, named from a to f. #NREGIONS = 6.
-             * The first region a, will connect to b and c for request X, and  a will connect to d and e for request Y.
-             * The second region b, will connect to c and d for Request Z and  region b will connect to e and a for a  request K.
-             * As can be seen by this example, by following a modular ring pattern, each region can connect to every
-             * other region.
+             * The test works as follows, given a Number of regions multiple of
+             * 3 for instance 6. [a|b|c|d|e] -> Array with regions, named from a
+             * to f. #NREGIONS = 6. The first region a, will connect to b and c
+             * for request X, and a will connect to d and e for request Y. The
+             * second region b, will connect to c and d for Request Z and region
+             * b will connect to e and a for a request K. As can be seen by this
+             * example, by following a modular ring pattern, each region can
+             * connect to every other region.
              *
              * */
             String msg = "Number of Regions must be a multiple of 3. A MPC protocol requires three regions to process a request.";
@@ -53,7 +65,8 @@ public class AllToAllMessageExchangeDistributedClusterTest extends MessageExchan
 
     @Parameterized.Parameters
     public static Collection nbitsValues() {
-        return ValuesGenerator.AllToAllMessageExchangeDistributedCluster(NREGIONS, NMESSAGES);
+        return ValuesGenerator.AllToAllMessageExchangeDistributedCluster(
+                NREGIONS, NMESSAGES);
     }
 
     protected void validateResults() {
@@ -62,19 +75,22 @@ public class AllToAllMessageExchangeDistributedClusterTest extends MessageExchan
             RegionServerImpl rsi = (RegionServerImpl) rs;
             MessageBrokerImpl mbi = (MessageBrokerImpl) rsi.getMessageBroker();
 
-            //In this test it is assumed that everyone sends the same message, thus everyone should receive the same.
+            // In this test it is assumed that everyone sends the same message,
+            // thus everyone should receive the same.
             List<byte[]> clientMessagesToSend = this.messagesToSend.get(0);
             int ngroups = NREGIONS / 3;
             int messagesThatRegionShouldReceive = NMESSAGES * ngroups * 2;
 
-            assertEquals(messagesThatRegionShouldReceive, mbi.getReceivedMessages().size());
+            assertEquals(messagesThatRegionShouldReceive, mbi
+                    .getReceivedMessages().size());
 
             for (int i = 0; i < clientMessagesToSend.size(); i++) {
                 boolean found = false;
                 int nMatches = 0;
                 for (int j = 0; j < messagesThatRegionShouldReceive; j++) {
 
-                    if (ArrayUtils.isEquals(clientMessagesToSend.get(i), mbi.getReceivedMessages().get(j))) {
+                    if (ArrayUtils.isEquals(clientMessagesToSend.get(i), mbi
+                            .getReceivedMessages().get(j))) {
                         found |= true;
                         nMatches += 1;
                     }
@@ -87,8 +103,12 @@ public class AllToAllMessageExchangeDistributedClusterTest extends MessageExchan
 
     }
 
-    protected RegionServer createRegionServer(int playerID, int index, List<String> bindingAddress, List<Integer> bindingPort, List<byte[]> messagesToSend, List<BigInteger> requestIdentifier) throws IOException {
-        return new RegionServerImpl(playerID, index, bindingAddress, bindingPort, messagesToSend, requestIdentifier);
+    protected RegionServer createRegionServer(int playerID, int index,
+                                              List<String> bindingAddress, List<Integer> bindingPort,
+                                              List<byte[]> messagesToSend, List<BigInteger> requestIdentifier)
+            throws IOException {
+        return new RegionServerImpl(playerID, index, bindingAddress,
+                bindingPort, messagesToSend, requestIdentifier);
     }
 
     private class MessageBrokerImpl extends TestMessageBroker {
@@ -123,7 +143,6 @@ public class AllToAllMessageExchangeDistributedClusterTest extends MessageExchan
 
     protected class RegionServerImpl extends Thread implements RegionServer {
 
-
         private final int playerID;
         private final int index;
         private final List<String> bindingAddress;
@@ -135,15 +154,17 @@ public class AllToAllMessageExchangeDistributedClusterTest extends MessageExchan
         private boolean runStatus;
         private MessageBroker mb;
 
-
-        RegionServerImpl(int playerID, int index, List<String> bindingAddress, List<Integer> bindingPort, List<byte[]> messagesToSend, List<BigInteger> requestIdentifier) {
+        RegionServerImpl(int playerID, int index, List<String> bindingAddress,
+                         List<Integer> bindingPort, List<byte[]> messagesToSend,
+                         List<BigInteger> requestIdentifier) {
             this.playerID = playerID;
             this.index = index;
             this.bindingAddress = bindingAddress;
             this.bindingPort = bindingPort;
             this.messagesToSend = messagesToSend;
             this.requestIdentifiers = requestIdentifier;
-            this.connectionManager = new PeersConnectionManagerImpl(bindingPort.get(index));
+            this.connectionManager = new PeersConnectionManagerImpl(
+                    bindingPort.get(index));
             runStatus = false;
 
         }
@@ -176,20 +197,21 @@ public class AllToAllMessageExchangeDistributedClusterTest extends MessageExchan
             RelayServer server;
 
             try {
-                server = new RelayServer(serverBindingAddress, serverBindingPort, mb);
+                server = new RelayServer(serverBindingAddress,
+                        serverBindingPort, mb);
                 server.startServer();
                 mb.waitRelayStart();
 
-
             } catch (IOException e) {
-                LOG.debug("Error on binding to address " + serverBindingAddress + ":" + serverBindingPort);
+                LOG.debug("Error on binding to address " + serverBindingAddress
+                        + ":" + serverBindingPort);
                 LOG.error(e.getLocalizedMessage());
                 throw new IllegalStateException(e);
             } catch (InterruptedException e) {
                 LOG.error(e.getLocalizedMessage());
                 throw new IllegalStateException(e);
             }
-            //Wait for servers in every region to start.
+            // Wait for servers in every region to start.
             serversStarted.countDown();
             try {
                 serversStarted.await();
@@ -198,22 +220,29 @@ public class AllToAllMessageExchangeDistributedClusterTest extends MessageExchan
                 throw new IllegalStateException(e);
             }
 
-            //Initiate connection to the discovery Service and register server.
-            discoveryService = new RedisDiscoveryService("localhost", playerID, serverBindingAddress, serverBindingPort, DISC_SERVICE_SLEEP_TIME,
-                    DISC_SERVICE_INC_TIME, DISC_SERVICE_RETRIES);
+            // Initiate connection to the discovery Service and register server.
+            discoveryService = new RedisDiscoveryService("localhost", playerID,
+                    serverBindingAddress, serverBindingPort,
+                    DISC_SERVICE_SLEEP_TIME, DISC_SERVICE_INC_TIME,
+                    DISC_SERVICE_RETRIES);
 
-            //Create Client connections and send messages.
+            // Create Client connections and send messages.
             for (BigInteger reqIdent : requestIdentifiers) {
-                LOG.debug("RegionServer " + playerID + " starting Requests Loop with request " + reqIdent);
-                RequestIdentifier uniqueIdent = new RequestIdentifier(reqIdent.toByteArray(), regionIndentifier);
+                LOG.debug("RegionServer " + playerID
+                        + " starting Requests Loop with request " + reqIdent);
+                RequestIdentifier uniqueIdent = new RequestIdentifier(
+                        reqIdent.toByteArray(), regionIndentifier);
                 discoveryService.registerRegion(uniqueIdent);
                 try {
-                    LOG.debug("RegionServer " + playerID + " discovering regions");
+                    LOG.debug("RegionServer " + playerID
+                            + " discovering regions");
 
-                    List<RegionLocation> locations = discoveryService.discoverRegions(uniqueIdent);
+                    List<RegionLocation> locations = discoveryService
+                            .discoverRegions(uniqueIdent);
 
                     for (RegionLocation location : locations) {
-                        RelayClient client = connectionManager.getRelayClient(location.getIp(), location.getPort());
+                        RelayClient client = connectionManager.getRelayClient(
+                                location.getIp(), location.getPort());
 
                         for (byte[] message : messagesToSend) {
                             client.sendTestMessage(message);
@@ -229,7 +258,6 @@ public class AllToAllMessageExchangeDistributedClusterTest extends MessageExchan
                     throw new IllegalStateException(e);
                 }
             }
-
 
             try {
                 totalMessagesCounter.await();

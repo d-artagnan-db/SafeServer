@@ -12,10 +12,11 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 
-
 public class BatchEqualProtocolTest extends BatchProtocolTest {
 
-    public BatchEqualProtocolTest(List<Integer> nbits, List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo) throws IOException, InvalidNumberOfBits, InvalidSecretValue {
+    public BatchEqualProtocolTest(List<Integer> nbits,
+                                  List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo)
+            throws IOException, InvalidNumberOfBits, InvalidSecretValue {
         super(nbits, valuesOne, valuesTwo);
     }
 
@@ -31,15 +32,19 @@ public class BatchEqualProtocolTest extends BatchProtocolTest {
 
     private class RegionServerImpl extends ProtoRegionServer {
 
-        public RegionServerImpl(int playerID, List<List<byte[]>> firstValueSecrets, List<List<byte[]>> secondValueSecrets, List<Integer> nbits) throws IOException {
+        public RegionServerImpl(int playerID,
+                                List<List<byte[]>> firstValueSecrets,
+                                List<List<byte[]>> secondValueSecrets, List<Integer> nbits)
+                throws IOException {
             super(playerID, firstValueSecrets, secondValueSecrets, nbits);
         }
 
-        public List<byte[]> executeProtocol(Player player, List<byte[]> secretOne, List<byte[]> secretTwo, int nBits, RequestIdentifier ident) {
+        public List<byte[]> executeProtocol(Player player,
+                                            List<byte[]> secretOne, List<byte[]> secretTwo, int nBits,
+                                            RequestIdentifier ident) {
             SharemindSecretFunctions ssf = new SharemindSecretFunctions(nBits);
             return ssf.equal(secretOne, secretTwo, player);
         }
     }
-
 
 }

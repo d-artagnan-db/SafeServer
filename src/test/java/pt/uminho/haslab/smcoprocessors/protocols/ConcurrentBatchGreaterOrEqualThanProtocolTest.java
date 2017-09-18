@@ -15,18 +15,24 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 
-
-public class ConcurrentBatchGreaterOrEqualThanProtocolTest extends
+public class ConcurrentBatchGreaterOrEqualThanProtocolTest
+        extends
         ConcurrentBatchProtocolTest {
 
     private static final Log LOG = LogFactory
-            .getLog(ConcurrentBatchGreaterOrEqualThanProtocolTest.class.getName());
+            .getLog(ConcurrentBatchGreaterOrEqualThanProtocolTest.class
+                    .getName());
 
-    public ConcurrentBatchGreaterOrEqualThanProtocolTest(List<Integer> nbits, List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo) throws IOException, InvalidNumberOfBits, InvalidSecretValue {
+    public ConcurrentBatchGreaterOrEqualThanProtocolTest(List<Integer> nbits,
+                                                         List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo)
+            throws IOException, InvalidNumberOfBits, InvalidSecretValue {
         super(nbits, valuesOne, valuesTwo);
     }
 
-    protected ConcurrentBatchTestPlayer createConcurrentPlayer(Relay relay, RequestIdentifier requestID, int playerID, MessageBroker broker, List<byte[]> firstValueSecret, List<byte[]> secondValueSecret, int nBits) {
+    protected ConcurrentBatchTestPlayer createConcurrentPlayer(Relay relay,
+                                                               RequestIdentifier requestID, int playerID, MessageBroker broker,
+                                                               List<byte[]> firstValueSecret, List<byte[]> secondValueSecret,
+                                                               int nBits) {
         return new ConcurrentPlayerImpl(relay, requestID, playerID, broker,
                 firstValueSecret, secondValueSecret, nBits);
     }
@@ -50,7 +56,8 @@ public class ConcurrentBatchGreaterOrEqualThanProtocolTest extends
                                                List<byte[]> secondValueSecret) {
             SharemindSecretFunctions ssf = new SharemindSecretFunctions(nBits);
             try {
-                return ssf.greaterOrEqualThan(firstValueSecret, secondValueSecret, this);
+                return ssf.greaterOrEqualThan(firstValueSecret,
+                        secondValueSecret, this);
             } catch (InvalidNumberOfBits invalidNumberOfBits) {
                 LOG.debug(invalidNumberOfBits);
                 throw new IllegalStateException(invalidNumberOfBits);
@@ -60,6 +67,5 @@ public class ConcurrentBatchGreaterOrEqualThanProtocolTest extends
             }
         }
     }
-
 
 }

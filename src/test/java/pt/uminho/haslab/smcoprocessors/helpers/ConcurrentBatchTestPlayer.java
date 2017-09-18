@@ -17,8 +17,8 @@ public abstract class ConcurrentBatchTestPlayer extends Thread
         implements
         Player {
 
-    private static final Log LOG = LogFactory.getLog(ConcurrentBatchTestPlayer.class
-            .getName());
+    private static final Log LOG = LogFactory
+            .getLog(ConcurrentBatchTestPlayer.class.getName());
 
     protected final Map<Integer, List<List<byte[]>>> messagesSent;
 
