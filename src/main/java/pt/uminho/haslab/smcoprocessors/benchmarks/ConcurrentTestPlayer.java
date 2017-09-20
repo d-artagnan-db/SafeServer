@@ -23,113 +23,113 @@ import java.util.Map;
  */
 public abstract class ConcurrentTestPlayer extends Thread implements Player {
 
-    private static final Log LOG = LogFactory.getLog(ConcurrentTestPlayer.class
-            .getName());
+	private static final Log LOG = LogFactory.getLog(ConcurrentTestPlayer.class
+			.getName());
 
-    protected final Map<Integer, List<BigInteger>> messagesSent;
+	protected final Map<Integer, List<BigInteger>> messagesSent;
 
-    protected final Map<Integer, List<BigInteger>> messagesReceived;
+	protected final Map<Integer, List<BigInteger>> messagesReceived;
 
-    protected final ContextPlayer player;
+	protected final ContextPlayer player;
 
-    protected final BigInteger firstValueSecret;
+	protected final BigInteger firstValueSecret;
 
-    protected final BigInteger secondValueSecret;
+	protected final BigInteger secondValueSecret;
 
-    protected final int nBits;
+	protected final int nBits;
 
-    protected SharemindSecret resultSecret;
+	protected SharemindSecret resultSecret;
 
-    protected RequestIdentifier requestID;
+	protected RequestIdentifier requestID;
 
-    public ConcurrentTestPlayer(Relay relay, RequestIdentifier requestID,
-                                int playerID, MessageBroker broker, BigInteger firstValueSecret,
-                                BigInteger secondValueSecret, int nBits) {
-        player = new ContextPlayer(relay, requestID, playerID, broker);
-        messagesSent = new HashMap<Integer, List<BigInteger>>();
-        messagesReceived = new HashMap<Integer, List<BigInteger>>();
-        this.firstValueSecret = firstValueSecret;
-        this.secondValueSecret = secondValueSecret;
-        this.nBits = nBits;
-        this.requestID = requestID;
+	public ConcurrentTestPlayer(Relay relay, RequestIdentifier requestID,
+			int playerID, MessageBroker broker, BigInteger firstValueSecret,
+			BigInteger secondValueSecret, int nBits) {
+		player = new ContextPlayer(relay, requestID, playerID, broker);
+		messagesSent = new HashMap<Integer, List<BigInteger>>();
+		messagesReceived = new HashMap<Integer, List<BigInteger>>();
+		this.firstValueSecret = firstValueSecret;
+		this.secondValueSecret = secondValueSecret;
+		this.nBits = nBits;
+		this.requestID = requestID;
 
-    }
+	}
 
-    public BigInteger getValue(Integer originPlayerID) {
-        LOG.debug("Going to call super getValue");
-        BigInteger res = player.getValue(originPlayerID);
+	public BigInteger getValue(Integer originPlayerID) {
+		LOG.debug("Going to call super getValue");
+		BigInteger res = player.getValue(originPlayerID);
 
-        if (!messagesReceived.containsKey(originPlayerID)) {
-            messagesReceived.put(originPlayerID, new ArrayList<BigInteger>());
-        }
-        messagesReceived.get(originPlayerID).add(res);
+		if (!messagesReceived.containsKey(originPlayerID)) {
+			messagesReceived.put(originPlayerID, new ArrayList<BigInteger>());
+		}
+		messagesReceived.get(originPlayerID).add(res);
 
-        return res;
-    }
+		return res;
+	}
 
-    public void sendValueToPlayer(int destPlayer, BigInteger value) {
+	public void sendValueToPlayer(int destPlayer, BigInteger value) {
 
-        if (!messagesSent.containsKey(destPlayer)) {
-            messagesSent.put(destPlayer, new ArrayList<BigInteger>());
-        }
+		if (!messagesSent.containsKey(destPlayer)) {
+			messagesSent.put(destPlayer, new ArrayList<BigInteger>());
+		}
 
-        messagesSent.get(destPlayer).add(value);
+		messagesSent.get(destPlayer).add(value);
 
-        player.sendValueToPlayer(destPlayer, value);
-    }
+		player.sendValueToPlayer(destPlayer, value);
+	}
 
-    public Map<Integer, List<BigInteger>> getMessagesSent() {
-        return messagesSent;
-    }
+	public Map<Integer, List<BigInteger>> getMessagesSent() {
+		return messagesSent;
+	}
 
-    public Map<Integer, List<BigInteger>> getMessagesReceived() {
-        return messagesReceived;
-    }
+	public Map<Integer, List<BigInteger>> getMessagesReceived() {
+		return messagesReceived;
+	}
 
-    public void storeValue(Integer playerDest, Integer playerSource,
-                           BigInteger value) {
-        player.storeValue(playerDest, playerDest, value);
-    }
+	public void storeValue(Integer playerDest, Integer playerSource,
+			BigInteger value) {
+		player.storeValue(playerDest, playerDest, value);
+	}
 
-    private BigInteger getMod(int nbits) {
-        return BigInteger.valueOf(2).pow(nbits + 1);
-    }
+	private BigInteger getMod(int nbits) {
+		return BigInteger.valueOf(2).pow(nbits + 1);
+	}
 
-    private SharemindSecret generateSecret(int nbits, BigInteger value,
-                                           Player player) throws InvalidSecretValue {
-        return new SharemindSecret(nbits + 1, getMod(nbits), value, player);
-    }
+	private SharemindSecret generateSecret(int nbits, BigInteger value,
+			Player player) throws InvalidSecretValue {
+		return new SharemindSecret(nbits + 1, getMod(nbits), value, player);
+	}
 
-    public int getPlayerID() {
-        return player.getPlayerID();
-    }
+	public int getPlayerID() {
+		return player.getPlayerID();
+	}
 
-    protected abstract SharemindSecret testingProtocol(Secret originalSecret,
-                                                       Secret cmpSecret);
+	protected abstract SharemindSecret testingProtocol(Secret originalSecret,
+			Secret cmpSecret);
 
-    @Override
-    public void run() {
-        try {
-            Secret fSecret = generateSecret(nBits, firstValueSecret, this);
-            Secret sSecret = generateSecret(nBits, secondValueSecret, this);
-            resultSecret = testingProtocol(fSecret, sSecret);
+	@Override
+	public void run() {
+		try {
+			Secret fSecret = generateSecret(nBits, firstValueSecret, this);
+			Secret sSecret = generateSecret(nBits, secondValueSecret, this);
+			resultSecret = testingProtocol(fSecret, sSecret);
 
-        } catch (InvalidSecretValue ex) {
-            LOG.debug(ex);
-            throw new IllegalStateException(ex);
-        }
+		} catch (InvalidSecretValue ex) {
+			LOG.debug(ex);
+			throw new IllegalStateException(ex);
+		}
 
-    }
+	}
 
-    public SharemindSecret getResultSecret() {
-        return this.resultSecret;
-    }
+	public SharemindSecret getResultSecret() {
+		return this.resultSecret;
+	}
 
-    public void startProtocol() {
-        this.start();
-    }
+	public void startProtocol() {
+		this.start();
+	}
 
-    public void waitEndOfProtocol() throws InterruptedException {
-        this.join();
-    }
+	public void waitEndOfProtocol() throws InterruptedException {
+		this.join();
+	}
 }

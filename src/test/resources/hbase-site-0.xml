@@ -27,7 +27,7 @@
     </property>
     <property>
         <name>hbase.master.info.port</name>
-        <value>-1</value>
+        <value>60010</value>
     </property>
     <property>
         <name>hbase.rootdir</name>
@@ -96,7 +96,7 @@
     </property>
     <property>
         <name>smhbase.batch.size</name>
-        <value>20</value>
+        <value>1000</value>
     </property>
     <property>
         <name>smhbase.smpc.prerandom.size</name>
@@ -117,5 +117,9 @@
     <property>
         <name>smhbase.discovery.retries</name>
         <value>5</value>
+    </property>
+    <property>
+        <name>hbase.hregion.max.filesize</name>
+        <value>2097152</value>
     </property>
 </configuration>

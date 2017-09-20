@@ -12,28 +12,28 @@ import java.util.List;
  */
 public interface SharemindPlayer extends Player {
 
-    void sendProtocolResults(int destPlayer, SearchResults res);
+	void sendProtocolResults(int destPlayer, SearchResults res);
 
-    /**
-     * This function accepts the local results, retrieves the results from the
-     * message broker and joins all the results to obtain the final correct
-     * result that contains the real HBase keys.
-     *
-     * @return
-     * @throws ResultsLengthMismatch
-     */
-    List<SearchResults> getProtocolResults() throws ResultsLengthMismatch;
+	/**
+	 * This function accepts the local results, retrieves the results from the
+	 * message broker and joins all the results to obtain the final correct
+	 * result that contains the real HBase keys.
+	 * 
+	 * @return
+	 * @throws ResultsLengthMismatch
+	 */
+	List<SearchResults> getProtocolResults() throws ResultsLengthMismatch;
 
-    void cleanValues();
+	void cleanValues();
 
-    void cleanResultsMatch();
+	void cleanResultsMatch();
 
-    void sendFilteredIndexes(FilteredIndexes indexes);
+	void sendFilteredIndexes(FilteredIndexes indexes);
 
-    FilteredIndexes getFilterIndexes();
+	FilteredIndexes getFilterIndexes();
 
-    boolean isTargetPlayer();
+	boolean isTargetPlayer();
 
-    void setTargetPlayer();
+	void setTargetPlayer();
 
 }

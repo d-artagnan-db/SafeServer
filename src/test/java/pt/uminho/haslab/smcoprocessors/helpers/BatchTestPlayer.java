@@ -18,90 +18,90 @@ import java.util.Map;
 
 public class BatchTestPlayer implements SharemindPlayer {
 
-    private static final Log LOG = LogFactory.getLog(BatchTestPlayer.class
-            .getName());
-    protected final ContextPlayer player;
-    private final Map<Integer, List<List<byte[]>>> messagesSent;
-    private final Map<Integer, List<List<byte[]>>> messagesReceived;
-    protected RequestIdentifier requestID;
+	private static final Log LOG = LogFactory.getLog(BatchTestPlayer.class
+			.getName());
+	protected final ContextPlayer player;
+	private final Map<Integer, List<List<byte[]>>> messagesSent;
+	private final Map<Integer, List<List<byte[]>>> messagesReceived;
+	protected RequestIdentifier requestID;
 
-    public BatchTestPlayer(Relay relay, RequestIdentifier requestID,
-                           int playerID, MessageBroker broker) {
-        this.player = new ContextPlayer(relay, requestID, playerID, broker);
-        messagesSent = new HashMap<Integer, List<List<byte[]>>>();
-        messagesReceived = new HashMap<Integer, List<List<byte[]>>>();
-        this.requestID = requestID;
+	public BatchTestPlayer(Relay relay, RequestIdentifier requestID,
+			int playerID, MessageBroker broker) {
+		this.player = new ContextPlayer(relay, requestID, playerID, broker);
+		messagesSent = new HashMap<Integer, List<List<byte[]>>>();
+		messagesReceived = new HashMap<Integer, List<List<byte[]>>>();
+		this.requestID = requestID;
 
-    }
+	}
 
-    public void sendValueToPlayer(int playerId, BigInteger value) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+	public void sendValueToPlayer(int playerId, BigInteger value) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
 
-    public void storeValue(Integer playerDest, Integer playerSource,
-                           BigInteger value) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+	public void storeValue(Integer playerDest, Integer playerSource,
+			BigInteger value) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
 
-    public void storeValues(Integer playerDest, Integer playerSource,
-                            List<byte[]> values) {
-        player.storeValues(playerDest, playerSource, values);
-    }
+	public void storeValues(Integer playerDest, Integer playerSource,
+			List<byte[]> values) {
+		player.storeValues(playerDest, playerSource, values);
+	}
 
-    public BigInteger getValue(Integer originPlayerId) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+	public BigInteger getValue(Integer originPlayerId) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
 
-    public int getPlayerID() {
-        return player.getPlayerID();
-    }
+	public int getPlayerID() {
+		return player.getPlayerID();
+	}
 
-    public void sendValueToPlayer(Integer playerID, List<byte[]> values) {
-        player.sendValueToPlayer(playerID, values);
-    }
+	public void sendValueToPlayer(Integer playerID, List<byte[]> values) {
+		player.sendValueToPlayer(playerID, values);
+	}
 
-    public List<byte[]> getValues(Integer rec) {
-        return player.getValues(rec);
-    }
+	public List<byte[]> getValues(Integer rec) {
+		return player.getValues(rec);
+	}
 
-    public Map<Integer, List<List<byte[]>>> getMessagesSent() {
-        return messagesSent;
-    }
+	public Map<Integer, List<List<byte[]>>> getMessagesSent() {
+		return messagesSent;
+	}
 
-    public Map<Integer, List<List<byte[]>>> getMessagesReceived() {
-        return messagesReceived;
-    }
+	public Map<Integer, List<List<byte[]>>> getMessagesReceived() {
+		return messagesReceived;
+	}
 
-    public void sendProtocolResults(int destPlayer, SearchResults res) {
-        player.sendProtocolResults(destPlayer, res);
-    }
+	public void sendProtocolResults(int destPlayer, SearchResults res) {
+		player.sendProtocolResults(destPlayer, res);
+	}
 
-    public List<SearchResults> getProtocolResults()
-            throws ResultsLengthMismatch {
-        return player.getProtocolResults();
-    }
+	public List<SearchResults> getProtocolResults()
+			throws ResultsLengthMismatch {
+		return player.getProtocolResults();
+	}
 
-    public void cleanValues() {
-        player.cleanValues();
-    }
+	public void cleanValues() {
+		player.cleanValues();
+	}
 
-    public void cleanResultsMatch() {
-        player.cleanResultsMatch();
-    }
+	public void cleanResultsMatch() {
+		player.cleanResultsMatch();
+	}
 
-    public void sendFilteredIndexes(FilteredIndexes indexes) {
-        player.sendFilteredIndexes(indexes);
-    }
+	public void sendFilteredIndexes(FilteredIndexes indexes) {
+		player.sendFilteredIndexes(indexes);
+	}
 
-    public FilteredIndexes getFilterIndexes() {
-        return player.getFilterIndexes();
-    }
+	public FilteredIndexes getFilterIndexes() {
+		return player.getFilterIndexes();
+	}
 
-    public boolean isTargetPlayer() {
-        return player.isTargetPlayer();
-    }
+	public boolean isTargetPlayer() {
+		return player.isTargetPlayer();
+	}
 
-    public void setTargetPlayer() {
-        player.setTargetPlayer();
-    }
+	public void setTargetPlayer() {
+		player.setTargetPlayer();
+	}
 }

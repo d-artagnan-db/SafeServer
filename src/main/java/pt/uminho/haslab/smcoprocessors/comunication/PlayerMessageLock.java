@@ -6,35 +6,35 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class PlayerMessageLock {
 
-    private final Lock lock;
-    private final Condition canRead;
+	private final Lock lock;
+	private final Condition canRead;
 
-    public PlayerMessageLock() {
-        lock = new ReentrantLock();
-        canRead = lock.newCondition();
+	public PlayerMessageLock() {
+		lock = new ReentrantLock();
+		canRead = lock.newCondition();
 
-    }
+	}
 
-    public void lock() {
-        lock.lock();
-    }
+	public void lock() {
+		lock.lock();
+	}
 
-    public void unlock() {
-        lock.unlock();
-    }
+	public void unlock() {
+		lock.unlock();
+	}
 
-    public void signalToRead() {
-        canRead.signal();
-    }
+	public void signalToRead() {
+		canRead.signal();
+	}
 
-    public void awaitForWrite() throws InterruptedException {
-        canRead.await();
-    }
+	public void awaitForWrite() throws InterruptedException {
+		canRead.await();
+	}
 
-    @Override
-    public String toString() {
-        return "PlayerMessageLock{" + "lock=" + lock + ", canRead=" + canRead
-                + '}';
-    }
+	@Override
+	public String toString() {
+		return "PlayerMessageLock{" + "lock=" + lock + ", canRead=" + canRead
+				+ '}';
+	}
 
 }

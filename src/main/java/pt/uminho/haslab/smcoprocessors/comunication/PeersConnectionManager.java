@@ -10,8 +10,8 @@ import java.io.IOException;
  */
 public interface PeersConnectionManager {
 
-    RelayClient getRelayClient(String host, int port);
+	RelayClient getRelayClient(String host, int port);
 
-    void shutdownClients() throws IOException, InterruptedException;
+	void shutdownClients() throws IOException, InterruptedException;
 
 }

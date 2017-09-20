@@ -8,22 +8,22 @@ import java.io.IOException;
 
 public interface Relay {
 
-    void sendBatchMessages(BatchShareMessage msg) throws IOException;
+	void sendBatchMessages(BatchShareMessage msg) throws IOException;
 
-    void sendProtocolResults(ResultsMessage msg) throws IOException;
+	void sendProtocolResults(ResultsMessage msg) throws IOException;
 
-    void stopRelay() throws IOException;
+	void stopRelay() throws IOException;
 
-    boolean isRelayRunning();
+	boolean isRelayRunning();
 
-    void bootRelay();
+	void bootRelay();
 
-    void forceStopRelay() throws IOException;
+	void forceStopRelay() throws IOException;
 
-    void sendFilteredIndexes(FilterIndexMessage msg) throws IOException;
+	void sendFilteredIndexes(FilterIndexMessage msg) throws IOException;
 
-    void registerRequest(RequestIdentifier requestIdentifier);
+	void registerRequest(RequestIdentifier requestIdentifier);
 
-    void unregisterRequest(RequestIdentifier requestIdentifier);
+	void unregisterRequest(RequestIdentifier requestIdentifier);
 
 }
