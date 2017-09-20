@@ -57,10 +57,9 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
 		public synchronized void sendCurrentLocationOfPlayerInRequest(
 				RequestIdentifier requestIdentifier) {
 			String key = getKey(requestIdentifier);
-			/*
-			 * LOG.debug("Going to put on redis " + key + "<->" +
-			 * locationMessage);
-			 */
+
+			//LOG.debug("Going to put on redis " + key + "<->" + locationMessage);
+
 			jedis.lpush(key, locationMessage);
 
 		}
@@ -110,17 +109,17 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
 			int nAttempts = 0;
 
 			while (run) {
-				// LOG.debug("going to get key " + key);
+				//LOG.debug("going to get key " + key);
 				clients = jedis.lrange(key, 0, -1);
 
 				if (clients.size() >= 3) {
 					run = false;
 				} else if (nAttempts >= retries) {
 					run = false;
-					LOG.debug("Max retries to find peers");
+					//LOG.debug("Max retries to find peers");
 				} else {
 					try {
-						LOG.debug("List size " + clients.size());
+						//LOG.debug("List size " + clients.size());
 						Thread.sleep(sleepTimeInc);
 						nAttempts += 1;
 						sleepTimeInc += incTime;

@@ -118,8 +118,4 @@
         <name>smhbase.discovery.retries</name>
         <value>5</value>
     </property>
-    <property>
-        <name>hbase.hregion.max.filesize</name>
-        <value>2097152</value>
-    </property>
 </configuration>

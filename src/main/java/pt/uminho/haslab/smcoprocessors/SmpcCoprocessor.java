@@ -217,7 +217,7 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 		List<byte[]> secrets = new ArrayList<byte[]>();
 		secrets.add(secret);
 		LOG.debug(player.getPlayerID() + " is creating search condition with "
-				+ nbits + " nbits " + " and the secret "
+				+ nbits + " nits " + " and the secret "
 				+ new BigInteger(secret));
 		SearchCondition searchCondition = AbstractSearchValue
 				.conditionTransformer(Equal, nbits, secrets, targetPlayer);
@@ -425,7 +425,7 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 					if (startRow.length == 0) {
 						LOG.debug("Starting row does not contain a value");
 					} else {
-						LOG.debug("Startting row is "
+						LOG.debug("Starting row is "
 								+ new BigInteger(startRow));
 					}
 
@@ -435,7 +435,7 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 						LOG.debug("Ending row is " + new BigInteger(endRow));
 					}
 
-					LOG.debug("Going to evalauate secretScanSearchr");
+					LOG.debug("Going to evaluate secretScanSSearch");
 
 					RegionCoprocessorEnvironment ev = c.getEnvironment();
 					Filter f = scan.getFilter();
