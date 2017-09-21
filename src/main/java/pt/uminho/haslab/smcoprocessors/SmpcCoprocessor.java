@@ -13,6 +13,8 @@ import org.apache.hadoop.hbase.coprocessor.BaseRegionObserver;
 import org.apache.hadoop.hbase.coprocessor.ObserverContext;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.SingleColumnValueExcludeFilter;
+import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.regionserver.RegionScanner;
 import pt.uminho.haslab.smcoprocessors.comunication.MessageBroker;
 import pt.uminho.haslab.smcoprocessors.comunication.Relay;
@@ -244,10 +246,51 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 		return results;
 
 	}
+    private RegionScanner secretScanSearchWithFilter(byte[] startRow, byte[] stopRow,
+                                                     OperationWithAttributes op, RegionCoprocessorEnvironment env,
+                                                     Filter filter) throws IOException {
+        Column col = getSearchColumn(op);
+        RequestIdentifier ident = getRequestIdentifier(op, env);
+        relay.registerRequest(ident);
+        Player player = getPlayer(ident);
+        int nbits = this.searchConf.getnBits();
+        int targetPlayer = checkTargetPlayer(player, op, ident);
+        List<byte[]> secrets = new ArrayList<byte[]>();
+        byte[] secret = op.getAttribute(OperationAttributesIdentifiers.FilterValue);
+        LOG.debug("SearchValue secret is "+ new BigInteger(secret));
+        secrets.add(secret);
+
+        LOG.debug(player.getPlayerID() + " is creating search condition with "
+                + nbits + " nits " + " and the secret "
+                + new BigInteger(secret));
+        SearchCondition searchCondition = AbstractSearchValue
+                .conditionTransformer(Equal, nbits, secrets, targetPlayer);
+        LOG.debug(player.getPlayerID() + " created secure RegionScanner");
+        SecureRegionScanner search;
+        //List<Cell> results = new ArrayList<Cell>();
+        return  new SecureRegionScanner(searchCondition, env, player,
+                this.searchConf, true, col);
+       /* try {
+            search = new SecureRegionScanner(searchCondition, env, player,
+                    this.searchConf, true, col);
+            LOG.debug("Iterating over RegionScanner to find match");
+            search.next(results);
+            search.close();
+            LOG.debug("Found match " + results);
+        } catch (NotServingRegionException e) {
+            LOG.debug("Region was closed");
+            LOG.error(e);
+            return null;
+        } catch (IOException e) {
+            LOG.error(e);
+            throw new IllegalStateException(e);
+        }
+        return null;*/
+    }
+
 
 	private RegionScanner secretScanSearch(byte[] startRow, byte[] stopRow,
-			OperationWithAttributes op, RegionCoprocessorEnvironment env,
-			Filter filter) throws IOException, ResultsLengthMismatch,
+			OperationWithAttributes op, RegionCoprocessorEnvironment env) throws IOException, ResultsLengthMismatch,
 			ResultsIdentifiersMismatch {
 
 		Column col = getSearchColumn(op);
@@ -440,7 +483,12 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 					RegionCoprocessorEnvironment ev = c.getEnvironment();
 					Filter f = scan.getFilter();
 
-					return secretScanSearch(startRow, endRow, scan, ev, f);
+					if(f!=null){
+                        return secretScanSearchWithFilter(startRow, endRow, scan, ev,f);
+
+                    }else {
+                        return secretScanSearch(startRow, endRow, scan, ev);
+                    }
 
 				} catch (ResultsLengthMismatch ex) {
 					LOG.error(ex);

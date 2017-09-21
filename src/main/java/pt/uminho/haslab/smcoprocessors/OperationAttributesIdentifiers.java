@@ -8,5 +8,5 @@ public class OperationAttributesIdentifiers {
 	public static String TargetPlayer = "targetPlayer";
 	public static String ProtectedColumn = "protectedColumn";
 	public static String DirectAccess = "DirectAccess";
-
+    public static String FilterValue = "FilterValue";
 }

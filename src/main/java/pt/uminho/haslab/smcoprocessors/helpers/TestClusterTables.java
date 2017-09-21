@@ -7,6 +7,8 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.filter.CompareFilter;
+import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import pt.uminho.haslab.smcoprocessors.OperationAttributesIdentifiers;
 import pt.uminho.haslab.smcoprocessors.SmpcConfiguration;
 import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
@@ -22,6 +24,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.apache.hadoop.hbase.filter.CompareFilter.CompareOp.EQUAL;
 
 public class TestClusterTables extends ClusterTables {
 
@@ -152,6 +156,57 @@ public class TestClusterTables extends ClusterTables {
 		}
 
 		return scans;
+	}
+
+	public List<Result> scanWithFilter(byte[] startRow, byte[] stopRow,
+                                       int requestID, SmpcConfiguration config, Dealer dealer,
+                                       String secretFamily, String secretQualifier) throws IOException, InterruptedException, InvalidSecretValue {
+
+        int playerID = 1;
+
+        byte[] requestIDba = ("" + requestID).getBytes();
+        byte[] playerIDba = ("" + playerID).getBytes();
+
+        SharemindSharedSecret startSharedSecret = (SharemindSharedSecret) dealer
+                .share(new BigInteger(startRow));
+
+        List<Scan> scans = new ArrayList<Scan>();
+        for(int i=0; i < 3; i++){
+            Scan  scan = new Scan();
+            scan.setFilter(new SingleColumnValueFilter(secretFamily.getBytes(), secretQualifier.getBytes(), EQUAL, startRow));
+            scan.setAttribute(OperationAttributesIdentifiers.TargetPlayer,
+                    playerIDba);
+            scan.setAttribute(OperationAttributesIdentifiers.RequestIdentifier,
+                    requestIDba);
+            scan.setAttribute(OperationAttributesIdentifiers.ProtectedColumn,
+                    "true".getBytes());
+            scan.setAttribute(OperationAttributesIdentifiers.SecretFamily,
+                    secretFamily.getBytes());
+            scan.setAttribute(OperationAttributesIdentifiers.SecretQualifier,
+                    secretQualifier.getBytes());
+            scans.add(scan);
+        }
+        scans.get(0).setAttribute(OperationAttributesIdentifiers.FilterValue, startSharedSecret.getU1().toByteArray());
+        scans.get(1).setAttribute(OperationAttributesIdentifiers.FilterValue, startSharedSecret.getU2().toByteArray());
+        scans.get(2).setAttribute(OperationAttributesIdentifiers.FilterValue, startSharedSecret.getU3().toByteArray());
+
+        ClusterScanResult results = this.scan(scans);
+
+        if (!results.isConsistant()) {
+            String error = "One Result was empty but the others were not";
+            LOG.debug(error);
+            throw new IllegalStateException(error);
+        }
+
+        if (!results.notEmpty()) {
+            LOG.debug("Results are empty");
+            return new ArrayList<Result>();
+        }
+
+        results.setColumnFamily(secretFamily.getBytes());
+        results.setColumnQualifier(secretQualifier.getBytes());
+        results.setNbits(config.getnBits());
+        return results.getDecodedResults();
 	}
 
 	public List<Result> scanEndpoint(byte[] startRow, byte[] stopRow,

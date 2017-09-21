@@ -156,7 +156,7 @@ public abstract class AbstractSearchEndpointTest {
 			firstPuts.add(putC1);
 			secondPuts.add(putC2);
 			thirdPuts.add(putC3);
-            LOG.debug(i + " - ( " + secret.getU1() + ", " + secret.getU2()
+            LOG.debug(i + " - " + value +" ( " + secret.getU1() + ", " + secret.getU2()
                     + ", " + secret.getU3() + " )");
 		}
 
