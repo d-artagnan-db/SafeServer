@@ -32,25 +32,25 @@ public class Clusters extends ShareCluster {
 		return new TestClusterTables(configs, tbname);
 	}
 
-	public TestClusterTables createTables(String tableName, String columnFamily, List<Integer> splitKeys) throws IOException {
-        TableName tbname = TableName.valueOf(tableName);
-        HTableDescriptor table = new HTableDescriptor(tbname);
-        HColumnDescriptor family = new HColumnDescriptor(columnFamily);
-        table.addFamily(family);
-        byte[][] bSplitKeys = new byte[splitKeys.size()][];
+	public TestClusterTables createTables(String tableName,
+			String columnFamily, List<Integer> splitKeys) throws IOException {
+		TableName tbname = TableName.valueOf(tableName);
+		HTableDescriptor table = new HTableDescriptor(tbname);
+		HColumnDescriptor family = new HColumnDescriptor(columnFamily);
+		table.addFamily(family);
+		byte[][] bSplitKeys = new byte[splitKeys.size()][];
 
-        for(int i =0; i < splitKeys.size(); i++){
-            //System.out.println("Spliting table on "+ splitKeys.get(i));
-            bSplitKeys[i] = splitKeys.get(i).toString().getBytes();
-        }
-        System.out.println("bSplitKeys size is "+ bSplitKeys.length);
+		for (int i = 0; i < splitKeys.size(); i++) {
+			// System.out.println("Spliting table on "+ splitKeys.get(i));
+			bSplitKeys[i] = splitKeys.get(i).toString().getBytes();
+		}
+		//System.out.println("bSplitKeys size is " + bSplitKeys.length);
 
-        for (HBaseAdmin admin : admins) {
-            admin.createTable(table, bSplitKeys);
-        }
-        return new TestClusterTables(configs, tbname);
+		for (HBaseAdmin admin : admins) {
+			admin.createTable(table, bSplitKeys);
+		}
+		return new TestClusterTables(configs, tbname);
 	}
-
 
 	public TestClusterTables newClusterTablesClient(String tableName)
 			throws IOException {

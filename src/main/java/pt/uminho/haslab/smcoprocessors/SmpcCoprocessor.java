@@ -7,6 +7,7 @@ import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CoprocessorEnvironment;
 import org.apache.hadoop.hbase.NotServingRegionException;
 import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Operation;
 import org.apache.hadoop.hbase.client.OperationWithAttributes;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.coprocessor.BaseRegionObserver;
@@ -205,10 +206,9 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 		return targetPlayer;
 	}
 
-	private List<Cell> secretGetSearch(byte[] secret,
-			OperationWithAttributes op, RegionCoprocessorEnvironment env)
-			throws ResultsLengthMismatch, ResultsIdentifiersMismatch {
-
+	private RegionScanner secretEqualScanSearch(
+	        OperationWithAttributes op,
+			RegionCoprocessorEnvironment env) throws IOException {
 		Column col = getSearchColumn(op);
 		RequestIdentifier ident = getRequestIdentifier(op, env);
 		relay.registerRequest(ident);
@@ -217,6 +217,8 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 		int targetPlayer = checkTargetPlayer(player, op, ident);
 
 		List<byte[]> secrets = new ArrayList<byte[]>();
+		byte[] secret = op
+				.getAttribute(OperationAttributesIdentifiers.ScanForEqualVal);
 		secrets.add(secret);
 		LOG.debug(player.getPlayerID() + " is creating search condition with "
 				+ nbits + " nits " + " and the secret "
@@ -224,73 +226,49 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 		SearchCondition searchCondition = AbstractSearchValue
 				.conditionTransformer(Equal, nbits, secrets, targetPlayer);
 		LOG.debug(player.getPlayerID() + " created secure RegionScanner");
-		SecureRegionScanner search;
-		List<Cell> results = new ArrayList<Cell>();
 
-		try {
-			search = new SecureRegionScanner(searchCondition, env, player,
-					this.searchConf, true, col);
-			LOG.debug("Iterating over RegionScanner to find match");
-			search.next(results);
-			search.close();
-			LOG.debug("Found match " + results);
-		} catch (NotServingRegionException e) {
-			LOG.debug("Region was closed");
-			LOG.error(e);
-			return results;
-		} catch (IOException e) {
-			LOG.error(e);
-			throw new IllegalStateException(e);
-		}
-
-		return results;
+		return new SecureRegionScanner(searchCondition, env, player,
+				this.searchConf, true, col);
 
 	}
-    private RegionScanner secretScanSearchWithFilter(byte[] startRow, byte[] stopRow,
-                                                     OperationWithAttributes op, RegionCoprocessorEnvironment env,
-                                                     Filter filter) throws IOException {
-        Column col = getSearchColumn(op);
-        RequestIdentifier ident = getRequestIdentifier(op, env);
-        relay.registerRequest(ident);
-        Player player = getPlayer(ident);
-        int nbits = this.searchConf.getnBits();
-        int targetPlayer = checkTargetPlayer(player, op, ident);
-        List<byte[]> secrets = new ArrayList<byte[]>();
-        byte[] secret = op.getAttribute(OperationAttributesIdentifiers.FilterValue);
-        LOG.debug("SearchValue secret is "+ new BigInteger(secret));
-        secrets.add(secret);
+	private RegionScanner secretScanSearchWithFilter(byte[] startRow,
+			byte[] stopRow, OperationWithAttributes op,
+			RegionCoprocessorEnvironment env, Filter filter) throws IOException {
+		Column col = getSearchColumn(op);
+		RequestIdentifier ident = getRequestIdentifier(op, env);
+		relay.registerRequest(ident);
+		Player player = getPlayer(ident);
+		int nbits = this.searchConf.getnBits();
+		int targetPlayer = checkTargetPlayer(player, op, ident);
+		List<byte[]> secrets = new ArrayList<byte[]>();
+		byte[] secret = op
+				.getAttribute(OperationAttributesIdentifiers.FilterValue);
+		LOG.debug("SearchValue secret is " + new BigInteger(secret));
+		secrets.add(secret);
 
-        LOG.debug(player.getPlayerID() + " is creating search condition with "
-                + nbits + " nits " + " and the secret "
-                + new BigInteger(secret));
-        SearchCondition searchCondition = AbstractSearchValue
-                .conditionTransformer(Equal, nbits, secrets, targetPlayer);
-        LOG.debug(player.getPlayerID() + " created secure RegionScanner");
-        SecureRegionScanner search;
-        //List<Cell> results = new ArrayList<Cell>();
-        return  new SecureRegionScanner(searchCondition, env, player,
-                this.searchConf, true, col);
-       /* try {
-            search = new SecureRegionScanner(searchCondition, env, player,
-                    this.searchConf, true, col);
-            LOG.debug("Iterating over RegionScanner to find match");
-            search.next(results);
-            search.close();
-            LOG.debug("Found match " + results);
-        } catch (NotServingRegionException e) {
-            LOG.debug("Region was closed");
-            LOG.error(e);
-            return null;
-        } catch (IOException e) {
-            LOG.error(e);
-            throw new IllegalStateException(e);
-        }
-        return null;*/
-    }
-
+		LOG.debug(player.getPlayerID() + " is creating search condition with "
+				+ nbits + " nits " + " and the secret "
+				+ new BigInteger(secret));
+		SearchCondition searchCondition = AbstractSearchValue
+				.conditionTransformer(Equal, nbits, secrets, targetPlayer);
+		LOG.debug(player.getPlayerID() + " created secure RegionScanner");
+		return new SecureRegionScanner(searchCondition, env, player,
+				this.searchConf, true, col);
+		/*
+		 * try { search = new SecureRegionScanner(searchCondition, env, player,
+		 * this.searchConf, true, col);
+		 * LOG.debug("Iterating over RegionScanner to find match");
+		 * search.next(results); search.close(); LOG.debug("Found match " +
+		 * results); } catch (NotServingRegionException e) {
+		 * LOG.debug("Region was closed"); LOG.error(e); return null; } catch
+		 * (IOException e) { LOG.error(e); throw new IllegalStateException(e); }
+		 * return null;
+		 */
+	}
 
 	private RegionScanner secretScanSearch(byte[] startRow, byte[] stopRow,
-			OperationWithAttributes op, RegionCoprocessorEnvironment env) throws IOException, ResultsLengthMismatch,
+			OperationWithAttributes op, RegionCoprocessorEnvironment env)
+			throws IOException, ResultsLengthMismatch,
 			ResultsIdentifiersMismatch {
 
 		Column col = getSearchColumn(op);
@@ -303,7 +281,7 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 		SearchCondition startKeySearch = null;
 		SearchCondition endKeySearch = null;
 
-		if (startRow.length != 0) {
+		if (startRow != null && startRow.length != 0) {
 			List<byte[]> startRows = new ArrayList<byte[]>();
 			startRows.add(startRow);
 
@@ -311,7 +289,7 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 					GreaterOrEqualThan, nbits, startRows, targetPlayer);
 		}
 
-		if (stopRow.length != 0) {
+		if (stopRow != null && stopRow.length != 0) {
 			List<byte[]> stopRows = new ArrayList<byte[]>();
 			stopRows.add(stopRow);
 
@@ -383,66 +361,6 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 	}
 
 	@Override
-	public void preGetOp(final ObserverContext<RegionCoprocessorEnvironment> e,
-			final Get get, final List<Cell> results) {
-
-		boolean protectedColumn = isProtectedColumn(get);
-		LOG.debug(new BigInteger(get.getRow()) + " region name is "
-				+ env.getRegion().getRegionNameAsString() + " with state "
-				+ env.getRegion().isAvailable() + " - "
-				+ env.getRegion().isClosed() + " - "
-				+ env.getRegion().isClosing());
-
-		/* *
-		 * Verifies if the get is going to process over a protected columns. The
-		 * systems is only considering a get over a single protected column.
-		 */
-		if (protectedColumn && env.getRegion().isAvailable()) {
-			LOG.debug("Protected column");
-
-			String table = env.getRegion().getTableDesc().getNameAsString();
-
-			if (!table.contains("hbase")) {
-
-				LOG.debug("preGetOp evaluated on table " + table);
-
-				byte[] row = get.getRow();
-
-				try {
-
-					byte[] directAccess = get
-							.getAttribute(OperationAttributesIdentifiers.DirectAccess);
-					LOG.debug("DirectAccess " + directAccess + " getRow "
-							+ new BigInteger(row));
-
-					if (directAccess == null) {
-						LOG.debug("Going to perform a secret search on data");
-						List<Cell> searchResults = secretGetSearch(row, get,
-								e.getEnvironment());
-
-						results.addAll(searchResults);
-					} else {
-						// If the direct access row exists, it has the rowID to
-						// retrieve.
-						LOG.debug("Going to direct row access");
-						List<Cell> res = getRowWithoutSearch(directAccess);
-						results.addAll(res);
-					}
-					e.bypass();
-
-				} catch (ResultsLengthMismatch ex) {
-					LOG.error(ex);
-					throw new IllegalStateException(ex);
-				} catch (ResultsIdentifiersMismatch ex) {
-					LOG.error(ex);
-					throw new IllegalStateException(ex);
-				}
-
-			}
-		}
-	}
-
-	@Override
 	public RegionScanner postScannerOpen(
 			final ObserverContext<RegionCoprocessorEnvironment> c,
 			final Scan scan, final RegionScanner s) {
@@ -462,33 +380,42 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 				LOG.debug("postScannerOpen evaluated on " + table);
 				try {
 
-					byte[] startRow = scan.getStartRow();
-					byte[] endRow = scan.getStopRow();
-
-					if (startRow.length == 0) {
+				    /* *
+                     * The Scan start and stop row keys have to be passed to the ccoprocessorby attributes in order for
+                     * the client to issue a full table scan. A full table scan is necessary to search in every region
+                     * of a distributed cluster.
+				    * */
+					byte[] startRow = scan.getAttribute(OperationAttributesIdentifiers.ScanStartVal);
+					byte[] stopRow = scan.getAttribute(OperationAttributesIdentifiers.ScanStopVal);
+                    LOG.debug("Start row "+ startRow);
+                    LOG.debug("Stop row " + stopRow);
+					if (startRow == null)
+					{
+					    startRow = new byte[0];
 						LOG.debug("Starting row does not contain a value");
 					} else {
-						LOG.debug("Starting row is "
-								+ new BigInteger(startRow));
+						LOG.debug("Starting row is " + new BigInteger(startRow));
 					}
 
-					if (endRow.length == 0) {
+					if (stopRow == null) {
+					    stopRow = new byte[0];
 						LOG.debug("Ending Row does not contain a value");
 					} else {
-						LOG.debug("Ending row is " + new BigInteger(endRow));
+						LOG.debug("Ending row is " + new BigInteger(stopRow));
 					}
 
 					LOG.debug("Going to evaluate secretScanSSearch");
+					byte[] isScanEqual = scan.getAttribute(OperationAttributesIdentifiers.ScanForEqualVal);
 
 					RegionCoprocessorEnvironment ev = c.getEnvironment();
-					Filter f = scan.getFilter();
 
-					if(f!=null){
-                        return secretScanSearchWithFilter(startRow, endRow, scan, ev,f);
-
-                    }else {
-                        return secretScanSearch(startRow, endRow, scan, ev);
-                    }
+                    if (isScanEqual != null) {
+						LOG.debug("Scan for equal");
+						return secretEqualScanSearch(scan, env);
+					} else {
+						LOG.debug("Secret MPC Scan  ");
+						return secretScanSearch(startRow, stopRow, scan, ev);
+					}
 
 				} catch (ResultsLengthMismatch ex) {
 					LOG.error(ex);

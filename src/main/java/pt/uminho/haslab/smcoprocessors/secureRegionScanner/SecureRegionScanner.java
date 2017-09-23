@@ -152,7 +152,8 @@ public class SecureRegionScanner implements RegionScanner {
 		List<List<Cell>> localCells = bRes.getLocalCells();
 		List<List<Cell>> filtredCells = new ArrayList<List<Cell>>();
 
-		LOG.debug("Going to evaluate condition " +  procVals.size() + " - " +rowIDS.size());
+		LOG.debug("Going to evaluate condition " + procVals.size() + " - "
+				+ rowIDS.size());
 		long start = System.nanoTime();
 		List<Boolean> condResults = searchValue.evaluateCondition(procVals,
 				rowIDS, splayer);

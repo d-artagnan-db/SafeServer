@@ -52,13 +52,8 @@ public abstract class AbstractSearchEndpointTest {
 
 	@After
 	public void tearDown() throws IOException, InterruptedException {
-		System.out.println("tearDown invoked");
-		// while(true){
-		// Thread.sleep(100000);
-		// ;}
-		// clusters.tearDown();
 		// Wait for ports to be free for next tests
-        clusters.tearDown();
+		clusters.tearDown();
 		Thread.sleep(10000);
 	}
 
@@ -70,15 +65,15 @@ public abstract class AbstractSearchEndpointTest {
 
 	List<Integer> getSplitKeys(int nRegions, List<Integer> values) {
 		int nElemsPerRegion = values.size() / nRegions;
-        List<Integer> res = new ArrayList<Integer>();
+		List<Integer> res = new ArrayList<Integer>();
 
-        System.out.println("NElemsPerRegions "+ nElemsPerRegion);
-        int i = nElemsPerRegion;
-        do {
-			   //System.out.println("SplitValue "+i+" is "+ values.get(i));
-				res.add(values.get(i));
-				i += nElemsPerRegion;
-        } while (i < values.size());
+		//System.out.println("NElemsPerRegions " + nElemsPerRegion);
+		int i = nElemsPerRegion;
+		do {
+			// System.out.println("SplitValue "+i+" is "+ values.get(i));
+			res.add(values.get(i));
+			i += nElemsPerRegion;
+		} while (i < values.size());
 
 		return res;
 	}
@@ -139,7 +134,7 @@ public abstract class AbstractSearchEndpointTest {
 			SharemindSharedSecret secret = (SharemindSharedSecret) dealer
 					.share(value);
 
-	        identifiers.add(i);
+			identifiers.add(i);
 			byte[] id = ("" + i).getBytes();
 
 			Put putC1 = new Put(id);
@@ -156,33 +151,35 @@ public abstract class AbstractSearchEndpointTest {
 			firstPuts.add(putC1);
 			secondPuts.add(putC2);
 			thirdPuts.add(putC3);
-            LOG.debug(i + " - " + value +" ( " + secret.getU1() + ", " + secret.getU2()
-                    + ", " + secret.getU3() + " )");
+			LOG.debug(i + " - " + value + " ( " + secret.getU1() + ", "
+					+ secret.getU2() + ", " + secret.getU3() + " )");
 		}
 
-        TestClusterTables tables = null;
+		TestClusterTables tables = null;
 
 		if (getNumberOfRegions() > 1) {
-		    LOG.debug("Creating table with splits");
-			List<Integer> splitKeys = getSplitKeys(getNumberOfRegions(), identifiers);
-			tables = clusters.createTables(getTestTableName(), secretFamily, splitKeys);
+			LOG.debug("Creating table with splits");
+			List<Integer> splitKeys = getSplitKeys(getNumberOfRegions(),
+					identifiers);
+			tables = clusters.createTables(getTestTableName(), secretFamily,
+					splitKeys);
 			LOG.debug("Table created");
 			// BigInteger[] splitKeys = splitHalf(sharedVals);
 			// clusters.splitTables(getTestTableName(), splitKeys);
 			// Thread.sleep(40000);
-		}else{
-            tables = clusters.createTables(getTestTableName(),
-                    secretFamily);
-        }
-        for(int i =0; i < values.size(); i++){
+		} else {
+			tables = clusters.createTables(getTestTableName(), secretFamily);
+		}
+		for (int i = 0; i < values.size(); i++) {
 
-		    Put putC1 = firstPuts.get(i);
-		    Put putC2 = secondPuts.get(i);
-		    Put putC3 = thirdPuts.get(i);
-            //QLOG.debug("Going to insert records "+i + " Tables "+tables + " puts" + putC1+ ", "+ putC2+","+putC3);
-            tables.put(0, putC1).put(1, putC2).put(2, putC3);
-        }
-		//tables = clusters.newClusterTablesClient(getTestTableName());
+			Put putC1 = firstPuts.get(i);
+			Put putC2 = secondPuts.get(i);
+			Put putC3 = thirdPuts.get(i);
+			// LOG.debug("Going to insert records "+i + " Tables "+tables +
+			// " puts" + putC1+ ", "+ putC2+","+putC3);
+			tables.put(0, putC1).put(1, putC2).put(2, putC3);
+		}
+		// tables = clusters.newClusterTablesClient(getTestTableName());
 		LOG.debug("Going for searchEndpointComparision");
 		searchEndpointComparision(dealer, values, tables, nBits);
 	}

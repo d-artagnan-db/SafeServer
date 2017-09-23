@@ -2,9 +2,9 @@ package pt.uminho.haslab.smcoprocessors.HBaseAPI.OneRegionServerOneRegion;
 
 import pt.uminho.haslab.testingutils.ScanValidator;
 
-public class FullTableScan extends ScanSearchEndpointTest {
+public class FullTableScanTest extends ScanSearchEndpointTest {
 
-	public FullTableScan() throws Exception {
+	public FullTableScanTest() throws Exception {
 		super();
 	}
 

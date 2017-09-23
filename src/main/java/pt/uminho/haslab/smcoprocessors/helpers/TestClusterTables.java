@@ -40,189 +40,30 @@ public class TestClusterTables extends ClusterTables {
 	 * Returns -1 if no match is found on the search. Otherwise it returns the
 	 * row key
 	 */
-	public int equalEndpoint(SharedSecret cmpValue, int requestID,
-			String secretFamily, String secretQualifier) throws Throwable {
+	public BigInteger equalScanEndpoint(SharedSecret cmpValue, int requestID,
+			String secretFamily, String secretQualifier, SmpcConfiguration config) throws Throwable {
 		LOG.debug(" Val " + cmpValue.unshare() + " request " + requestID);
 
 		int playerID = 1;
 		SharemindSharedSecret sSecret = (SharemindSharedSecret) cmpValue;
-		List<Get> gets = new ArrayList<Get>();
-
-		Get getC1 = new Get(sSecret.getU1().toByteArray());
-		Get getC2 = new Get(sSecret.getU2().toByteArray());
-		Get getC3 = new Get(sSecret.getU3().toByteArray());
-		gets.add(getC1);
-		gets.add(getC2);
-		gets.add(getC3);
-		byte[] requestIDba = ("" + requestID).getBytes();
-		byte[] playerIDba = ("" + playerID).getBytes();
-		for (Get get : gets) {
-			get.setAttribute(OperationAttributesIdentifiers.TargetPlayer,
-					playerIDba);
-			get.setAttribute(OperationAttributesIdentifiers.RequestIdentifier,
-					requestIDba);
-			get.setAttribute(OperationAttributesIdentifiers.ProtectedColumn,
-					"true".getBytes());
-			get.setAttribute(OperationAttributesIdentifiers.SecretFamily,
-					secretFamily.getBytes());
-			get.setAttribute(OperationAttributesIdentifiers.SecretQualifier,
-					secretQualifier.getBytes());
-		}
-
-		ClusterResults results = this.get(gets);
-
-		if (results.isInconsistant()) {
-			throw new IllegalStateException(
-					"One Result was empty but the others" + "were not");
-		}
-
-		if (results.allEmpty()) {
-			return -1;
-		} else {
-			return Integer.parseInt(new String(results.getResult(0).getRow()));
-		}
-	}
-
-	protected void scanWithStartAndStopRow(Dealer dealer, List<Scan> scans,
-			byte[] startRow, byte[] stopRow) throws InvalidSecretValue {
-		SharemindSharedSecret startSharedSecret = (SharemindSharedSecret) dealer
-				.share(new BigInteger(startRow));
-		SharemindSharedSecret endSharedSecret = (SharemindSharedSecret) dealer
-				.share(new BigInteger(stopRow));
-
-		Scan firstScan = new Scan(startSharedSecret.getU1().toByteArray(),
-				endSharedSecret.getU1().toByteArray());
-		Scan secondScan = new Scan(startSharedSecret.getU2().toByteArray(),
-				endSharedSecret.getU2().toByteArray());
-		Scan thirdScan = new Scan(startSharedSecret.getU3().toByteArray(),
-				endSharedSecret.getU3().toByteArray());
-
-		scans.add(firstScan);
-		scans.add(secondScan);
-		scans.add(thirdScan);
-	}
-
-	protected void scanWithStartRow(Dealer dealer, List<Scan> scans,
-			byte[] startRow) throws InvalidSecretValue {
-		SharemindSharedSecret startSharedSecret = (SharemindSharedSecret) dealer
-				.share(new BigInteger(startRow));
-
-		Scan firstScan = new Scan();
-		firstScan.setStartRow(startSharedSecret.getU1().toByteArray());
-		Scan secondScan = new Scan();
-		secondScan.setStartRow(startSharedSecret.getU2().toByteArray());
-
-		Scan thirdScan = new Scan();
-		thirdScan.setStartRow(startSharedSecret.getU3().toByteArray());
-
-		scans.add(firstScan);
-		scans.add(secondScan);
-		scans.add(thirdScan);
-	}
-
-	public void scanWithStopRow(Dealer dealer, List<Scan> scans, byte[] stopRow)
-			throws InvalidSecretValue {
-		SharemindSharedSecret startSharedSecret = (SharemindSharedSecret) dealer
-				.share(new BigInteger(stopRow));
-
-		Scan firstScan = new Scan();
-		firstScan.setStopRow(startSharedSecret.getU1().toByteArray());
-		Scan secondScan = new Scan();
-		secondScan.setStopRow(startSharedSecret.getU2().toByteArray());
-		Scan thirdScan = new Scan();
-		thirdScan.setStopRow(startSharedSecret.getU3().toByteArray());
-
-		scans.add(firstScan);
-		scans.add(secondScan);
-		scans.add(thirdScan);
-	}
-
-	private List<Scan> getScans(Dealer dealer, byte[] startRow, byte[] stopRow)
-			throws InvalidSecretValue {
+		List<BigInteger> value = new ArrayList<BigInteger>();
+		value.add(sSecret.getU1());
+		value.add(sSecret.getU2());
+		value.add(sSecret.getU3());
 		List<Scan> scans = new ArrayList<Scan>();
-		LOG.debug("0-Start row are " + startRow + " / " + stopRow);
 
-		if (startRow != null && stopRow != null) {
-			scanWithStartAndStopRow(dealer, scans, startRow, stopRow);
-		} else if (startRow != null && stopRow == null) {
-			scanWithStartRow(dealer, scans, startRow);
-		} else if (startRow == null && stopRow != null) {
-			scanWithStopRow(dealer, scans, stopRow);
-		} else if (startRow == null && stopRow == null) {
-			LOG.debug("Going to do a full table scan");
-			scans.add(new Scan());
-			scans.add(new Scan());
-			scans.add(new Scan());
-		}
+		Scan scanC1 = new Scan();
+		Scan scanC2 = new Scan();
+		Scan scanC3 = new Scan();
 
-		return scans;
-	}
-
-	public List<Result> scanWithFilter(byte[] startRow, byte[] stopRow,
-                                       int requestID, SmpcConfiguration config, Dealer dealer,
-                                       String secretFamily, String secretQualifier) throws IOException, InterruptedException, InvalidSecretValue {
-
-        int playerID = 1;
-
-        byte[] requestIDba = ("" + requestID).getBytes();
-        byte[] playerIDba = ("" + playerID).getBytes();
-
-        SharemindSharedSecret startSharedSecret = (SharemindSharedSecret) dealer
-                .share(new BigInteger(startRow));
-
-        List<Scan> scans = new ArrayList<Scan>();
-        for(int i=0; i < 3; i++){
-            Scan  scan = new Scan();
-            scan.setFilter(new SingleColumnValueFilter(secretFamily.getBytes(), secretQualifier.getBytes(), EQUAL, startRow));
-            scan.setAttribute(OperationAttributesIdentifiers.TargetPlayer,
-                    playerIDba);
-            scan.setAttribute(OperationAttributesIdentifiers.RequestIdentifier,
-                    requestIDba);
-            scan.setAttribute(OperationAttributesIdentifiers.ProtectedColumn,
-                    "true".getBytes());
-            scan.setAttribute(OperationAttributesIdentifiers.SecretFamily,
-                    secretFamily.getBytes());
-            scan.setAttribute(OperationAttributesIdentifiers.SecretQualifier,
-                    secretQualifier.getBytes());
-            scans.add(scan);
-        }
-        scans.get(0).setAttribute(OperationAttributesIdentifiers.FilterValue, startSharedSecret.getU1().toByteArray());
-        scans.get(1).setAttribute(OperationAttributesIdentifiers.FilterValue, startSharedSecret.getU2().toByteArray());
-        scans.get(2).setAttribute(OperationAttributesIdentifiers.FilterValue, startSharedSecret.getU3().toByteArray());
-
-        ClusterScanResult results = this.scan(scans);
-
-        if (!results.isConsistant()) {
-            String error = "One Result was empty but the others were not";
-            LOG.debug(error);
-            throw new IllegalStateException(error);
-        }
-
-        if (!results.notEmpty()) {
-            LOG.debug("Results are empty");
-            return new ArrayList<Result>();
-        }
-
-        results.setColumnFamily(secretFamily.getBytes());
-        results.setColumnQualifier(secretQualifier.getBytes());
-        results.setNbits(config.getnBits());
-        return results.getDecodedResults();
-	}
-
-	public List<Result> scanEndpoint(byte[] startRow, byte[] stopRow,
-			int requestID, SmpcConfiguration config, Dealer dealer,
-			String secretFamily, String secretQualifier) throws IOException,
-			InterruptedException, InvalidSecretValue {
-
-		int playerID = 1;
-		LOG.debug("Start row are " + Arrays.toString(startRow) + " / "
-				+ Arrays.toString(stopRow));
-		List<Scan> scans = getScans(dealer, startRow, stopRow);
-
+		scans.add(scanC1);
+		scans.add(scanC2);
+		scans.add(scanC3);
 		byte[] requestIDba = ("" + requestID).getBytes();
 		byte[] playerIDba = ("" + playerID).getBytes();
 
-		for (Scan scan : scans) {
+		for (int i = 0; i < scans.size(); i++) {
+			Scan scan = scans.get(i);
 			scan.setAttribute(OperationAttributesIdentifiers.TargetPlayer,
 					playerIDba);
 			scan.setAttribute(OperationAttributesIdentifiers.RequestIdentifier,
@@ -233,8 +74,84 @@ public class TestClusterTables extends ClusterTables {
 					secretFamily.getBytes());
 			scan.setAttribute(OperationAttributesIdentifiers.SecretQualifier,
 					secretQualifier.getBytes());
+			scan.setAttribute(OperationAttributesIdentifiers.ScanForEqualVal,
+					value.get(i).toByteArray());
+		}
+		ClusterScanResult results = this.scan(scans);
+        results.setColumnFamily(secretFamily.getBytes());
+        results.setColumnQualifier(secretQualifier.getBytes());
+        results.setNbits(config.getnBits());
+		List<Result> decResults = results.getDecodedResults();
+		LOG.debug("Results size is " + decResults);
+		if (!results.isConsistant()) {
+			throw new IllegalStateException(
+					"One Result was empty but the others" + "were not");
 		}
 
+		if (decResults.isEmpty()) {
+			return BigInteger.valueOf(-1);
+		} else {
+			LOG.debug("DecResults is "+ decResults.get(0));
+            LOG.debug("DecResults  BigInteger is "+ new BigInteger(decResults.get(0).getRow()));
+
+            return new BigInteger(decResults.get(0).getRow());
+		}
+	}
+
+
+	protected void scanSetRow(Dealer dealer, List<Scan> scans,
+			byte[] row, String attribute) throws InvalidSecretValue {
+	    if(row != null){
+            SharemindSharedSecret startSharedSecret = (SharemindSharedSecret) dealer
+                    .share(new BigInteger(row));
+            List<BigInteger> secrets = new ArrayList<BigInteger>();
+            secrets.add(startSharedSecret.getU1());
+            secrets.add(startSharedSecret.getU2());
+            secrets.add(startSharedSecret.getU3());
+
+            for(int i=0; i <scans.size(); i++){
+                Scan scan = scans.get(i);
+                scan.setAttribute(attribute, secrets.get(i).toByteArray());
+
+            }
+	    }
+	}
+
+	private List<Scan> getScans()
+			throws InvalidSecretValue {
+		List<Scan> scans = new ArrayList<Scan>();
+		scans.add(new Scan());
+		scans.add(new Scan());
+		scans.add(new Scan());
+		return scans;
+	}
+
+	private void setScanAttributes(List<Scan> scans, byte[] playerID, byte[] requestID, byte[] protectedColumn, byte[] secretFamily, byte[] secretQualifier){
+        for (Scan scan : scans) {
+            scan.setAttribute(OperationAttributesIdentifiers.TargetPlayer, playerID);
+            scan.setAttribute(OperationAttributesIdentifiers.RequestIdentifier, requestID);
+            scan.setAttribute(OperationAttributesIdentifiers.ProtectedColumn, protectedColumn);
+            scan.setAttribute(OperationAttributesIdentifiers.SecretFamily, secretFamily);
+            scan.setAttribute(OperationAttributesIdentifiers.SecretQualifier, secretQualifier);
+        }
+    }
+
+
+	public List<Result> scanEndpoint(byte[] startRow, byte[] stopRow,
+			int requestID, SmpcConfiguration config, Dealer dealer,
+			String secretFamily, String secretQualifier) throws IOException,
+			InterruptedException, InvalidSecretValue {
+
+		int playerID = 1;
+		LOG.debug("Start row are " + Arrays.toString(startRow) + " / "
+				+ Arrays.toString(stopRow));
+
+		List<Scan> scans = getScans();
+		byte[] requestIDba = ("" + requestID).getBytes();
+		byte[] playerIDba = ("" + playerID).getBytes();
+        setScanAttributes(scans, playerIDba, requestIDba, "true".getBytes(), secretFamily.getBytes(), secretQualifier.getBytes());
+        scanSetRow(dealer, scans, startRow, OperationAttributesIdentifiers.ScanStartVal);
+		scanSetRow(dealer, scans, stopRow, OperationAttributesIdentifiers.ScanStopVal);
 		ClusterScanResult results = this.scan(scans);
 
 		if (!results.isConsistant()) {

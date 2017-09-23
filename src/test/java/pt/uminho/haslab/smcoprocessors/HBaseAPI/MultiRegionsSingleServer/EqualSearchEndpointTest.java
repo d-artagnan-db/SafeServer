@@ -1,4 +1,4 @@
-package pt.uminho.haslab.smcoprocessors.HBaseAPI.MultiRegionsMultiServers;
+package pt.uminho.haslab.smcoprocessors.HBaseAPI.MultiRegionsSingleServer;
 
 public class EqualSearchEndpointTest
 		extends
