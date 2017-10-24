@@ -61,16 +61,17 @@ public class EqualSearchEndpointTest extends AbstractSearchEndpointTest {
 			LOG.debug("Expecting row " + i);
 			LOG.debug("Request id is " + i);
 			// Only the row key is returned to assertTestEquality
-			BigInteger index = tables.equalScanEndpoint(secret, i, secretFamily,
-					secretQualifier, config);
+			BigInteger index = tables.equalScanEndpoint(secret, i,
+					secretFamily, secretQualifier, config);
 
 			assertEquals(values.get(i), index);
 		}
 
-		//Search for nonStoredValue
+		// Search for nonStoredValue
 		BigInteger value = getNonStoredValue(values);
 		SharedSecret secret = dealer.share(value);
-		BigInteger result = tables.equalScanEndpoint(secret, values.size() + 1, secretFamily, secretQualifier, config);
+		BigInteger result = tables.equalScanEndpoint(secret, values.size() + 1,
+				secretFamily, secretQualifier, config);
 		assertEquals(BigInteger.valueOf(-1), result);
 		long end = System.nanoTime();
 		long duration = TimeUnit.SECONDS.convert(end - start,

@@ -33,8 +33,8 @@ public abstract class ConcurrentBatchProtocolTest extends TestLinkedRegions {
 	protected final List<Integer> nbits;
 	protected final List<List<BigInteger>> valuesOne;
 	protected final List<List<BigInteger>> valuesTwo;
-	protected final Map<Integer, List<List<byte[]>>> secretsOne;
-	protected final Map<Integer, List<List<byte[]>>> secretsTwo;
+	private final Map<Integer, List<List<byte[]>>> secretsOne;
+	private final Map<Integer, List<List<byte[]>>> secretsTwo;
 
 	public ConcurrentBatchProtocolTest(List<Integer> nbits,
 			List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo)

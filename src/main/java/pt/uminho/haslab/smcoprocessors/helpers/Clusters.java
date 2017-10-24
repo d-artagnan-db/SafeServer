@@ -44,7 +44,7 @@ public class Clusters extends ShareCluster {
 			// System.out.println("Spliting table on "+ splitKeys.get(i));
 			bSplitKeys[i] = splitKeys.get(i).toString().getBytes();
 		}
-		//System.out.println("bSplitKeys size is " + bSplitKeys.length);
+		// System.out.println("bSplitKeys size is " + bSplitKeys.length);
 
 		for (HBaseAdmin admin : admins) {
 			admin.createTable(table, bSplitKeys);

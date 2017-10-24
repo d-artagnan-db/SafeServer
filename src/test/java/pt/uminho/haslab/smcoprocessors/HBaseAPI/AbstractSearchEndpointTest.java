@@ -67,7 +67,7 @@ public abstract class AbstractSearchEndpointTest {
 		int nElemsPerRegion = values.size() / nRegions;
 		List<Integer> res = new ArrayList<Integer>();
 
-		//System.out.println("NElemsPerRegions " + nElemsPerRegion);
+		// System.out.println("NElemsPerRegions " + nElemsPerRegion);
 		int i = nElemsPerRegion;
 		do {
 			// System.out.println("SplitValue "+i+" is "+ values.get(i));
