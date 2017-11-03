@@ -64,7 +64,7 @@ public abstract class SecretSearchTest extends BatchProtocolTest {
 	protected abstract List<Boolean> getSearchExpectedResult(Integer request);
 
 	protected abstract SearchCondition getSearchCondition(int nBits,
-			List<byte[]> firstValueSecret, int i);
+			List<byte[]> firstValueSecret);
 
 	protected int getExpectedResult(BigInteger valOne, BigInteger valtwo) {
 		throw new UnsupportedOperationException("Not supported yet.");
@@ -86,9 +86,7 @@ public abstract class SecretSearchTest extends BatchProtocolTest {
 			Integer reqID = Integer.parseInt(new String(ident.getRequestID()));
 			BigInteger rowID = BigInteger.valueOf(reqID);
 
-			if (player.getPlayerID() == 1) {
-				splayer.setTargetPlayer();
-			}
+			splayer.setTargetPlayer(1);
 
 			/**
 			 * Simulation of comparison of values inside hbase scan. The second
@@ -98,14 +96,17 @@ public abstract class SecretSearchTest extends BatchProtocolTest {
 			 * secretTwo >= secretOne secretTwo > secretOne secretTwo <
 			 * secretOne secretTwo <= SecretOne
 			 */
-			SearchCondition condition = getSearchCondition(nBits, secretTwo, 1);
+			SearchCondition condition = getSearchCondition(nBits, secretTwo);
 
 			List<byte[]> ids = new ArrayList<byte[]>();
 			for (int i = 0; i < secretOne.size(); i++) {
 				ids.add(rowID.toByteArray());
 			}
-			List<Boolean> searchRes = condition.evaluateCondition(secretOne,
-					ids, splayer);
+
+			condition.evaluateCondition(secretOne, ids, splayer);
+
+			List<Boolean> searchRes = condition.getClassificationList();
+
 			Integer playerId = player.getPlayerID();
 			results.get(playerId).put(reqID, searchRes);
 			splayer.cleanResultsMatch();

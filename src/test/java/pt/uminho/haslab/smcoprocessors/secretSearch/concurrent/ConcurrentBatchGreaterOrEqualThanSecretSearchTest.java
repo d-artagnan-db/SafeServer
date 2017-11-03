@@ -25,9 +25,9 @@ public class ConcurrentBatchGreaterOrEqualThanSecretSearchTest
 
 	@Override
 	protected SearchCondition getSearchCondition(int nBits,
-			List<byte[]> firstValueSecret, int i) {
+			List<byte[]> firstValueSecret) {
 		return AbstractSearchValue.conditionTransformer(GreaterOrEqualThan,
-				nBits, firstValueSecret, i);
+				nBits, firstValueSecret);
 	}
 
 	@Override

@@ -268,8 +268,8 @@ public class ProtocolResultsTest {
 
 				int target = playerDestIDs.get(requestID);
 				if (playerID != target) {
-					player.sendProtocolResults(target, new SearchResults(
-							valuesToSend, ids));
+					player.sendProtocolResults(new SearchResults(valuesToSend,
+							ids));
 				} else {
 					peerResults = player.getProtocolResults();
 					player.cleanValues();

@@ -30,9 +30,9 @@ public class BatchEqualSecretSearchTest extends SecretSearchTest {
 	}
 
 	protected SearchCondition getSearchCondition(int nBits,
-			List<byte[]> firstValueSecret, int i) {
+			List<byte[]> firstValueSecret) {
 		return AbstractSearchValue.conditionTransformer(Equal, nBits,
-				firstValueSecret, i);
+				firstValueSecret);
 	}
 
 }

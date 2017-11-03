@@ -76,6 +76,8 @@ public class PlayerResults {
 						1, firstSecret, secondSecret, thirdSecret);
 
 				int result = secretResult.unshare().intValue();
+				System.out.println(i + " decode secrets " + firstSecret + ":" + secondSecret + ":" + thirdSecret + " has result " + result );
+
 				if (result == 1) {
 					resultIDS.add(Boolean.TRUE);
 				} else {

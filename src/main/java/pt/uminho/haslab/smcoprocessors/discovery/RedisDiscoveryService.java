@@ -60,8 +60,12 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
 
 			// LOG.debug("Going to put on redis " + key + "<->" +
 			// locationMessage);
-
-			jedis.lpush(key, locationMessage);
+			try{
+				jedis.lpush(key, locationMessage);
+			}catch(Exception ex){
+				LOG.debug(ex);
+				throw new IllegalStateException(ex);
+			}
 
 		}
 

@@ -1,5 +1,7 @@
 package pt.uminho.haslab.smcoprocessors.secretSearch;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.smcoprocessors.protocolresults.ResultsLengthMismatch;
 import pt.uminho.haslab.smcoprocessors.protocolresults.SearchResults;
 import pt.uminho.haslab.smhbase.interfaces.Secret;
@@ -12,46 +14,47 @@ import static pt.uminho.haslab.smcoprocessors.secretSearch.SearchCondition.Condi
 
 public abstract class AbstractSearchValue implements SearchCondition {
 
+	static final Log LOG = LogFactory.getLog(AbstractSearchValue.class
+			.getName());
+
 	protected final Condition condition;
-	protected final int targetPlayer;
-	public AbstractSearchValue(Condition condition, int targetPlayer) {
+
+	public AbstractSearchValue(Condition condition) {
 		this.condition = condition;
-		this.targetPlayer = targetPlayer;
 	}
 
 	public static SearchCondition conditionTransformer(Condition op, int nBits,
-			List<byte[]> value, int targetPlayer) {
+			List<byte[]> value) {
 		switch (op) {
 			case Equal :
-				return new SearchValue(nBits, value, Equal, targetPlayer);
+				return new SearchValue(nBits, value, Equal);
 			case GreaterOrEqualThan :
-				return new SearchValue(nBits, value, GreaterOrEqualThan,
-						targetPlayer);
+				return new SearchValue(nBits, value, GreaterOrEqualThan);
 			case Greater :
-				SearchCondition equal = new SearchValue(nBits, value, Equal,
-						targetPlayer);
+				SearchCondition equal = new SearchValue(nBits, value, Equal);
 				SearchCondition notEqual = new UnarySearchValue(Not, equal,
-						targetPlayer);
+						Equal);
 				SearchCondition greaterEqualThan = new SearchValue(nBits,
-						value, GreaterOrEqualThan, targetPlayer);
+						value, GreaterOrEqualThan);
 				return new ComposedSearchValue(And, notEqual, greaterEqualThan,
-						targetPlayer);
+						Greater);
 			case Less :
 				greaterEqualThan = new SearchValue(nBits, value,
-						GreaterOrEqualThan, targetPlayer);
-				return new UnarySearchValue(Not, greaterEqualThan, targetPlayer);
+						GreaterOrEqualThan);
+				return new UnarySearchValue(Not, greaterEqualThan,
+						GreaterOrEqualThan);
 			case LessOrEqualThan :
 				greaterEqualThan = new SearchValue(nBits, value,
-						GreaterOrEqualThan, targetPlayer);
+						GreaterOrEqualThan);
 
-				equal = new SearchValue(nBits, value, Equal, targetPlayer);
+				equal = new SearchValue(nBits, value, Equal);
 				SearchCondition notGreater = new UnarySearchValue(Not,
-						greaterEqualThan, targetPlayer);
+						greaterEqualThan, GreaterOrEqualThan);
 				return new ComposedSearchValue(Xor, equal, notGreater,
-						targetPlayer);
+						LessOrEqualThan);
 			case NotEqual :
-				equal = new SearchValue(nBits, value, Equal, targetPlayer);
-				return new UnarySearchValue(Not, equal, targetPlayer);
+				equal = new SearchValue(nBits, value, Equal);
+				return new UnarySearchValue(Not, equal, Equal);
 
 		}
 		return null;
@@ -78,6 +81,10 @@ public abstract class AbstractSearchValue implements SearchCondition {
 			List<byte[]> ids) throws ResultsLengthMismatch {
 		return new SearchResults(secrets, ids);
 
+	}
+
+	public Condition getCondition() {
+		return condition;
 	}
 
 }

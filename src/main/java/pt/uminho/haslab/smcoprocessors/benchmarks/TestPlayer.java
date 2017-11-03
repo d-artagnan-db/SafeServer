@@ -40,7 +40,6 @@ public class TestPlayer implements SharemindPlayer {
 		batchMessagesReceived = new HashMap<Integer, List<List<byte[]>>>();
 	}
 
-	@Override
 	public BigInteger getValue(Integer originPlayerID) {
 		// LOG.debug("Going to call super getValue");
 		BigInteger res = player.getValue(originPlayerID);
@@ -53,7 +52,6 @@ public class TestPlayer implements SharemindPlayer {
 		return res;
 	}
 
-	@Override
 	public void sendValueToPlayer(int destPlayer, BigInteger value) {
 
 		if (!messagesSent.containsKey(destPlayer)) {
@@ -82,8 +80,8 @@ public class TestPlayer implements SharemindPlayer {
 		return player.getPlayerID();
 	}
 
-	public void sendProtocolResults(int destPlayer, SearchResults res) {
-		player.sendProtocolResults(destPlayer, res);
+	public void sendProtocolResults(SearchResults res) {
+		player.sendProtocolResults(res);
 	}
 
 	public List<SearchResults> getProtocolResults()
@@ -107,8 +105,8 @@ public class TestPlayer implements SharemindPlayer {
 		return player.isTargetPlayer();
 	}
 
-	public void setTargetPlayer() {
-		player.setTargetPlayer();
+	public void setTargetPlayer(int targetPlayer) {
+		player.setTargetPlayer(targetPlayer);
 	}
 
 	public void cleanResultsMatch() {

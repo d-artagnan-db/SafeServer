@@ -34,7 +34,7 @@ public class RegionServerSim extends TestRegionServer {
 		List<byte[]> secTwos = new ArrayList<byte[]>();
 		secTwos.add(secTwo);
 		return AbstractSearchValue.conditionTransformer(cond, nBits + 1,
-				secTwos, 1);
+				secTwos);
 	}
 
 	public int getMSent(TestPlayer player) {
@@ -75,9 +75,7 @@ public class RegionServerSim extends TestRegionServer {
 							bregionID);
 					TestPlayer player = new TestPlayer(relay, ident, playerID,
 							broker);
-					if (this.playerID == 1) {
-						player.setTargetPlayer();
-					}
+					player.setTargetPlayer(1);
 
 					BigInteger valOne = new BigInteger(nbit, generator);
 					BigInteger valTwo = new BigInteger(nbit, generator);

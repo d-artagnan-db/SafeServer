@@ -72,8 +72,8 @@ public class BatchTestPlayer implements SharemindPlayer {
 		return messagesReceived;
 	}
 
-	public void sendProtocolResults(int destPlayer, SearchResults res) {
-		player.sendProtocolResults(destPlayer, res);
+	public void sendProtocolResults(SearchResults res) {
+		player.sendProtocolResults(res);
 	}
 
 	public List<SearchResults> getProtocolResults()
@@ -101,7 +101,7 @@ public class BatchTestPlayer implements SharemindPlayer {
 		return player.isTargetPlayer();
 	}
 
-	public void setTargetPlayer() {
-		player.setTargetPlayer();
+	public void setTargetPlayer(int targetPlayer) {
+		player.setTargetPlayer(targetPlayer);
 	}
 }

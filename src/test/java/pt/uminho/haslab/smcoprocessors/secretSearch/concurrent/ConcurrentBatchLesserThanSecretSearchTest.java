@@ -23,9 +23,9 @@ public class ConcurrentBatchLesserThanSecretSearchTest
 	}
 
 	protected SearchCondition getSearchCondition(int nBits,
-			List<byte[]> firstValueSecret, int i) {
+			List<byte[]> firstValueSecret) {
 		return AbstractSearchValue.conditionTransformer(Less, nBits,
-				firstValueSecret, i);
+				firstValueSecret);
 	}
 
 	protected List<Boolean> getSearchExpectedResult(Integer request) {

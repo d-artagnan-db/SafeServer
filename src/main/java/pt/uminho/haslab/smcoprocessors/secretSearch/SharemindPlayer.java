@@ -12,7 +12,8 @@ import java.util.List;
  */
 public interface SharemindPlayer extends Player {
 
-	void sendProtocolResults(int destPlayer, SearchResults res);
+	// To define dest player use the function setTargetPlayer
+	void sendProtocolResults(SearchResults res);
 
 	/**
 	 * This function accepts the local results, retrieves the results from the
@@ -34,6 +35,6 @@ public interface SharemindPlayer extends Player {
 
 	boolean isTargetPlayer();
 
-	void setTargetPlayer();
+	void setTargetPlayer(int targetPlayerID);
 
 }

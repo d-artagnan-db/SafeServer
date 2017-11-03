@@ -33,8 +33,8 @@ public class BatchGreaterOrEqualThanSecretSearchTest extends SecretSearchTest {
 	}
 
 	protected SearchCondition getSearchCondition(int nBits,
-			List<byte[]> firstValueSecret, int i) {
+			List<byte[]> firstValueSecret) {
 		return AbstractSearchValue.conditionTransformer(GreaterOrEqualThan,
-				nBits, firstValueSecret, i);
+				nBits, firstValueSecret);
 	}
 }

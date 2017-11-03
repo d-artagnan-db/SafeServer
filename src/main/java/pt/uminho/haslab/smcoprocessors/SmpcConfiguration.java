@@ -1,6 +1,8 @@
 package pt.uminho.haslab.smcoprocessors;
 
 import org.apache.hadoop.conf.Configuration;
+import org.mortbay.log.Log;
+import pt.uminho.haslab.safemapper.DatabaseSchema;
 import pt.uminho.haslab.smcoprocessors.comunication.IORelay;
 import pt.uminho.haslab.smcoprocessors.comunication.MessageBroker;
 import pt.uminho.haslab.smcoprocessors.comunication.Relay;
@@ -17,7 +19,6 @@ public class SmpcConfiguration {
 	private final boolean isDevelopment;
 
 	// SMPC library configuration
-	private final int nBits;
 	private final int batchSize;
 	private final int preRandomElems;
 
@@ -27,16 +28,18 @@ public class SmpcConfiguration {
 	private final int retries;
 	private final String discoveryServiceLocation;
 
+	private final String databaseSchemaPath;
+	private final DatabaseSchema schema;
+
 	public SmpcConfiguration(Configuration conf) {
 
 		// IORelay configuration
 		playerID = conf.getInt("smhbase.player.id", -1);
-		relayHost = conf.get("smhbase.relay.host");
+        relayHost = conf.get("smhbase.relay.host");
 		relayPort = conf.getInt("smhbase.relay.port", -1);
 		isDevelopment = conf.getBoolean("hbase.coprocessor.development", true);
 
 		// SMCP library configuration
-		nBits = conf.getInt("smhbase.nbits", -1);
 		batchSize = conf.getInt("smhbase.protocols.size", 20);
 		preRandomElems = conf.getInt("smhbase.smpc.prerandom.size", 0);
 
@@ -46,6 +49,12 @@ public class SmpcConfiguration {
 		sleepTime = conf.getInt("smhbase.discovery.sleepTime", 200);
 		incTime = conf.getInt("smhbase.discovery.incTime", 100);
 		retries = conf.getInt("smhbase.discovery.retries", 5);
+
+		databaseSchemaPath = conf.get("smhbase.schema");
+		System.out.println("Schema path is " + databaseSchemaPath);
+		String file = getClass().getResource("/"+databaseSchemaPath).getFile();
+
+		schema = new DatabaseSchema(file);
 	}
 
 	public Relay createRelay(MessageBroker broker) throws IOException {
@@ -57,10 +66,6 @@ public class SmpcConfiguration {
 
 	public int getPlayerID() {
 		return playerID;
-	}
-
-	public int getnBits() {
-		return nBits;
 	}
 
 	public String getPlayerIDasString() {
@@ -87,4 +92,7 @@ public class SmpcConfiguration {
 		return isDevelopment;
 	}
 
+	public DatabaseSchema getSchema() {
+		return schema;
+	}
 }

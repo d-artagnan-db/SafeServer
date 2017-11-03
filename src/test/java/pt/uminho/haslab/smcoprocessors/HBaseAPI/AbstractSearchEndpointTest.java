@@ -28,9 +28,6 @@ public abstract class AbstractSearchEndpointTest {
 	protected SmpcConfiguration config;
 	private Clusters clusters;
 
-	protected abstract int getNumberOfRegionServers();
-	protected abstract int getNumberOfRegions();
-
 	public AbstractSearchEndpointTest() throws Exception {
 
 		List<String> resources = new ArrayList<String>();
@@ -49,6 +46,10 @@ public abstract class AbstractSearchEndpointTest {
 		conf.addResource(resource);
 		config = new SmpcConfiguration(conf);
 	}
+
+	protected abstract int getNumberOfRegionServers();
+
+	protected abstract int getNumberOfRegions();
 
 	@After
 	public void tearDown() throws IOException, InterruptedException {

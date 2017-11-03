@@ -70,7 +70,7 @@ public abstract class ConcurrentSecretSearchTest
 	}
 
 	protected abstract SearchCondition getSearchCondition(int nBits,
-			List<byte[]> firstValueSecret, int i);
+			List<byte[]> firstValueSecret);
 
 	protected abstract List<Boolean> getSearchExpectedResult(Integer request);
 
@@ -99,9 +99,7 @@ public abstract class ConcurrentSecretSearchTest
 
 			BigInteger rowID = BigInteger.valueOf(reqID);
 
-			if (player.getPlayerID() == 1) {
-				player.setTargetPlayer();
-			}
+			player.setTargetPlayer(1);
 
 			/**
 			 * Simulation of comparison of values inside hbase scan. The second
@@ -113,13 +111,14 @@ public abstract class ConcurrentSecretSearchTest
 			 */
 
 			SearchCondition condition = getSearchCondition(nBits,
-					secondValueSecret, 1);
+					secondValueSecret);
 			List<byte[]> ids = new ArrayList<byte[]>();
 			for (int i = 0; i < firstValueSecret.size(); i++) {
 				ids.add(rowID.toByteArray());
 			}
-			searchRes = condition.evaluateCondition(firstValueSecret, ids,
-					player);
+			condition.evaluateCondition(firstValueSecret, ids, player);
+
+			searchRes = condition.getClassificationList();
 			Integer playerID = player.getPlayerID();
 			results.get(playerID).put(reqID, searchRes);
 			player.cleanResultsMatch();

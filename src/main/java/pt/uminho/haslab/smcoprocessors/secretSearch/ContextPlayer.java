@@ -56,6 +56,8 @@ public class ContextPlayer implements Player, SharemindPlayer {
 	 */
 	private final Map<Integer, Queue<List<byte[]>>> playerBatchMessages;
 	private final BatchShareMessage.Builder bmBuilder;
+
+	private int targetPlayerID;
 	private boolean isTargetPlayer;
 
 	public ContextPlayer(Relay relay, RequestIdentifier requestID,
@@ -102,7 +104,7 @@ public class ContextPlayer implements Player, SharemindPlayer {
 
 	}
 
-	public void sendProtocolResults(int destPlayer, SearchResults res) {
+	public void sendProtocolResults(SearchResults res) {
 		try {
 			List<ByteString> bsValues = new ArrayList<ByteString>();
 			List<ByteString> bsIds = new ArrayList<ByteString>();
@@ -120,7 +122,7 @@ public class ContextPlayer implements Player, SharemindPlayer {
 					.setPlayerSource(this.playerID)
 					.setRequestID(ByteString.copyFrom(requestID.getRequestID()))
 					.setRegionID(ByteString.copyFrom(requestID.getRegionID()))
-					.setPlayerDest(destPlayer).addAllValues(bsValues)
+					.setPlayerDest(targetPlayerID).addAllValues(bsValues)
 					.addAllSecretID(bsIds).build();
 			relay.sendProtocolResults(msg);
 		} catch (IOException ex) {
@@ -311,15 +313,16 @@ public class ContextPlayer implements Player, SharemindPlayer {
 
 	public void storeValue(Integer intgr, Integer intgr1, BigInteger bi) {
 		throw new UnsupportedOperationException("Operation only used for "
-				+ "testing and not implemente on ContextPlayer class");
+				+ "testing and not implemented on ContextPlayer class");
 	}
 
 	public boolean isTargetPlayer() {
-		return isTargetPlayer;
+		return this.isTargetPlayer;
 	}
 
-	public void setTargetPlayer() {
-		isTargetPlayer = true;
+	public void setTargetPlayer(int targetPlayerID) {
+		this.targetPlayerID = targetPlayerID;
+		this.isTargetPlayer = this.playerID == targetPlayerID;
 	}
 
 	public void cleanResultsMatch() {
@@ -334,14 +337,14 @@ public class ContextPlayer implements Player, SharemindPlayer {
 	}
 
 	public void sendValueToPlayer(int playerId, BigInteger value) {
-		String msg = "Sigle ShareMessage are deprecated. "
+		String msg = "Single ShareMessage are deprecated. "
 				+ "       Please send protocols of messages.";
 		LOG.error(msg);
 		throw new UnsupportedOperationException(msg);
 	}
 
 	public BigInteger getValue(Integer originPlayerId) {
-		String msg = "Sigle ShareMessage are deprecated. "
+		String msg = "Single ShareMessage are deprecated. "
 				+ "       Please send protocols of messages.";
 		LOG.error(msg);
 		throw new UnsupportedOperationException(msg);
