@@ -66,7 +66,8 @@ public class SecureRegionScanner implements RegionScanner {
 	public boolean isFilterDone() throws IOException {
 		LOG.debug("is filter done " + isFilterDone);
 
-		return isFilterDone;
+		//return isFilterDone;
+        return false;
 	}
 
 	public boolean reseek(byte[] row) throws IOException {
@@ -108,7 +109,7 @@ public class SecureRegionScanner implements RegionScanner {
 			// Return case when there are no records in the table;
 			//LOG.debug("hasMore? "+hasMore);
 			//LOG.debug("localResults empty? "+ localResults.isEmpty());
-			if (hasMore == false && localResults.isEmpty()) {
+			if (!hasMore && localResults.isEmpty()) {
 				LOG.debug("Going to return new empty BatchGetResult");
 				return localCells;
 			}
@@ -183,9 +184,7 @@ public class SecureRegionScanner implements RegionScanner {
 		}
 
 		void addListCells(List<List<Cell>> cells) {
-			for (List<Cell> lCells : cells) {
-				this.cells.add(lCells);
-			}
+            this.cells.addAll(cells);
 		}
 
 		public List<Cell> getNext() {
