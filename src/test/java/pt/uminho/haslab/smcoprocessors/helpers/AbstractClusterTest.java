@@ -3,8 +3,6 @@ package pt.uminho.haslab.smcoprocessors.helpers;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
@@ -20,6 +18,7 @@ import pt.uminho.haslab.testingutils.ClusterScanResult;
 import pt.uminho.haslab.testingutils.ValuesGenerator;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +37,6 @@ public abstract class AbstractClusterTest {
     protected Map<String, Map<String, ColType>> qualifierColTypes;
     protected Map<String, Map<String, List<byte[]>>> generatedValues;
     protected List<byte[]> rowIdentifiers;
-
     public static enum ColType {
         STRING, INT
     }
@@ -47,7 +45,7 @@ public abstract class AbstractClusterTest {
 
         List<String> resources = getResources();
         LOG.debug("Start Cluster");
-        clusters = new Clusters(resources, getNumberOfRegions());
+        clusters = new Clusters(resources, getNumberOfRegionsServers());
         LOG.debug("Cluster Ready");
         Configuration conf = new Configuration();
         conf.addResource(resources.get(0));
@@ -65,9 +63,9 @@ public abstract class AbstractClusterTest {
 
     protected abstract Filter getFilterOnProtectedColumn();
 
-    protected abstract int getNumberOfClusters();
-
     protected abstract int getNumberOfRegions();
+
+    protected abstract int getNumberOfRegionsServers();
 
     protected abstract List<String> getResources();
 
@@ -98,7 +96,10 @@ public abstract class AbstractClusterTest {
                             val = ValuesGenerator.randomString(10).getBytes();
                             break;
                         case INT:
-                            val = ValuesGenerator.randomBigInteger(10).toByteArray();
+                            //val = ValuesGenerator.randomBigInteger(10).toByteArray();
+                            int intVal = ValuesGenerator.randomInt();
+                            System.out.println("generated value " +intVal);
+                            val = BigInteger.valueOf(intVal).toByteArray();
                             break;
 
                     }
@@ -260,6 +261,7 @@ public abstract class AbstractClusterTest {
 
     private void validateResult(List<Result> vanillaScanResult, List<Result> protectedScanResult){
 
+        System.out.println(vanillaScanResult);
         assertEquals(vanillaScanResult.size(), protectedScanResult.size());
         System.out.println("Compared Result size "+ vanillaScanResult.size());
         for(int i =0; i < vanillaScanResult.size(); i++) {

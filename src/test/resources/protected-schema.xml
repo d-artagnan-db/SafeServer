@@ -26,7 +26,7 @@
                 <qualifier>
                     <name>Age</name>
                     <cryptotechnique>SMPC</cryptotechnique>
-                    <colformatsize>63</colformatsize>
+                    <colformatsize>65</colformatsize>
                 </qualifier>
             </family>
         </columns>

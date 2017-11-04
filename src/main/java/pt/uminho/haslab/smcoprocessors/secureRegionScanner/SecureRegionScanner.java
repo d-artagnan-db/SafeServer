@@ -45,8 +45,8 @@ public class SecureRegionScanner implements RegionScanner {
 		this.env = env;
 		this.player = player;
 
-		//scan = new Scan(scanStartRow, scanStopRow);
-        scan = new Scan();
+		scan = new Scan(scanStartRow, scanStopRow);
+        //scan = new Scan();
 		LOG.debug(player.getPlayerID() + " region name is "
 				+ env.getRegion().getRegionNameAsString() + " with state "
 				+ env.getRegion().isAvailable() + " - "

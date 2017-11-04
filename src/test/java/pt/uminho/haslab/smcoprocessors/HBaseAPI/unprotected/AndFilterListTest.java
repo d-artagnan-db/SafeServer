@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class AndFilterListTest extends AbstractUnprotectedFilter {
+public class AndFilterListTest extends AbstractUnprotectedFilterTest {
 
     private Random randomGenerator;
 
@@ -50,7 +50,7 @@ public class AndFilterListTest extends AbstractUnprotectedFilter {
         return 1;
     }
 
-    protected int getNumberOfRegions() {
+    protected int getNumberOfRegionsServers() {
         return 1;
     }
 

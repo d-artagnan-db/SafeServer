@@ -8,13 +8,13 @@ import java.util.List;
 import java.util.Random;
 
 
-public abstract class AbsColumnValueFilter
+public abstract class AbsColumnValueFilterTest
 		extends
-		AbstractUnprotectedFilter{
+		AbstractUnprotectedFilterTest {
 	private Random randomGenerator;
 
 
-	public AbsColumnValueFilter() throws Exception {
+	public AbsColumnValueFilterTest() throws Exception {
 		super();
 		randomGenerator = new Random();
 

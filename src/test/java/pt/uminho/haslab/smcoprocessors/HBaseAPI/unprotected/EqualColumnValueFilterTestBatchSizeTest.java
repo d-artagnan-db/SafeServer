@@ -2,11 +2,11 @@ package pt.uminho.haslab.smcoprocessors.HBaseAPI.unprotected;
 
 import org.apache.hadoop.hbase.filter.CompareFilter;
 
-public class EqualColumnValueFilterBatchSizeTest
+public class EqualColumnValueFilterTestBatchSizeTest
 		extends
-        AbsColumnValueFilter {
+        AbsColumnValueFilterTest {
 
-	public EqualColumnValueFilterBatchSizeTest() throws Exception {
+	public EqualColumnValueFilterTestBatchSizeTest() throws Exception {
 		super();
 	}
 

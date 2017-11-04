@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Random;
 
 public class OrFilterListTest extends
-        AbstractUnprotectedFilter {
+        AbstractUnprotectedFilterTest {
 
     private Random randomGenerator;
 

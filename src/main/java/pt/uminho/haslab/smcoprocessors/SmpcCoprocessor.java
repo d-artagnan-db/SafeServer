@@ -393,10 +393,11 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 	public RegionScanner postScannerOpen(
 			final ObserverContext<RegionCoprocessorEnvironment> c,
 			final Scan scan, final RegionScanner s) throws IOException {
-
+		LOG.debug("PostScanner request received for table " + env.getRegion().getTableDesc().getNameAsString());
 		OperationAttributesIdentifiers.ScanType scanType = checkScanType(scan);
 		// If scanType does not exist or is normal than it returns the original
 		// RegionScanner
+		LOG.debug("ScanType result is "+scanType);
 		if (scanType != null && scanType != Normal) {
 			LOG.debug("Protected column ");
 			String table = env.getRegion().getTableDesc().getNameAsString();

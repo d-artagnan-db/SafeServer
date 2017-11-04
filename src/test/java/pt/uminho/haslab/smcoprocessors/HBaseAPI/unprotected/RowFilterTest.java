@@ -5,7 +5,7 @@ import org.apache.hadoop.hbase.filter.*;
 import java.util.List;
 import java.util.Random;
 
-public class RowFilterTest extends AbstractUnprotectedFilter{
+public class RowFilterTest extends AbstractUnprotectedFilterTest {
 
     private Random randomGenerator;
 

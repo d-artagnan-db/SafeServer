@@ -38,7 +38,7 @@ public class HandleSafeFilter {
 			.getName());
 	private final Filter inputFilter;
 	private final TableSchema schema;
-	private final Map<Column, SearchCondition> safeFilters;
+	private final Map<Column, List<SearchCondition>> safeFilters;
 	private final SharemindPlayer player;
 	private boolean filterWasProcessed;
 	private boolean stopOnMatch;
@@ -49,7 +49,7 @@ public class HandleSafeFilter {
 	public HandleSafeFilter(TableSchema schema, Filter filter, Player player) {
 		this.inputFilter = filter;
 		this.schema = schema;
-		safeFilters = new HashMap<Column, SearchCondition>();
+		safeFilters = new HashMap<Column, List<SearchCondition>>();
 		this.player = (SharemindPlayer) player;
 	}
 
@@ -74,9 +74,11 @@ public class HandleSafeFilter {
 		    processDatasetValues(rows, columnValues, rowIDs);
 
             // Evaluate all of the SMPC protocols required for the filter.
-            for (Column col : columnValues.keySet()) {
+            for (Column col : safeFilters.keySet()) {
                 List<byte[]> values = columnValues.get(col);
-                safeFilters.get(col).evaluateCondition(values, rowIDs, player);
+                for(SearchCondition safeFilter: safeFilters.get(col)){
+                 safeFilter.evaluateCondition(values, rowIDs, player);
+                }
 
             }
         }
@@ -213,7 +215,10 @@ public class HandleSafeFilter {
 			int nBits = getColumnFormatSize(family, qualifier);
 			SearchCondition searchCond = AbstractSearchValue
 					.conditionTransformer(cond, nBits, values);
-			this.safeFilters.put(col, searchCond);
+			if(!this.safeFilters.containsKey(col)){
+			    this.safeFilters.put(col, new ArrayList<SearchCondition>());
+            }
+			this.safeFilters.get(col).add(searchCond);
 			this.hasProtectedColumn = true;
 			return new SearchConditionFilter(searchCond, col);
 

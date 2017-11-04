@@ -2,15 +2,15 @@ package pt.uminho.haslab.smcoprocessors.HBaseAPI.unprotected;
 
 import org.apache.hadoop.hbase.filter.CompareFilter;
 
-public class EqualColumnValueFilterSmallerThanBatchSizeTest extends
-        AbsColumnValueFilter {
+public class EqualColumnValueFilterTestLargerThanBatch extends
+        AbsColumnValueFilterTest {
 
-    public EqualColumnValueFilterSmallerThanBatchSizeTest() throws Exception {
+    public EqualColumnValueFilterTestLargerThanBatch() throws Exception {
         super();
     }
 
     protected long getNumberOfRecords() {
-        return 5;
+        return 35;
     }
 
     protected CompareFilter.CompareOp getComparator() {

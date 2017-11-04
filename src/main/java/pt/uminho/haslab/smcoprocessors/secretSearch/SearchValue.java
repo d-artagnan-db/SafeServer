@@ -1,6 +1,5 @@
 package pt.uminho.haslab.smcoprocessors.secretSearch;
 
-import org.apache.hadoop.hbase.util.Bytes;
 import pt.uminho.haslab.smcoprocessors.protocolresults.*;
 import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
 import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;

@@ -7,9 +7,7 @@ import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
-import org.apache.hadoop.hbase.filter.CompareFilter;
-import org.apache.hadoop.hbase.filter.Filter;
-import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
+import org.apache.hadoop.hbase.filter.*;
 import pt.uminho.haslab.safemapper.DatabaseSchema;
 import pt.uminho.haslab.safemapper.Family;
 import pt.uminho.haslab.safemapper.Qualifier;
@@ -29,6 +27,7 @@ import pt.uminho.haslab.testingutils.ClusterTables;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -86,8 +85,11 @@ public class TestClusterTables extends ClusterTables {
                            byte[] bSafeQual = safeQual.getBytes();
                            //System.out.println("Format size is " + qual.getFormatSize());
                            //System.out.println("Value size is " + val.length);
+						   System.out.println("bufer input is " +val);
                            Dealer dealer = new SharemindDealer(qual.getFormatSize());
-                           BigInteger bigVal = new BigInteger(val);
+
+						   BigInteger bigVal = new BigInteger(val);
+						   System.out.println("put BigVal is "+ bigVal);
                            SharemindSharedSecret secret = (SharemindSharedSecret) dealer
                                    .share(bigVal);
                            System.out.println("Val  "+ new BigInteger(val) + " is encoded in secrets " + secret.getU1() + " : " + secret.getU2() + " : " + secret.getU3());
@@ -127,12 +129,19 @@ public class TestClusterTables extends ClusterTables {
 
     public ClusterScanResult scan(Scan oScan, boolean vanilla) throws IOException, InterruptedException {
 	    if(vanilla){
+	    	System.out.println(oScan);
+	    	System.out.println(oScan.getFilter());
             return super.scan(oScan);
 	    }else{
 	        Filter originalFilter = oScan.getFilter();
 	        List<Filter> parsedFilters = handleFilterWithProtectedColumns(originalFilter);
             List<Scan> scans = plainScans();
+            System.out.println(parsedFilters);
+            assert parsedFilters != null;
 
+            for(Filter f: parsedFilters){
+                System.out.println(f);
+            }
             for (int i = 0; i < scans.size(); i++) {
                 Scan scan = scans.get(i);
                 scan.setFilter(parsedFilters.get(i));
@@ -163,8 +172,58 @@ public class TestClusterTables extends ClusterTables {
 
 	    if(original instanceof SingleColumnValueFilter){
             return handleSingleColumnValueFilter((SingleColumnValueFilter) original);
+        }else if( original instanceof FilterList){
+	    	return handleFilterList((FilterList) original);
+		}else if(original instanceof WhileMatchFilter){
+            return handleWhileMatchFilter((WhileMatchFilter) original);
         }
         return null;
+    }
+
+    private List<Filter> handleWhileMatchFilter(WhileMatchFilter original){
+        Filter f = original.getFilter();
+        List<Filter> handledFilter = handleFilterWithProtectedColumns(f);
+
+        List<Filter> resFilters  = new ArrayList<Filter>();
+
+        assert handledFilter != null;
+        for(Filter filt: handledFilter){
+            resFilters.add(new WhileMatchFilter(filt));
+        }
+
+        return resFilters;
+    }
+
+
+    private List<Filter> handleFilterList(FilterList filter){
+        List<Filter>  list = filter.getFilters();
+        List<List<Filter>> resultInnerFilters = new ArrayList<List<Filter>>();
+
+        assert list != null;
+        for(Filter f: list){
+            System.out.println("Handling inner filters");
+            resultInnerFilters.add(handleFilterWithProtectedColumns(f));
+        }
+
+        List<Filter>  results = new ArrayList<Filter>();
+
+        for(int i = 0; i < 3; i++){
+            System.out.println("Creating resulting filter "+i);
+            FilterList fRes = new FilterList(filter.getOperator());
+
+            for(List<Filter> handledFilter: resultInnerFilters ){
+
+                if(handledFilter.get(i) instanceof SingleColumnValueFilter){
+                    SingleColumnValueFilter f = (SingleColumnValueFilter) handledFilter.get(i);
+                    System.out.println("Filter in pos "+ i + " gets value " + new BigInteger(f.getComparator().getValue()));
+                }
+                fRes.addFilter(handledFilter.get(i));
+
+            }
+            results.add(fRes);
+        }
+        System.out.println("Return resulting filter");
+        return results;
     }
 
     private List<Filter> handleSingleColumnValueFilter(SingleColumnValueFilter filter){

@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public abstract class AbstractUnprotectedFilter extends AbstractClusterTest {
+public abstract class AbstractUnprotectedFilterTest extends AbstractClusterTest {
 
-    public AbstractUnprotectedFilter() throws Exception {
+    public AbstractUnprotectedFilterTest() throws Exception {
         super();
     }
 
@@ -30,11 +30,11 @@ public abstract class AbstractUnprotectedFilter extends AbstractClusterTest {
         return 10;
     }
 
-    protected int getNumberOfClusters() {
+    protected int getNumberOfRegions() {
         return 1;
     }
 
-    protected int getNumberOfRegions() {
+    protected int getNumberOfRegionsServers() {
         return 1;
     }
 
