@@ -8,6 +8,10 @@ public class GreaterOrEqualThanSingleColumnValueFilterTest extends AbsSingleColu
         super();
     }
 
+    protected long getNumberOfRecords() {
+        return 10;
+    }
+
     CompareFilter.CompareOp getComparator() {
         return CompareFilter.CompareOp.GREATER_OR_EQUAL;
     }

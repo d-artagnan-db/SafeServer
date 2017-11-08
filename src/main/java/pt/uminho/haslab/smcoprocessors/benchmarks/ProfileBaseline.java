@@ -17,8 +17,8 @@ public class ProfileBaseline {
 		// Thread.sleep(30000);
 		clusters.createTables("usertable", "col1");
 		Scanner reader = new Scanner(System.in); // Reading from System.in
-		System.out.println("Enter a nsumber: ");
-		int n = reader.nextInt();
+        System.out.println("Enter a number: ");
+        int n = reader.nextInt();
 
 		clusters.tearDown();
 	}

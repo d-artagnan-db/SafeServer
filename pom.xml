@@ -10,8 +10,10 @@
     <url>http://maven.apache.org</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <smpc.version>1.1.0-SNAPSHOT</smpc.version>
-        <testingutilities.version>1.0-SNAPSHOT</testingutilities.version>
+        <smpc.version>1.1.0</smpc.version>
+        <safemapper.version>1.0.0</safemapper.version>
+        <testingutilities.version>1.0.0</testingutilities.version>
+        <protocommunication.version>1.1.0</protocommunication.version>
         <redis.version>2.9.0</redis.version>
         <relativePath>..</relativePath>
     </properties>
@@ -31,12 +33,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>protocommunication</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>${protocommunication.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>safemapper</artifactId>
-            <version>1.0</version>
+            <version>${safemapper.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
@@ -52,6 +54,12 @@
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-client</artifactId>
             <version>0.98.24-hadoop2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-testing-util</artifactId>
+            <version>0.98.24-hadoop2</version>
+            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -82,6 +90,16 @@
            </resource>
          </resources>-->
 
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 </project>
 

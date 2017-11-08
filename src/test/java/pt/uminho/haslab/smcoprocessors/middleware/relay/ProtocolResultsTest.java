@@ -105,15 +105,6 @@ public class ProtocolResultsTest {
 				peerTwoConvertedReceivedPeerReults.add(new BigInteger(
 						peerOneResults));
 			}
-			/*
-			 * System.out.println(Arrays.toString(peerOneValues.toArray()));
-			 * System.out.println(Arrays.toString(peerTwoValues.toArray()));
-			 * System
-			 * .out.println(Arrays.toString(peerOneConvertedReceivedPeerReults
-			 * .toArray()));
-			 * System.out.println(Arrays.toString(peerTwoConvertedReceivedPeerReults
-			 * .toArray()));
-			 */
 
 			assertEquals(peerOneValues.size(), peerTwoValues.size());
 			assertEquals(peerOneValues.size(),

@@ -72,17 +72,12 @@ public abstract class ConcurrentBatchProtocolTest extends TestLinkedRegions {
 
 				BigInteger valueOne = valuesOne.get(i).get(j);
 				BigInteger valueTwo = valuesTwo.get(i).get(j);
-				// System.out.println("Comparing " + valueOne + "  to "
-				// +valueTwo);
 				SharemindSharedSecret secretOne = (SharemindSharedSecret) dealer
 						.share(valueOne);
 				SharemindSharedSecret secretTwo = (SharemindSharedSecret) dealer
 						.share(valueTwo);
-				// System.out.println("ValOne "+ valueOne +" has secrets "+
-				// secretOne.getU1()+":"+secretOne.getU2()+":"+secretOne.getU3());
-				// System.out.println("ValTwo "+ valueTwo + " has secrets "
-				// +secretTwo.getU1()+":"+secretTwo.getU2()+":"+secretTwo.getU3());
-				secretsOneU1.add(secretOne.getU1().toByteArray());
+
+                secretsOneU1.add(secretOne.getU1().toByteArray());
 				secretsOneU2.add(secretOne.getU2().toByteArray());
 				secretsOneU3.add(secretOne.getU3().toByteArray());
 
@@ -139,8 +134,6 @@ public abstract class ConcurrentBatchProtocolTest extends TestLinkedRegions {
 
 				int expectedResult = getExpectedResult(valuesOne.get(i).get(j),
 						valuesTwo.get(i).get(j));
-				// System.out.println("Comparing values " +
-				// result.unshare().intValue() + ":" + expectedResult);
 				assertEquals(result.unshare().intValue(), expectedResult);
 			}
 		}
@@ -199,8 +192,6 @@ public abstract class ConcurrentBatchProtocolTest extends TestLinkedRegions {
 			for (ConcurrentBatchTestPlayer p : requests) {
 				try {
 					p.waitEndOfProtocol();
-					// System.out.println("Player ended "+p.requestID+ ":"
-					// +this.playerID);
 				} catch (InterruptedException ex) {
 					LOG.debug(ex);
 					throw new IllegalStateException(ex);

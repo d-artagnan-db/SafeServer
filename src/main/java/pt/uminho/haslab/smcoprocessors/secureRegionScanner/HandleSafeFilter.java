@@ -69,7 +69,6 @@ public class HandleSafeFilter {
 		List<byte[]> rowIDs = new ArrayList<byte[]>();
 
 		if(hasProtectedColumn){
-		    LOG.debug("Store protected columns in SearchCondition");
 		    // Get the protected column values and the row identifiers.
 		    processDatasetValues(rows, columnValues, rowIDs);
 
@@ -83,10 +82,8 @@ public class HandleSafeFilter {
             }
         }
 
-        LOG.debug("Filter dataset");
         List<List<Cell>> result = filterDataset(rows);
 
-        LOG.debug("Reset filters for next batch");
 		// Cleans the filters with SMPC indexes for next batch of cells
 		secureFilter.reset();
 		return result;
@@ -105,7 +102,6 @@ public class HandleSafeFilter {
 				byte[] cellVal = CellUtil.cloneValue(cell);
 
 				if (isProtectedColumn(schema, cellCF, cellCQ)) {
-				    //LOG.debug("Found protected column");
 					Column col = new Column(cellCF, cellCQ);
 
 					if (!columnValues.containsKey(col)) {
@@ -123,11 +119,8 @@ public class HandleSafeFilter {
 		List<List<Cell>> results = new ArrayList<List<Cell>>();
 
 		for (List<Cell> row : rows) {
-           LOG.debug("Filter row " + row + " with filter "+ row);
 			boolean isValid = secureFilter.filterRow(row);
-            LOG.debug("Row is valid " +  isValid);
 			if (isValid) {
-			    LOG.debug("Add row to result");
 				results.add(row);
 			}
 
@@ -135,7 +128,6 @@ public class HandleSafeFilter {
 				break;
 			}
 		}
-        LOG.debug("Return resulting rows");
 		return results;
 	}
 
@@ -210,17 +202,24 @@ public class HandleSafeFilter {
 		boolean isProtectedColumn = isProtectedColumn(schema, family, qualifier);
 
 		if (isProtectedColumn) {
+
 			List<byte[]> values = new ArrayList<byte[]>();
 			values.add(value);
-			int nBits = getColumnFormatSize(family, qualifier);
-			SearchCondition searchCond = AbstractSearchValue
-					.conditionTransformer(cond, nBits, values);
-			if(!this.safeFilters.containsKey(col)){
-			    this.safeFilters.put(col, new ArrayList<SearchCondition>());
+
+            int nBits = getColumnFormatSize(family, qualifier);
+
+            SearchCondition searchCond = AbstractSearchValue
+                    .conditionTransformer(cond, nBits, values);
+
+            //Initialize list of Search Conditions if this is the first one.
+            if (!this.safeFilters.containsKey(col)) {
+                this.safeFilters.put(col, new ArrayList<SearchCondition>());
             }
-			this.safeFilters.get(col).add(searchCond);
-			this.hasProtectedColumn = true;
-			return new SearchConditionFilter(searchCond, col);
+
+            this.safeFilters.get(col).add(searchCond);
+            this.hasProtectedColumn = true;
+
+            return new SearchConditionFilter(searchCond, col);
 
 		} else {
 			return new SecureSingleColumnValueFilter(col, cond,
@@ -238,9 +237,6 @@ public class HandleSafeFilter {
 	private int getColumnFormatSize(byte[] family, byte[] qualifier) {
 		String sFamily = new String(family);
 		String sQualifier = new String(qualifier);
-
-		LOG.debug("Family is " + family);
-		LOG.debug("sQualifier is " + qualifier);
 
 		return schema.getFormatSizeFromQualifier(sFamily, sQualifier);
 	}

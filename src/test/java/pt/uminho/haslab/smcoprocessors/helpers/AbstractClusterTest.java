@@ -8,6 +8,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import pt.uminho.haslab.safemapper.Family;
 import pt.uminho.haslab.safemapper.Qualifier;
@@ -37,9 +38,12 @@ public abstract class AbstractClusterTest {
     protected Map<String, Map<String, ColType>> qualifierColTypes;
     protected Map<String, Map<String, List<byte[]>>> generatedValues;
     protected List<byte[]> rowIdentifiers;
-    public static enum ColType {
-        STRING, INT
+
+    @BeforeClass
+    public static void initializeRedisContainer() throws IOException {
+        RedisUtils.initializeRedisContainer();
     }
+
 
     public AbstractClusterTest() throws Exception {
 
@@ -53,6 +57,56 @@ public abstract class AbstractClusterTest {
         generatedValues = new HashMap<String, Map<String, List<byte[]>>>();
         qualifierColTypes = new HashMap<String, Map<String, ColType>>();
         rowIdentifiers = new ArrayList<byte[]>();
+    }
+
+    private List<Put> generatePuts() {
+        List<Put> puts = new ArrayList<Put>();
+
+        for (int i = 0; i < getNumberOfRecords(); i++) {
+            byte[] id = ("" + i).getBytes();
+            Put put = new Put(id);
+
+            List<Family> fams = this.schema.getColumnFamilies();
+
+            for (Family fam : fams) {
+                for (Qualifier qual : fam.getQualifiers()) {
+                    byte[] val = null;
+
+                    switch (getColType(fam.getFamilyName(), qual.getName())) {
+                        case STRING:
+                            val = ValuesGenerator.randomString(10).getBytes();
+                            break;
+                        case INT:
+                            //val = ValuesGenerator.randomBigInteger(10).toByteArray();
+
+                            boolean invalid = true;
+                            do {
+                                int intVal = ValuesGenerator.randomInt();
+                                val = BigInteger.valueOf(intVal).toByteArray();
+                                if (val.length == 4) {
+                                    /** Some integer values are small and have a byte array of length 3. Since HBase
+                                     * does a lexicographic comparision based on the byte array, if the size of the byte
+                                     * array of every value are not the same, the comparision is not fair. HBase will
+                                     * not return a correct result because the comparision is based on the bytes and not
+                                     * on the numerical value. If the byte array of the number is smaller than three,
+                                     * then generate a new one until it is valid.
+                                     */
+                                    invalid = false;
+                                }
+                            } while (invalid);
+                            break;
+
+                    }
+                    put.add(fam.getFamilyName().getBytes(), qual.getName()
+                            .getBytes(), val);
+
+                    recordStoredValue(fam.getFamilyName(), qual.getName(), val);
+                }
+            }
+            rowIdentifiers.add(id);
+            puts.add(put);
+        }
+        return puts;
     }
 
     protected abstract void generateTableSchema();
@@ -78,41 +132,27 @@ public abstract class AbstractClusterTest {
         Thread.sleep(10000);
     }
 
-    private List<Put> generatePuts() {
-        List<Put> puts = new ArrayList<Put>();
+    private void validateResult(List<Result> vanillaScanResult, List<Result> protectedScanResult) {
 
-        for (int i = 0; i < getNumberOfRecords(); i++) {
-            byte[] id = ("" + i).getBytes();
-            Put put = new Put(id);
 
-            List<Family> fams = this.schema.getColumnFamilies();
+        assertEquals(vanillaScanResult.size(), protectedScanResult.size());
 
-            for (Family fam : fams) {
+        for (int i = 0; i < vanillaScanResult.size(); i++) {
+            Result normalResult = vanillaScanResult.get(i);
+            Result protectedResult = vanillaScanResult.get(i);
+            byte[] normalRow = normalResult.getRow();
+            byte[] protectedRow = protectedResult.getRow();
+            assertArrayEquals(normalRow, protectedRow);
+
+            for (Family fam : schema.getColumnFamilies()) {
                 for (Qualifier qual : fam.getQualifiers()) {
-                    byte[] val = null;
-
-                    switch (getColType(fam.getFamilyName(), qual.getName())) {
-                        case STRING:
-                            val = ValuesGenerator.randomString(10).getBytes();
-                            break;
-                        case INT:
-                            //val = ValuesGenerator.randomBigInteger(10).toByteArray();
-                            int intVal = ValuesGenerator.randomInt();
-                            System.out.println("generated value " +intVal);
-                            val = BigInteger.valueOf(intVal).toByteArray();
-                            break;
-
-                    }
-                    put.add(fam.getFamilyName().getBytes(), qual.getName()
-                            .getBytes(), val);
-
-                    recordStoredValue(fam.getFamilyName(), qual.getName(), val);
+                    byte[] normalVal = normalResult.getValue(fam.getFamilyName().getBytes(), qual.getName().getBytes());
+                    byte[] safeVal = protectedResult.getValue(fam.getFamilyName().getBytes(), qual.getName().getBytes());
+                    assertArrayEquals(normalVal, safeVal);
                 }
             }
-            rowIdentifiers.add(id);
-            puts.add(put);
         }
-        return puts;
+
     }
 
     private void recordStoredValue(String cf, String cq, byte[] val) {
@@ -135,10 +175,8 @@ public abstract class AbstractClusterTest {
         int nElemsPerRegion = rowIdentifiers.size() / nRegions;
         List<byte[]> res = new ArrayList<byte[]>();
 
-        // System.out.println("NElemsPerRegions " + nElemsPerRegion);
         int i = nElemsPerRegion;
         do {
-            // System.out.println("SplitValue "+i+" is "+ values.get(i));
             res.add(rowIdentifiers.get(i));
             i += nElemsPerRegion;
         } while (i < rowIdentifiers.size());
@@ -218,37 +256,6 @@ public abstract class AbstractClusterTest {
     private List<Result> decodeResults(List<List<Result>> results, boolean isResultOfVanilla){
 
         return results.get(0);
-        /*if(getNumberOfClusters() == 1){
-            return results.get(0);
-        }else if(getNumberOfClusters() == 3 && isResultOfVanilla){
-            return results.get(0);
-        }else if(getNumberOfClusters() == 3 && !isResultOfVanilla){
-
-            int nRows = results.get(0).size();
-            List<Result> decRes = new ArrayList<Result>();
-
-            for(int i = 0; i < nRows; i++){
-                List<Cell> cells = new ArrayList<Cell>();
-
-                for(Family fam: schema.getColumnFamilies()){
-                    byte[] cfb = fam.getFamilyName().getBytes();
-                    for(Qualifier qual: fam.getQualifiers()){
-                        byte[] cqb = qual.getName().getBytes();
-                        DatabaseSchema.CryptoType type = schema.getCryptoTypeFromQualifier(fam.getFamilyName(), qual.getName());
-
-                        if(type == DatabaseSchema.CryptoType.SMPC){
-
-                        }else{
-                            Result rowResult = results.get(0).get(1);
-                            Cell rcell = rowResult.getColumnCells(cfb, cqb).get(0);
-                            cells.add(rcell);
-                        }
-                    }
-                }
-            }
-
-        }*/
-
     }
     private void testExecution(TestClusterTables tables) throws IOException,
             InterruptedException {
@@ -259,28 +266,8 @@ public abstract class AbstractClusterTest {
     }
 
 
-    private void validateResult(List<Result> vanillaScanResult, List<Result> protectedScanResult){
-
-        System.out.println(vanillaScanResult);
-        assertEquals(vanillaScanResult.size(), protectedScanResult.size());
-        System.out.println("Compared Result size "+ vanillaScanResult.size());
-        for(int i =0; i < vanillaScanResult.size(); i++) {
-            Result normalResult = vanillaScanResult.get(i);
-            Result protectedResult = vanillaScanResult.get(i);
-            byte[] normalRow = normalResult.getRow();
-            byte[] protectedRow = protectedResult.getRow();
-            assertArrayEquals(normalRow, protectedRow);
-            //System.out.println("Compared rows "+ new String(normalRow));
-            for (Family fam : schema.getColumnFamilies()) {
-                for (Qualifier qual : fam.getQualifiers()) {
-                    byte[] normalVal = normalResult.getValue(fam.getFamilyName().getBytes(), qual.getName().getBytes());
-                    byte[] safeVal = protectedResult.getValue(fam.getFamilyName().getBytes(), qual.getName().getBytes());
-                    assertArrayEquals(normalVal, safeVal);
-                    //System.out.println("ComparedValues " + new String(normalVal));
-                }
-            }
-        }
-
+    public enum ColType {
+        STRING, INT
     }
 
 

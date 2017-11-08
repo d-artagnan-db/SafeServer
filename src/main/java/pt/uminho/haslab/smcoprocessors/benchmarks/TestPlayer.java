@@ -41,7 +41,6 @@ public class TestPlayer implements SharemindPlayer {
 	}
 
 	public BigInteger getValue(Integer originPlayerID) {
-		// LOG.debug("Going to call super getValue");
 		BigInteger res = player.getValue(originPlayerID);
 
 		if (!messagesReceived.containsKey(originPlayerID)) {

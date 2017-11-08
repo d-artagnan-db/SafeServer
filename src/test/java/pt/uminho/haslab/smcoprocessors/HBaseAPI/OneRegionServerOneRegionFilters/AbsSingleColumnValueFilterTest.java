@@ -6,7 +6,6 @@ import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import pt.uminho.haslab.safemapper.DatabaseSchema;
 import pt.uminho.haslab.smcoprocessors.helpers.AbstractClusterTest;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,9 +31,7 @@ public abstract class AbsSingleColumnValueFilterTest extends AbstractClusterTest
 
         int indexChosen = randomGenerator.nextInt(values.size());
 
-        LOG.debug("Index chosen was "+ indexChosen);
         chosenVal = values.get(indexChosen);
-        LOG.debug("Random value chosen  was "+  new BigInteger(chosenVal));
 
         return new SingleColumnValueFilter(cf.getBytes(), cq.getBytes(), getComparator(), chosenVal);
 
@@ -72,7 +69,6 @@ public abstract class AbsSingleColumnValueFilterTest extends AbstractClusterTest
 
     protected void generateTableSchema() {
         String file = getClass().getResource("/protected-schema.xml").getFile();
-        System.out.println(file);
         DatabaseSchema dSchema = new DatabaseSchema(file);
         this.schema = dSchema.getTableSchema("Teste");
         this.qualifierColTypes.put("User", new HashMap<String, ColType>());

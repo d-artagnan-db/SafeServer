@@ -41,7 +41,6 @@ public class RegionServerSim extends TestRegionServer {
 		int mSent = 0;
 		Map<Integer, List<BigInteger>> messagesSent = player.getMessagesSent();
 
-		// System.out.println("Nbits is "+nBits+1);
 		for (Integer keys : messagesSent.keySet()) {
 			mSent += messagesSent.get(keys).size();
 		}
@@ -50,11 +49,8 @@ public class RegionServerSim extends TestRegionServer {
 
 	@Override
 	public void doComputation() {
-		// Condition[] conds = {Equal, GreaterOrEqualThan, Greater,
-		// LessOrEqualThan, Less};
 		Condition[] conds = {Equal};
 
-		// int[] nbits = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
 		int[] nbits = {2};
 
 		long reqID = 1;
@@ -94,8 +90,6 @@ public class RegionServerSim extends TestRegionServer {
 
 					elapsed = (stop - start) / 1000000000;
 					nops += 1;
-					System.out.println("elapsed " + elapsed);
-					System.out.println("nops " + nops);
 					broker.allBatchMessagesRead(ident);
 
 				}

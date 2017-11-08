@@ -1,7 +1,6 @@
 package pt.uminho.haslab.smcoprocessors;
 
 import org.apache.hadoop.conf.Configuration;
-import org.mortbay.log.Log;
 import pt.uminho.haslab.safemapper.DatabaseSchema;
 import pt.uminho.haslab.smcoprocessors.comunication.IORelay;
 import pt.uminho.haslab.smcoprocessors.comunication.MessageBroker;
@@ -40,8 +39,8 @@ public class SmpcConfiguration {
 		isDevelopment = conf.getBoolean("hbase.coprocessor.development", true);
 
 		// SMCP library configuration
-		batchSize = conf.getInt("smhbase.protocols.size", 20);
-		preRandomElems = conf.getInt("smhbase.smpc.prerandom.size", 0);
+        batchSize = conf.getInt("smhbase.batch.size", 10);
+        preRandomElems = conf.getInt("smhbase.smpc.prerandom.size", 0);
 
 		// DiscoveryService configuration
 		discoveryServiceLocation = conf.get("smhbase.discovery.location",
@@ -51,7 +50,6 @@ public class SmpcConfiguration {
 		retries = conf.getInt("smhbase.discovery.retries", 5);
 
 		databaseSchemaPath = conf.get("smhbase.schema");
-		System.out.println("Schema path is " + databaseSchemaPath);
 		String file = getClass().getResource("/"+databaseSchemaPath).getFile();
 
 		schema = new DatabaseSchema(file);

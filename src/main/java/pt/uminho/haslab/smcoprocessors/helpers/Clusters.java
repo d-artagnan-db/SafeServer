@@ -59,10 +59,8 @@ public class Clusters extends ShareCluster {
 		byte[][] bSplitKeys = new byte[splitKeys.size()][];
 
 		for (int i = 0; i < splitKeys.size(); i++) {
-			// System.out.println("Spliting table on "+ splitKeys.get(i));
 			bSplitKeys[i] = splitKeys.get(i).toString().getBytes();
 		}
-		// System.out.println("bSplitKeys size is " + bSplitKeys.length);
 
 		for (HBaseAdmin admin : admins) {
 			admin.createTable(table, bSplitKeys);
@@ -83,10 +81,8 @@ public class Clusters extends ShareCluster {
 		byte[][] bSplitKeys = new byte[splitKeys.size()][];
 
 		for (int i = 0; i < splitKeys.size(); i++) {
-			System.out.println("Splitting table on "+ i);
 			bSplitKeys[i] = splitKeys.get(i);
 		}
-		// System.out.println("bSplitKeys size is " + bSplitKeys.length);
 
 		for (HBaseAdmin admin : admins) {
 			admin.createTable(table, bSplitKeys);

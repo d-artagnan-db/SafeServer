@@ -2,8 +2,10 @@ package pt.uminho.haslab.smcoprocessors.discovery;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import pt.uminho.haslab.smcoprocessors.helpers.RedisUtils;
 import pt.uminho.haslab.smcoprocessors.helpers.RegionServer;
 import pt.uminho.haslab.smcoprocessors.helpers.TestLinkedRegions;
 import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
@@ -46,16 +48,20 @@ public abstract class ConcurrentRedisDiscoveryServiceTest
 		locations = new ConcurrentHashMap<Integer, List<RegionLocation>>();
 	}
 
-	@Parameterized.Parameters
-	public static Collection nbitsValues() {
+    @BeforeClass
+    public static void initializeRedisContainer() throws IOException {
+        RedisUtils.initializeRedisContainer();
+    }
+
+
+    @Parameterized.Parameters
+    public static Collection nbitsValues() {
 		return ValuesGenerator.RedisTestValueGenerator();
 	}
 
 	protected void validateResults() throws InvalidSecretValue {
-		// System.out.println("Number of lists " + locations.size());
 		for (List<RegionLocation> loc : locations.values()) {
 			LOG.debug("List Size " + loc.size());
-			// System.out.println( "List Size " + loc.size());
 			assertEquals(2, loc.size());
 		}
 
@@ -72,18 +78,13 @@ public abstract class ConcurrentRedisDiscoveryServiceTest
 					LOG.debug(player + " Comparing " + ips.get(index) + " : "
 							+ ports.get(index) + " <=> " + location.getIp()
 							+ ":" + location.getPort());
-					// System.out.println( ips.get(index) + " : " +
-					// ports.get(index) + " <=> " +
-					// location.getIp()+":"+location.getPort());
 					if (ips.get(index).equals(location.getIp())
 							&& ports.get(index) == location.getPort()) {
-						// System.out.println(player + " Found match");
 						foundMatch |= true;
 						break;
 					}
 
 				}
-				// System.out.println(player+" FoundMatch "+ foundMatch);
 				allMatch &= foundMatch;
 
 			}
@@ -108,7 +109,6 @@ public abstract class ConcurrentRedisDiscoveryServiceTest
 		public RedisRegionServer(int playerID, byte[] requestID,
 				byte[] regionID, String ip, Integer port) {
 			LOG.debug("Creating player id " + playerID);
-			// System.out.println("Creating player id " + playerID);
 			this.playerID = playerID;
 			this.requestID = requestID;
 			this.regionID = regionID;

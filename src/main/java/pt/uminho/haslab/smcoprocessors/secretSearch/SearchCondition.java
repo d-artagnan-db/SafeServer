@@ -37,8 +37,8 @@ public interface SearchCondition {
 
 	/**
 	 * The SMPC library only supports by default the Equal and
-	 * GreaterOrEquanThan protocols.
-	 * <p>
+     * GreaterOrEqualThan protocols.
+     * <p>
 	 * The other comparison can be obtained by combining those two, the
 	 * following way: GreaterThan = !Equal && GreaterOrEqualThan LesserThan =
 	 * !GreaterOrEqualThan LesserOrEqualThan = !GreaterOrEqualThan && Equal

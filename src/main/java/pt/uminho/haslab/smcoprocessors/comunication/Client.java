@@ -40,17 +40,12 @@ public class Client extends Thread {
 	}
 
 	private void handleMessage(int type, byte[] message) throws IOException {
-		/*
-		 * LOG.debug("Handle message with type " + type + " and size " +
-		 * message.length);
-		 */
 		switch (type) {
 
 			case 0 : {
 				String msg = "Share messages no longer supported";
 				LOG.error(msg);
 				throw new IllegalStateException(msg);
-				// new ShareHandler(message).handle();
 			}
 			case 1 : {
 				new ResultsHandler(message).handle();

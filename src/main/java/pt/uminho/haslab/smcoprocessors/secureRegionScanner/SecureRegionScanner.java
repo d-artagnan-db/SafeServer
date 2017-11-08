@@ -12,7 +12,6 @@ import pt.uminho.haslab.smcoprocessors.secretSearch.SharemindPlayer;
 import pt.uminho.haslab.smhbase.interfaces.Player;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,7 +21,6 @@ public class SecureRegionScanner implements RegionScanner {
 	static final Log LOG = LogFactory.getLog(SecureRegionScanner.class
 			.getName());
 
-	static final Log TIMES = LogFactory.getLog("protoLatency");
 
 	private final RegionCoprocessorEnvironment env;
 
@@ -46,12 +44,6 @@ public class SecureRegionScanner implements RegionScanner {
 		this.player = player;
 
 		scan = new Scan(scanStartRow, scanStopRow);
-        //scan = new Scan();
-		LOG.debug(player.getPlayerID() + " region name is "
-				+ env.getRegion().getRegionNameAsString() + " with state "
-				+ env.getRegion().isAvailable() + " - "
-				+ env.getRegion().isClosed() + " - "
-				+ env.getRegion().isClosing());
 
 		scanner = env.getRegion().getScanner(scan);
 		batcher = new Batcher(config);
@@ -97,75 +89,93 @@ public class SecureRegionScanner implements RegionScanner {
 
 	private List<List<Cell>> loadBatch() throws IOException {
 		int batchSize = batcher.batchSize();
-		LOG.debug("BatchSize " + batchSize);
 		List<List<Cell>> localCells = new ArrayList<List<Cell>>();
 		int counter = 0;
 
-		LOG.debug("Going to load cells");
 		do {
 			List<Cell> localResults = new ArrayList<Cell>();
 			hasMore = scanner.next(localResults);
 
 			// Return case when there are no records in the table;
-			//LOG.debug("hasMore? "+hasMore);
-			//LOG.debug("localResults empty? "+ localResults.isEmpty());
 			if (!hasMore && localResults.isEmpty()) {
-				LOG.debug("Going to return new empty BatchGetResult");
 				return localCells;
 			}
 
 			localCells.add(localResults);
 			counter += 1;
-			//LOG.debug("Counter is "+counter);
-			//LOG.debug("hasMore? "+hasMore);
 		} while (counter < batchSize && hasMore);
-		LOG.debug("Cells loaded");
+
 		return localCells;
 	}
 
 	public boolean next(List<Cell> results) throws IOException {
-		LOG.debug("Next in SecureRegionScanner was issued ");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Next in SecureRegionScanner was issued ");
+        }
 
-		LOG.debug("ResultsCache empty? " + resultsCache.isBatchEmpty());
 		if (resultsCache.isBatchEmpty()) {
 			List<List<Cell>> fRows = new ArrayList<List<Cell>>();
 
 			do {
 				List<List<Cell>> batch = loadBatch();
 
-				LOG.debug("bRes empty? " + batch.isEmpty());
-
 				if (!batch.isEmpty()) {
 					// Only returns rows that satisfy the protocol
-                    LOG.debug("Filter scanned rows");
 					fRows = this.handler.filterBatch(batch);
 				}
-				LOG.debug("hasMore? " + hasMore + " fRows " + fRows.isEmpty());
 			} while (hasMore && fRows.isEmpty());
 
-			LOG.debug("Going to add  cells");
 			resultsCache.addListCells(fRows);
 		}
 
-		LOG.debug("hasMore? " + hasMore + " resultsCache? "
-				+ resultsCache.isBatchEmpty());
-		if (!hasMore && resultsCache.isBatchEmpty()) {
+        /**
+         * After loading a batch, filtering the dataset and storing it on a cache, there are four possible scenarios.
+         *
+         *  The first scenario contemplates the final state of the execution of a scan when there are no more records to
+         *  be read from the original scan or from the cache.  When this happens, the scanner must return an empty
+         *  array as result and false to indicate the client that no more records can be read.
+         *
+         *  The second scenarios considers that are no more records tor read from the actual hbase scanner, but there
+         *  are still some records on the cache.  In this case a record is read from the cache and if the cache becomes
+         *  empty it returns the value from the cache and a false so the client does not make any more requests.
+         *  If there are still records in the cache but the scan must stop after finding the first match, then send
+         *  the first record of the cache and false for the client to stop.
+         *  If a record is read from the cache but it still is not empty and the scan does not stop after the first
+         *  record, it than returns true.
+         *
+         *  The third scenario considers when there are still more records to be read from the scan and the batch
+         *  that was loaded did not have any record that validated a filter condition. In this case a new batch must
+         *  be loaded and filtered. As such, it is returned an empty array and true for further requests. This case should
+         *  not happen because records are loaded to cache until one is either found or there are no more records available.
+         *
+         *
+         *
+         *  The last case handles when there are still records to be read from the original scan and records still
+         *  stored on the cache. In this case, a record is read from the cache and the result is true or false depending
+         *  on if the scan should stop after finding a match. If more  records are to be read and the cache becomes empty,
+         *  the next request will fill the cache.
+         * */
+        if (!hasMore && resultsCache.isBatchEmpty()) {
 			results.addAll(new ArrayList<Cell>());
-			isFilterDone = true;
 			return false;
-		}
+        } else if (!hasMore && !resultsCache.isBatchEmpty()) {
+            results.addAll(resultsCache.getNext());
+            return !(handler.isStopOnMatch() || resultsCache.isBatchEmpty());
+        } else if (hasMore && resultsCache.isBatchEmpty()) {
+            results.addAll(new ArrayList<Cell>());
+            return true;
+        } else if (hasMore && !resultsCache.isBatchEmpty()) {
+            results.addAll(resultsCache.getNext());
+            return !handler.isStopOnMatch();
+        } else {
+            throw new IllegalStateException("Case not handled");
+        }
 
-		LOG.debug("StopOnMatch " + handler.isStopOnMatch());
-
-		results.addAll(resultsCache.getNext());
-		boolean res = !(resultsCache.isBatchEmpty() || handler.isStopOnMatch());
-		isFilterDone = !res;
-		return res;
-	}
+    }
 
 	public boolean next(List<Cell> result, int limit) throws IOException {
-		LOG.debug("Next with limit was issued");
-		throw new UnsupportedOperationException("Not supported yet.");
+        LOG.error("Next with limit was issued");
+        throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	public void close() throws IOException {

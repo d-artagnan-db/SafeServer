@@ -15,7 +15,6 @@ public abstract class AbstractUnprotectedFilterTest extends AbstractClusterTest 
 
     protected void generateTableSchema() {
         String file = getClass().getResource("/unprotected-schema.xml").getFile();
-        System.out.println(file);
         DatabaseSchema dSchema = new DatabaseSchema(file);
         this.schema = dSchema.getTableSchema("Teste");
         this.qualifierColTypes.put("User", new HashMap<String, ColType>());

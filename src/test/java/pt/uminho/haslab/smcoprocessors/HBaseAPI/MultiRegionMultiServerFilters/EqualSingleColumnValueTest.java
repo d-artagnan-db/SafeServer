@@ -1,19 +1,19 @@
-package pt.uminho.haslab.smcoprocessors.HBaseAPI.MultiRegionMultiServerPackage;
+package pt.uminho.haslab.smcoprocessors.HBaseAPI.MultiRegionMultiServerFilters;
 
 import pt.uminho.haslab.smcoprocessors.HBaseAPI.OneRegionServerOneRegionFilters.EqualSingleColumnValueFilterTest;
 
-public class EqualSingleColumnValueFilter extends EqualSingleColumnValueFilterTest {
+public class EqualSingleColumnValueTest extends EqualSingleColumnValueFilterTest {
 
-    public EqualSingleColumnValueFilter() throws Exception {
+    public EqualSingleColumnValueTest() throws Exception {
         super();
     }
 
     protected int getNumberOfRegions() {
-        return 2;
+        return 4;
     }
 
     protected long getNumberOfRecords() {
-        return 400;
+        return 800;
     }
 
     protected int getNumberOfRegionsServers(){

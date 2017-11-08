@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static pt.uminho.haslab.smcoprocessors.OperationAttributesIdentifiers.ScanType.Normal;
 
 public class SmpcCoprocessor extends BaseRegionObserver {
 
@@ -60,8 +59,6 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 	@Override
 	public void start(CoprocessorEnvironment e) throws IOException {
 		env = (RegionCoprocessorEnvironment) e;
-
-		LOG.debug("Start Coprocessor " + e.getConfiguration());
 
 		Configuration conf = e.getConfiguration();
 		searchConf = new SmpcConfiguration(conf);
@@ -164,164 +161,54 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 	private RequestIdentifier getRequestIdentifier(OperationWithAttributes op,
 			RegionCoprocessorEnvironment env) {
 
-	    //System.out.println("Getting Identifier");
 		byte[] requestID = op.getAttribute(OperationAttributesIdentifiers.RequestIdentifier);
 		byte[] regionID = env.getRegion().getStartKey();
 
         if (LOG.isDebugEnabled()) {
-			LOG.debug("RequestID " + new String(requestID));
-			LOG.debug("RegionID " + new String(regionID));
-		}
+            LOG.debug("Region Request unique identifier has requestID " + new String(requestID) + " and regionID " + new String(regionID));
+        }
 
 		return new RequestIdentifier(requestID, regionID);
 
 	}
 
-	private void checkTargetPlayer(Player player, OperationWithAttributes op,
-			RequestIdentifier ident) {
-		String targetPlayerS = new String(
-				op.getAttribute(OperationAttributesIdentifiers.TargetPlayer));
-		LOG.debug("TargetPlayer " + targetPlayerS);
-		int targetPlayer = Integer.parseInt(targetPlayerS);
-		((SharemindPlayer) player).setTargetPlayer(targetPlayer);
-	}
 
-	/*
-	 * private Column getSearchColumn(OperationWithAttributes op) {
-	 * 
-	 * byte[] secretFamily = op
-	 * .getAttribute(OperationAttributesIdentifiers.SecretFamily); byte[]
-	 * secretQualifier = op
-	 * .getAttribute(OperationAttributesIdentifiers.SecretQualifier);
-	 * 
-	 * if (LOG.isDebugEnabled()) { LOG.debug("SecretFamily " + new
-	 * String(secretFamily)); LOG.debug("SecretQualifier " + new
-	 * String(secretQualifier)); } return new Column(secretFamily,
-	 * secretQualifier);
-	 * 
-	 * }
-	 */
 
-	/*
-	 * private RegionScanner secretEqualScanSearch(Scan op,
-	 * RegionCoprocessorEnvironment env) throws IOException { Column col =
-	 * getSearchColumn(op); RequestIdentifier ident = getRequestIdentifier(op,
-	 * env); relay.registerRequest(ident); Player player = getPlayer(ident); int
-	 * nbits = this.searchConf.getnBits(); int targetPlayer =
-	 * checkTargetPlayer(player, op, ident);
-	 * 
-	 * List<byte[]> secrets = new ArrayList<byte[]>(); byte[] secret = op
-	 * .getAttribute(OperationAttributesIdentifiers.ScanForEqualVal);
-	 * secrets.add(secret); LOG.debug(player.getPlayerID() +
-	 * " is creating search condition with " + nbits + " nits " +
-	 * " and the secret " + new BigInteger(secret)); SearchCondition
-	 * searchCondition = AbstractSearchValue .conditionTransformer(Equal, nbits,
-	 * secrets, targetPlayer); LOG.debug(player.getPlayerID() +
-	 * " created secure RegionScanner");
-	 * 
-	 * return new SecureRegionScanner(searchCondition, env, player,
-	 * this.searchConf, true, col);
-	 * 
-	 * }
-	 */
 
-	/*
-	 * private byte[] getValueFromAttribute(Scan op, String attribute) {
-	 * 
-	 * byte[] row = op.getAttribute(attribute); return row == null ? new byte[0]
-	 * : row; }
-	 */
-
-	/*
-	 * private SearchCondition generateScanSearchCondition(byte[] startRow,
-	 * byte[] stopRow, int nBits, int targetPlayer) { SearchCondition
-	 * startKeySearch = null; SearchCondition endKeySearch = null;
-	 * 
-	 * if (startRow.length != 0) { List<byte[]> startRows = new
-	 * ArrayList<byte[]>(); startRows.add(startRow);
-	 * 
-	 * startKeySearch = AbstractSearchValue.conditionTransformer(
-	 * GreaterOrEqualThan, nBits, startRows, targetPlayer); }
-	 * 
-	 * if (stopRow.length != 0) { List<byte[]> stopRows = new
-	 * ArrayList<byte[]>(); stopRows.add(stopRow);
-	 * 
-	 * endKeySearch = AbstractSearchValue.conditionTransformer(Less, nBits,
-	 * stopRows, targetPlayer); }
-	 * 
-	 * SearchCondition keySearch = null;
-	 * 
-	 * if (startRow.length != 0 && stopRow.length != 0) { keySearch = new
-	 * ComposedSearchValue(And, startKeySearch, endKeySearch, targetPlayer,
-	 * Scan); } else if (startRow.length != 0 && stopRow.length == 0) {
-	 * keySearch = startKeySearch; } else if (startRow.length == 0 &&
-	 * stopRow.length != 0) { keySearch = endKeySearch; } else if
-	 * (startRow.length == 0 && stopRow.length == 0) { keySearch = new
-	 * NopSearchValue(Nop, targetPlayer); }
-	 * 
-	 * return keySearch; }
-	 */
-
-	/*
-	 * private RegionScanner secretScanSearch(Scan op,
-	 * RegionCoprocessorEnvironment env) throws IOException,
-	 * ResultsLengthMismatch, ResultsIdentifiersMismatch { /* * The Scan start
-	 * and stop row keys have to be passed to the coprocessor by operation
-	 * attributes for the client to issue a full table scan. A full table scan
-	 * is necessary to search in every region of a distributed cluster.
-	 */
-	/*
-	 * yte[] startRow = getValueFromAttribute(op,
-	 * OperationAttributesIdentifiers.ScanStartVal); byte[] stopRow =
-	 * getValueFromAttribute(op, OperationAttributesIdentifiers.ScanStopVal);
-	 * LOG.debug("Start row is " + new BigInteger(startRow));
-	 * LOG.debug("Stop row is " + new BigInteger(stopRow));
-	 * 
-	 * Column col = getSearchColumn(op); RequestIdentifier ident =
-	 * getRequestIdentifier(op, env); relay.registerRequest(ident); Player
-	 * player = getPlayer(ident); int nbits = this.searchConf.getnBits(); int
-	 * targetPlayer = checkTargetPlayer(player, op, ident);
-	 * 
-	 * SearchCondition searchCondition = generateScanSearchCondition(startRow,
-	 * stopRow, nbits, targetPlayer);
-	 * 
-	 * return new SecureRegionScanner(searchCondition, env, player,
-	 * this.searchConf, false, col); }
-	 */
 
 	private RegionScanner secretScanSearchWithFilter(Scan op,
 			RegionCoprocessorEnvironment env, String tableName)
 			throws IOException {
         validateOperationAttributes(op);
 
-	    LOG.debug("Register identifier");
+
 		RequestIdentifier ident = getRequestIdentifier(op, env);
 		relay.registerRequest(ident);
-		LOG.debug("Identifier registered");
 		Player player = getPlayer(ident);
 		byte[] startRow = op.getStartRow();
 		byte[] stopRow = op.getStopRow();
 
-		LOG.debug(player.getPlayerID() + " has scan with "
-				+ Arrays.toString(startRow) + ", " + Arrays.toString(stopRow)
-				+ ", " + op.getFilter());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(player.getPlayerID() + " has scan with "
+                    + Arrays.toString(startRow) + ", " + Arrays.toString(stopRow)
+                    + ", " + op.getFilter());
+        }
 
-		checkTargetPlayer(player, op, ident);
+        checkTargetPlayer(player, op);
 
 		TableSchema tSchema = schema.getTableSchema(tableName);
 		HandleSafeFilter handler = new HandleSafeFilter(tSchema,
 				op.getFilter(), player);
 		handler.processFilter();
-		LOG.debug("Returned Secure Region Scanner");
+
 		return new SecureRegionScanner(env, player, this.searchConf, handler,
 				startRow, stopRow);
 
 	}
 
-	private void validateOperationAttributes(OperationWithAttributes op){
+    private void validateOperationAttributes(OperationWithAttributes op) {
 
-	    byte[] requestID = op.getAttribute(OperationAttributesIdentifiers.RequestIdentifier);
-
+        byte[] requestID = op.getAttribute(OperationAttributesIdentifiers.RequestIdentifier);
         byte[] targetPlayer = op.getAttribute(OperationAttributesIdentifiers.TargetPlayer);
 
         if(requestID == null){
@@ -336,18 +223,22 @@ public class SmpcCoprocessor extends BaseRegionObserver {
             throw new IllegalStateException(error);
         }
 
-
-
     }
-	private OperationAttributesIdentifiers.ScanType checkScanType(
-			OperationWithAttributes op) {
 
-		if (op.getAttribute(Normal.name()) != null) {
-			return Normal;
-		} else if (op
-				.getAttribute(OperationAttributesIdentifiers.ScanType.ProtectedColumnScan
-						.name()) != null) {
-			return OperationAttributesIdentifiers.ScanType.ProtectedColumnScan;
+    private void checkTargetPlayer(Player player, OperationWithAttributes op) {
+        String targetPlayerS = new String(
+                op.getAttribute(OperationAttributesIdentifiers.TargetPlayer));
+        int targetPlayer = Integer.parseInt(targetPlayerS);
+        ((SharemindPlayer) player).setTargetPlayer(targetPlayer);
+    }
+
+    private OperationAttributesIdentifiers.ScanType checkScanType(
+            OperationWithAttributes op) {
+
+        if (op
+                .getAttribute(OperationAttributesIdentifiers.ScanType.ProtectedColumnScan
+                        .name()) != null) {
+            return OperationAttributesIdentifiers.ScanType.ProtectedColumnScan;
 		} else if (op
 				.getAttribute(OperationAttributesIdentifiers.ScanType.ProtectedIdentifierGet
 						.name()) != null) {
@@ -393,41 +284,32 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 	public RegionScanner postScannerOpen(
 			final ObserverContext<RegionCoprocessorEnvironment> c,
 			final Scan scan, final RegionScanner s) throws IOException {
-		LOG.debug("PostScanner request received for table " + env.getRegion().getTableDesc().getNameAsString());
 		OperationAttributesIdentifiers.ScanType scanType = checkScanType(scan);
-		// If scanType does not exist or is normal than it returns the original
-		// RegionScanner
-		LOG.debug("ScanType result is "+scanType);
-		if (scanType != null && scanType != Normal) {
-			LOG.debug("Protected column ");
-			String table = env.getRegion().getTableDesc().getNameAsString();
 
-			if (!table.contains("hbase")) {
-				switch (scanType) {
-				// Currently not tested as identifiers are assumed to be
-				// unprotected
-					case ProtectedIdentifierGet :
+        /**
+         * If scanType does not exist or is normal than it returns the original
+         *RegionScanner
+         */
+        if (LOG.isDebugEnabled() && scanType != null) {
+            String sb = "PostScanner request received for table " +
+                    env.getRegion().getTableDesc().getNameAsString() +
+                    " with type " +
+                    scanType;
+            LOG.debug(sb);
+
+        }
+        if (scanType != null) {
+            String table = env.getRegion().getTableDesc().getNameAsString();
+            switch (scanType) {
+                case ProtectedIdentifierGet :
 						throw new IllegalArgumentException(
 								"Gets over protected identifiers are not currently supported");
-						// return secretEqualScanSearch(scan, env);
-						// Currently not tested as identifiers are assumed to be
-						// unprotected
 					case ProtectedIdentifierScan :
 						throw new IllegalArgumentException(
 								"Scans over protected identifiers are not currently supported");
-						/*
-						 * try { return secretScanSearch(scan, env); } catch
-						 * (ResultsLengthMismatch ex) { LOG.error(ex); throw new
-						 * IllegalStateException(ex); } catch
-						 * (ResultsIdentifiersMismatch ex) { LOG.error(ex);
-						 * throw new IllegalStateException(ex); }
-						 */
 					case ProtectedColumnScan :
-						LOG.debug("Going for Scan on ProtectedColumn");
 						return secretScanSearchWithFilter(scan, env, table);
 				}
-
-			}
 		}
 		return s;
 	}

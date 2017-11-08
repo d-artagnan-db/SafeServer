@@ -24,13 +24,9 @@ public class SearchConditionFilter implements SecureFilter {
             byte[] cf = CellUtil.cloneFamily(cell);
 			byte[] cq = CellUtil.cloneQualifier(cell);
 
-			System.out.println("Column is "+ new String(col.getCf()) + " : " + new String(col.getCq()));
-			System.out.println("table column is " + new String(cf) + " w: "+  new String(cq));
-			System.out.println("ResultComparision is " + Arrays.equals(col.getCf(), cf)  +" : "+Arrays.equals(col.getCq(), cq));
 
 			if (Arrays.equals(col.getCf(), cf)
 					&& Arrays.equals(col.getCq(), cq)) {
-                System.out.println("Going to get row classification");
 				if (this.condition.getRowClassification(row)) {
 					return true;
 				}

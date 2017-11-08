@@ -1,11 +1,11 @@
-package pt.uminho.haslab.smcoprocessors.HBaseAPI.MultiRegionsSingleServerPackage;
+package pt.uminho.haslab.smcoprocessors.HBaseAPI.MultiRegionsSingleServerFilters;
 
 
 import pt.uminho.haslab.smcoprocessors.HBaseAPI.OneRegionServerOneRegionFilters.GreaterOrEqualThanSingleColumnValueFilterTest;
 
-public class GreaterOrEqualThanSingleColumnValueFilter extends GreaterOrEqualThanSingleColumnValueFilterTest {
+public class GreaterOrEqualThanSingleColumnValueTest extends GreaterOrEqualThanSingleColumnValueFilterTest {
 
-    public GreaterOrEqualThanSingleColumnValueFilter() throws Exception {
+    public GreaterOrEqualThanSingleColumnValueTest() throws Exception {
         super();
     }
     protected int getNumberOfRegions() {

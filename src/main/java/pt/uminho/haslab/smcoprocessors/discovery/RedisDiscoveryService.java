@@ -58,8 +58,6 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
 				RequestIdentifier requestIdentifier) {
 			String key = getKey(requestIdentifier);
 
-			// LOG.debug("Going to put on redis " + key + "<->" +
-			// locationMessage);
 			try{
 				jedis.lpush(key, locationMessage);
 			}catch(Exception ex){
@@ -109,22 +107,18 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
 			List<String> clients = new ArrayList<String>();
 			String key = getKey(requestIdentifier);
 
-			// LOG.debug("Going to read");
 			int sleepTimeInc = sleepTime;
 			int nAttempts = 0;
 
 			while (run) {
-				// LOG.debug("going to get key " + key);
 				clients = jedis.lrange(key, 0, -1);
 
 				if (clients.size() >= 3) {
 					run = false;
 				} else if (nAttempts >= retries) {
 					run = false;
-					// LOG.debug("Max retries to find peers");
 				} else {
 					try {
-						// LOG.debug("List size " + clients.size());
 						Thread.sleep(sleepTimeInc);
 						nAttempts += 1;
 						sleepTimeInc += incTime;

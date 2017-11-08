@@ -1,4 +1,4 @@
-package pt.uminho.haslab.smcoprocessors.HBaseAPI.MultiRegionsSingleServerPackage;
+package pt.uminho.haslab.smcoprocessors.HBaseAPI.MultiRegionsSingleServerFilters;
 
 public class WhileMatchFilterTest extends pt.uminho.haslab.smcoprocessors.HBaseAPI.OneRegionServerOneRegionFilters.WhileMatchFilterTest{
 

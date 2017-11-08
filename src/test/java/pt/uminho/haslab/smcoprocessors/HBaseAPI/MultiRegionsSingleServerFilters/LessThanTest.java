@@ -1,4 +1,4 @@
-package pt.uminho.haslab.smcoprocessors.HBaseAPI.MultiRegionsSingleServerPackage;
+package pt.uminho.haslab.smcoprocessors.HBaseAPI.MultiRegionsSingleServerFilters;
 
 import pt.uminho.haslab.smcoprocessors.HBaseAPI.OneRegionServerOneRegionFilters.LessThanSingleColumnValueFilterTest;
 

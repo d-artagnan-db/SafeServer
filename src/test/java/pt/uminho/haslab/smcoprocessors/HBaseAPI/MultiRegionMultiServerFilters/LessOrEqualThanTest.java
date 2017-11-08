@@ -1,4 +1,4 @@
-package pt.uminho.haslab.smcoprocessors.HBaseAPI.MultiRegionsSingleServerPackage;
+package pt.uminho.haslab.smcoprocessors.HBaseAPI.MultiRegionMultiServerFilters;
 
 public class LessOrEqualThanTest extends pt.uminho.haslab.smcoprocessors.HBaseAPI.OneRegionServerOneRegionFilters.LessOrEqualThanTest {
 
@@ -7,10 +7,14 @@ public class LessOrEqualThanTest extends pt.uminho.haslab.smcoprocessors.HBaseAP
     }
 
     protected int getNumberOfRegions() {
-        return 2;
+        return 4;
     }
 
     protected long getNumberOfRecords() {
-        return 10;
+        return 800;
+    }
+
+    protected int getNumberOfRegionsServers() {
+        return 2;
     }
 }

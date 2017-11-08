@@ -1,10 +1,10 @@
-package pt.uminho.haslab.smcoprocessors.HBaseAPI.MultiRegionsSingleServerPackage;
+package pt.uminho.haslab.smcoprocessors.HBaseAPI.MultiRegionsSingleServerFilters;
 
 import pt.uminho.haslab.smcoprocessors.HBaseAPI.OneRegionServerOneRegionFilters.EqualSingleColumnValueFilterTest;
 
-public class EqualSingleColumnValueFilter extends EqualSingleColumnValueFilterTest {
+public class EqualSingleColumnValueTest extends EqualSingleColumnValueFilterTest {
 
-    public EqualSingleColumnValueFilter() throws Exception {
+    public EqualSingleColumnValueTest() throws Exception {
         super();
     }
 

@@ -33,9 +33,6 @@ public class RequestsLocks {
 	public void awaitForWrite(RequestIdentifier requestID)
 			throws InterruptedException {
 
-		// System.out.println("Locks "+locks);
-		// System.out.println("Locks req "+ requestID + " - "
-		// +locks.get(requestID));
 		locks.get(requestID).awaitForWrite();
 	}
 
