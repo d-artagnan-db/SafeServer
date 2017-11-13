@@ -57,7 +57,7 @@
     <property>
         <name>hbase.coprocessor.region.classes</name>
         <value>
-            pt.uminho.haslab.smcoprocessors.SmpcCoprocessor
+            pt.uminho.haslab.saferegions.SmpcCoprocessor
         </value>
     </property>
     <property>

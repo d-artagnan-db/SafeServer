@@ -939,7 +939,7 @@ Attaching to cluster3, cluster1, cluster2
 [36mcluster3    |[0m ==> logs/hbase--master-cluster3.log <==
 [36mcluster3    |[0m 2017-01-17 19:49:03,328 INFO  [Thread-80] CMiddleware.RelayClient: 6262 is going to connect to cluster1:6262
 [36mcluster3    |[0m 2017-01-17 19:49:03,329 INFO  [RS_OPEN_META-cluster3:42333-0] smcoprocessors.SmpcCoprocessor: Resources initated 2
-[36mcluster3    |[0m 2017-01-17 19:49:03,329 INFO  [RS_OPEN_META-cluster3:42333-0] coprocessor.CoprocessorHost: System coprocessor pt.uminho.haslab.smcoprocessors.SmpcCoprocessor was loaded successfully with priority (536870911).
+[36mcluster3    |[0m 2017-01-17 19:49:03,329 INFO  [RS_OPEN_META-cluster3:42333-0] coprocessor.CoprocessorHost: System coprocessor pt.uminho.haslab.saferegions.SmpcCoprocessor was loaded successfully with priority (536870911).
 [36mcluster3    |[0m 2017-01-17 19:49:03,329 INFO  [Thread-80] CMiddleware.RelayClient: 6262 is going to connect to cluster2:6262
 [36mcluster3    |[0m 2017-01-17 19:49:03,330 DEBUG [RS_OPEN_META-cluster3:42333-0] coprocessor.CoprocessorHost: Loading coprocessor class org.apache.hadoop.hbase.coprocessor.MultiRowMutationEndpoint with path null and priority 536870911
 [36mcluster3    |[0m 2017-01-17 19:49:03,330 INFO  [Thread-80] CMiddleware.IORelay: 6262 waiting for clients to connect to server
@@ -998,7 +998,7 @@ Attaching to cluster3, cluster1, cluster2
 [36mcluster3    |[0m 2017-01-17 19:49:03,611 DEBUG [RS_OPEN_PRIORITY_REGION-cluster3:42333-0] zookeeper.ZKAssign: regionserver:42333-0x159adf94f4b0001, quorum=localhost:18262, baseZNode=/hbase Transitioned node 8c8ee6a8dfa41a38537126f7863d1ae6 from M_ZK_REGION_OFFLINE to RS_ZK_REGION_OPENING
 [36mcluster3    |[0m 2017-01-17 19:49:03,611 DEBUG [RS_OPEN_PRIORITY_REGION-cluster3:42333-0] regionserver.HRegion: Opening region: {ENCODED => 8c8ee6a8dfa41a38537126f7863d1ae6, NAME => 'hbase:namespace,,1484682543460.8c8ee6a8dfa41a38537126f7863d1ae6.', STARTKEY => '', ENDKEY => ''}
 [36mcluster3    |[0m 2017-01-17 19:49:03,612 INFO  [RS_OPEN_PRIORITY_REGION-cluster3:42333-0] smcoprocessors.SmpcCoprocessor: Starting coprocessor hbase:namespace
-[36mcluster3    |[0m 2017-01-17 19:49:03,613 INFO  [RS_OPEN_PRIORITY_REGION-cluster3:42333-0] coprocessor.CoprocessorHost: System coprocessor pt.uminho.haslab.smcoprocessors.SmpcCoprocessor was loaded successfully with priority (536870911).
+[36mcluster3    |[0m 2017-01-17 19:49:03,613 INFO  [RS_OPEN_PRIORITY_REGION-cluster3:42333-0] coprocessor.CoprocessorHost: System coprocessor pt.uminho.haslab.saferegions.SmpcCoprocessor was loaded successfully with priority (536870911).
 [36mcluster3    |[0m 2017-01-17 19:49:03,613 DEBUG [RS_OPEN_PRIORITY_REGION-cluster3:42333-0] regionserver.MetricsRegionSourceImpl: Creating new MetricsRegionSourceImpl for table namespace 8c8ee6a8dfa41a38537126f7863d1ae6
 [36mcluster3    |[0m 2017-01-17 19:49:03,614 DEBUG [RS_OPEN_PRIORITY_REGION-cluster3:42333-0] regionserver.HRegion: Instantiated hbase:namespace,,1484682543460.8c8ee6a8dfa41a38537126f7863d1ae6.
 [36mcluster3    |[0m 2017-01-17 19:49:03,614 DEBUG [AM.ZK.Worker-pool2-t5] master.AssignmentManager: Handling RS_ZK_REGION_OPENING, server=cluster3,42333,1484682515998, region=8c8ee6a8dfa41a38537126f7863d1ae6, current_state={8c8ee6a8dfa41a38537126f7863d1ae6 state=PENDING_OPEN, ts=1484682543596, server=cluster3,42333,1484682515998}
@@ -1019,7 +1019,7 @@ Attaching to cluster3, cluster1, cluster2
 [33mcluster1    |[0m ==> logs/hbase--master-cluster1.log <==
 [33mcluster1    |[0m 2017-01-17 19:49:03,425 INFO  [Thread-80] CMiddleware.RelayClient: 6262 is going to connect to cluster2:6262
 [33mcluster1    |[0m 2017-01-17 19:49:03,426 INFO  [RS_OPEN_META-cluster1:38372-0] smcoprocessors.SmpcCoprocessor: Resources initated 0
-[33mcluster1    |[0m 2017-01-17 19:49:03,426 INFO  [RS_OPEN_META-cluster1:38372-0] coprocessor.CoprocessorHost: System coprocessor pt.uminho.haslab.smcoprocessors.SmpcCoprocessor was loaded successfully with priority (536870911).
+[33mcluster1    |[0m 2017-01-17 19:49:03,426 INFO  [RS_OPEN_META-cluster1:38372-0] coprocessor.CoprocessorHost: System coprocessor pt.uminho.haslab.saferegions.SmpcCoprocessor was loaded successfully with priority (536870911).
 [33mcluster1    |[0m 2017-01-17 19:49:03,426 INFO  [Thread-80] CMiddleware.RelayClient: 6262 is going to connect to cluster3:6262
 [33mcluster1    |[0m 2017-01-17 19:49:03,427 DEBUG [RS_OPEN_META-cluster1:38372-0] coprocessor.CoprocessorHost: Loading coprocessor class org.apache.hadoop.hbase.coprocessor.MultiRowMutationEndpoint with path null and priority 536870911
 [33mcluster1    |[0m 2017-01-17 19:49:03,430 INFO  [Thread-80] CMiddleware.IORelay: 6262 waiting for clients to connect to server
@@ -1108,7 +1108,7 @@ Attaching to cluster3, cluster1, cluster2
 [33mcluster1    |[0m 2017-01-17 19:49:03,704 DEBUG [AM.ZK.Worker-pool2-t5] master.AssignmentManager: Handling RS_ZK_REGION_OPENING, server=cluster1,38372,1484682516063, region=6c24cf52d16371c33779affda6f273d9, current_state={6c24cf52d16371c33779affda6f273d9 state=PENDING_OPEN, ts=1484682543697, server=cluster1,38372,1484682516063}
 [33mcluster1    |[0m 2017-01-17 19:49:03,704 INFO  [AM.ZK.Worker-pool2-t5] master.RegionStates: Transition {6c24cf52d16371c33779affda6f273d9 state=PENDING_OPEN, ts=1484682543697, server=cluster1,38372,1484682516063} to {6c24cf52d16371c33779affda6f273d9 state=OPENING, ts=1484682543704, server=cluster1,38372,1484682516063}
 [33mcluster1    |[0m 2017-01-17 19:49:03,705 INFO  [RS_OPEN_PRIORITY_REGION-cluster1:38372-0] smcoprocessors.SmpcCoprocessor: Starting coprocessor hbase:namespace
-[33mcluster1    |[0m 2017-01-17 19:49:03,705 INFO  [RS_OPEN_PRIORITY_REGION-cluster1:38372-0] coprocessor.CoprocessorHost: System coprocessor pt.uminho.haslab.smcoprocessors.SmpcCoprocessor was loaded successfully with priority (536870911).
+[33mcluster1    |[0m 2017-01-17 19:49:03,705 INFO  [RS_OPEN_PRIORITY_REGION-cluster1:38372-0] coprocessor.CoprocessorHost: System coprocessor pt.uminho.haslab.saferegions.SmpcCoprocessor was loaded successfully with priority (536870911).
 [33mcluster1    |[0m 2017-01-17 19:49:03,705 DEBUG [RS_OPEN_PRIORITY_REGION-cluster1:38372-0] regionserver.MetricsRegionSourceImpl: Creating new MetricsRegionSourceImpl for table namespace 6c24cf52d16371c33779affda6f273d9
 [33mcluster1    |[0m 2017-01-17 19:49:03,706 DEBUG [RS_OPEN_PRIORITY_REGION-cluster1:38372-0] regionserver.HRegion: Instantiated hbase:namespace,,1484682543557.6c24cf52d16371c33779affda6f273d9.
 [33mcluster1    |[0m 2017-01-17 19:49:03,706 DEBUG [MASTER_TABLE_OPERATIONS-cluster1:37102-0] lock.ZKInterProcessLockBase: Released /hbase/table-lock/hbase:namespace/write-master:371020000000000
@@ -1153,7 +1153,7 @@ Attaching to cluster3, cluster1, cluster2
 [32mcluster2    |[0m ==> logs/hbase--master-cluster2.log <==
 [32mcluster2    |[0m 2017-01-17 19:49:04,985 INFO  [Thread-80] CMiddleware.RelayClient: 6262 is going to connect to cluster3:6262
 [32mcluster2    |[0m 2017-01-17 19:49:04,986 INFO  [RS_OPEN_META-cluster2:41916-0] smcoprocessors.SmpcCoprocessor: Resources initated 1
-[32mcluster2    |[0m 2017-01-17 19:49:04,986 INFO  [RS_OPEN_META-cluster2:41916-0] coprocessor.CoprocessorHost: System coprocessor pt.uminho.haslab.smcoprocessors.SmpcCoprocessor was loaded successfully with priority (536870911).
+[32mcluster2    |[0m 2017-01-17 19:49:04,986 INFO  [RS_OPEN_META-cluster2:41916-0] coprocessor.CoprocessorHost: System coprocessor pt.uminho.haslab.saferegions.SmpcCoprocessor was loaded successfully with priority (536870911).
 [32mcluster2    |[0m 2017-01-17 19:49:04,987 DEBUG [RS_OPEN_META-cluster2:41916-0] coprocessor.CoprocessorHost: Loading coprocessor class org.apache.hadoop.hbase.coprocessor.MultiRowMutationEndpoint with path null and priority 536870911
 [32mcluster2    |[0m 2017-01-17 19:49:04,991 DEBUG [RS_OPEN_META-cluster2:41916-0] regionserver.HRegion: Registered coprocessor service: region=hbase:meta,,1 service=MultiRowMutationService
 [32mcluster2    |[0m 2017-01-17 19:49:04,991 INFO  [RS_OPEN_META-cluster2:41916-0] regionserver.RegionCoprocessorHost: Loaded coprocessor org.apache.hadoop.hbase.coprocessor.MultiRowMutationEndpoint from HTD of hbase:meta successfully.
@@ -1215,7 +1215,7 @@ Attaching to cluster3, cluster1, cluster2
 [32mcluster2    |[0m 2017-01-17 19:49:05,219 DEBUG [AM.ZK.Worker-pool2-t5] master.AssignmentManager: Handling RS_ZK_REGION_OPENING, server=cluster2,41916,1484682517717, region=c227570b295f03a6982d7768e6b48221, current_state={c227570b295f03a6982d7768e6b48221 state=PENDING_OPEN, ts=1484682545212, server=cluster2,41916,1484682517717}
 [32mcluster2    |[0m 2017-01-17 19:49:05,219 INFO  [AM.ZK.Worker-pool2-t5] master.RegionStates: Transition {c227570b295f03a6982d7768e6b48221 state=PENDING_OPEN, ts=1484682545212, server=cluster2,41916,1484682517717} to {c227570b295f03a6982d7768e6b48221 state=OPENING, ts=1484682545219, server=cluster2,41916,1484682517717}
 [32mcluster2    |[0m 2017-01-17 19:49:05,220 INFO  [RS_OPEN_PRIORITY_REGION-cluster2:41916-0] smcoprocessors.SmpcCoprocessor: Starting coprocessor hbase:namespace
-[32mcluster2    |[0m 2017-01-17 19:49:05,220 INFO  [RS_OPEN_PRIORITY_REGION-cluster2:41916-0] coprocessor.CoprocessorHost: System coprocessor pt.uminho.haslab.smcoprocessors.SmpcCoprocessor was loaded successfully with priority (536870911).
+[32mcluster2    |[0m 2017-01-17 19:49:05,220 INFO  [RS_OPEN_PRIORITY_REGION-cluster2:41916-0] coprocessor.CoprocessorHost: System coprocessor pt.uminho.haslab.saferegions.SmpcCoprocessor was loaded successfully with priority (536870911).
 [32mcluster2    |[0m 2017-01-17 19:49:05,221 DEBUG [RS_OPEN_PRIORITY_REGION-cluster2:41916-0] regionserver.MetricsRegionSourceImpl: Creating new MetricsRegionSourceImpl for table namespace c227570b295f03a6982d7768e6b48221
 [32mcluster2    |[0m 2017-01-17 19:49:05,221 DEBUG [RS_OPEN_PRIORITY_REGION-cluster2:41916-0] regionserver.HRegion: Instantiated hbase:namespace,,1484682545097.c227570b295f03a6982d7768e6b48221.
 [32mcluster2    |[0m 2017-01-17 19:49:05,223 DEBUG [MASTER_TABLE_OPERATIONS-cluster2:42021-0] lock.ZKInterProcessLockBase: Released /hbase/table-lock/hbase:namespace/write-master:420210000000000
@@ -1348,7 +1348,7 @@ Attaching to cluster3, cluster1, cluster2
 [36mcluster3    |[0m 2017-01-17 19:49:07,728 DEBUG [RS_OPEN_REGION-cluster3:42333-0] zookeeper.ZKAssign: regionserver:42333-0x159adf94f4b0001, quorum=localhost:18262, baseZNode=/hbase Transitioned node 7c42436e884b40a75ea848f0fbb3975a from M_ZK_REGION_OFFLINE to RS_ZK_REGION_OPENING
 [36mcluster3    |[0m 2017-01-17 19:49:07,729 DEBUG [RS_OPEN_REGION-cluster3:42333-0] regionserver.HRegion: Opening region: {ENCODED => 7c42436e884b40a75ea848f0fbb3975a, NAME => 'roger,,1484682547669.7c42436e884b40a75ea848f0fbb3975a.', STARTKEY => '', ENDKEY => ''}
 [36mcluster3    |[0m 2017-01-17 19:49:07,729 INFO  [RS_OPEN_REGION-cluster3:42333-0] smcoprocessors.SmpcCoprocessor: Starting coprocessor roger
-[36mcluster3    |[0m 2017-01-17 19:49:07,729 INFO  [RS_OPEN_REGION-cluster3:42333-0] coprocessor.CoprocessorHost: System coprocessor pt.uminho.haslab.smcoprocessors.SmpcCoprocessor was loaded successfully with priority (536870911).
+[36mcluster3    |[0m 2017-01-17 19:49:07,729 INFO  [RS_OPEN_REGION-cluster3:42333-0] coprocessor.CoprocessorHost: System coprocessor pt.uminho.haslab.saferegions.SmpcCoprocessor was loaded successfully with priority (536870911).
 [36mcluster3    |[0m 2017-01-17 19:49:07,729 DEBUG [RS_OPEN_REGION-cluster3:42333-0] regionserver.MetricsRegionSourceImpl: Creating new MetricsRegionSourceImpl for table roger 7c42436e884b40a75ea848f0fbb3975a
 [36mcluster3    |[0m 2017-01-17 19:49:07,729 DEBUG [RS_OPEN_REGION-cluster3:42333-0] regionserver.HRegion: Instantiated roger,,1484682547669.7c42436e884b40a75ea848f0fbb3975a.
 [36mcluster3    |[0m 2017-01-17 19:49:07,730 DEBUG [MASTER_TABLE_OPERATIONS-cluster3:36241-0] lock.ZKInterProcessLockBase: Released /hbase/table-lock/roger/write-master:362410000000000
@@ -1429,7 +1429,7 @@ Attaching to cluster3, cluster1, cluster2
 [33mcluster1    |[0m 2017-01-17 19:49:07,738 DEBUG [AM.ZK.Worker-pool2-t10] master.AssignmentManager: Handling RS_ZK_REGION_OPENING, server=cluster1,38372,1484682516063, region=74cf3bc1c04862d41c348505202c7ebc, current_state={74cf3bc1c04862d41c348505202c7ebc state=PENDING_OPEN, ts=1484682547728, server=cluster1,38372,1484682516063}
 [33mcluster1    |[0m 2017-01-17 19:49:07,738 INFO  [AM.ZK.Worker-pool2-t10] master.RegionStates: Transition {74cf3bc1c04862d41c348505202c7ebc state=PENDING_OPEN, ts=1484682547728, server=cluster1,38372,1484682516063} to {74cf3bc1c04862d41c348505202c7ebc state=OPENING, ts=1484682547738, server=cluster1,38372,1484682516063}
 [33mcluster1    |[0m 2017-01-17 19:49:07,739 INFO  [RS_OPEN_REGION-cluster1:38372-0] smcoprocessors.SmpcCoprocessor: Starting coprocessor roger
-[33mcluster1    |[0m 2017-01-17 19:49:07,739 INFO  [RS_OPEN_REGION-cluster1:38372-0] coprocessor.CoprocessorHost: System coprocessor pt.uminho.haslab.smcoprocessors.SmpcCoprocessor was loaded successfully with priority (536870911).
+[33mcluster1    |[0m 2017-01-17 19:49:07,739 INFO  [RS_OPEN_REGION-cluster1:38372-0] coprocessor.CoprocessorHost: System coprocessor pt.uminho.haslab.saferegions.SmpcCoprocessor was loaded successfully with priority (536870911).
 [33mcluster1    |[0m 2017-01-17 19:49:07,739 DEBUG [RS_OPEN_REGION-cluster1:38372-0] regionserver.MetricsRegionSourceImpl: Creating new MetricsRegionSourceImpl for table roger 74cf3bc1c04862d41c348505202c7ebc
 [33mcluster1    |[0m 2017-01-17 19:49:07,739 DEBUG [RS_OPEN_REGION-cluster1:38372-0] regionserver.HRegion: Instantiated roger,,1484682547671.74cf3bc1c04862d41c348505202c7ebc.
 [33mcluster1    |[0m 2017-01-17 19:49:07,744 INFO  [StoreOpener-74cf3bc1c04862d41c348505202c7ebc-1] hfile.CacheConfig: Created cacheConfig for cf1: CacheConfig:enabled [cacheDataOnRead=true] [cacheDataOnWrite=false] [cacheIndexesOnWrite=false] [cacheBloomsOnWrite=false] [cacheEvictOnClose=false] [cacheDataCompressed=false] [prefetchOnOpen=false]
@@ -1489,7 +1489,7 @@ Attaching to cluster3, cluster1, cluster2
 [33mcluster1    |[0m The filtered result found are: 
 [32mcluster2    |[0m 2017-01-17 19:49:07,739 DEBUG [RS_OPEN_REGION-cluster2:41916-0] regionserver.HRegion: Opening region: {ENCODED => 430c1f5923f76d1ca948f3c40d61a498, NAME => 'roger,,1484682547668.430c1f5923f76d1ca948f3c40d61a498.', STARTKEY => '', ENDKEY => ''}
 [32mcluster2    |[0m 2017-01-17 19:49:07,740 INFO  [RS_OPEN_REGION-cluster2:41916-0] smcoprocessors.SmpcCoprocessor: Starting coprocessor roger
-[32mcluster2    |[0m 2017-01-17 19:49:07,740 INFO  [RS_OPEN_REGION-cluster2:41916-0] coprocessor.CoprocessorHost: System coprocessor pt.uminho.haslab.smcoprocessors.SmpcCoprocessor was loaded successfully with priority (536870911).
+[32mcluster2    |[0m 2017-01-17 19:49:07,740 INFO  [RS_OPEN_REGION-cluster2:41916-0] coprocessor.CoprocessorHost: System coprocessor pt.uminho.haslab.saferegions.SmpcCoprocessor was loaded successfully with priority (536870911).
 [32mcluster2    |[0m 2017-01-17 19:49:07,740 DEBUG [RS_OPEN_REGION-cluster2:41916-0] regionserver.MetricsRegionSourceImpl: Creating new MetricsRegionSourceImpl for table roger 430c1f5923f76d1ca948f3c40d61a498
 [32mcluster2    |[0m 2017-01-17 19:49:07,740 DEBUG [RS_OPEN_REGION-cluster2:41916-0] regionserver.HRegion: Instantiated roger,,1484682547668.430c1f5923f76d1ca948f3c40d61a498.
 [32mcluster2    |[0m 2017-01-17 19:49:07,741 DEBUG [MASTER_TABLE_OPERATIONS-cluster2:42021-0] lock.ZKInterProcessLockBase: Released /hbase/table-lock/roger/write-master:420210000000000
