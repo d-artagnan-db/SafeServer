@@ -150,7 +150,6 @@ public abstract class AbstractClusterTest {
                 }
             }
         }
-
     }
 
     private void recordStoredValue(String cf, String cq, byte[] val) {
@@ -193,8 +192,10 @@ public abstract class AbstractClusterTest {
         for (Family fam : families) {
             familyNames.add(fam.getFamilyName());
         }
+
         List<Put> puts = generatePuts();
         TestClusterTables tables;
+
         if(getNumberOfRegions() > 1) {
             List<byte[]> splitKeys = getSplitKeys(getNumberOfRegions());
             tables = clusters.createTablesByteList(schema.getTablename(),

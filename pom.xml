@@ -69,7 +69,6 @@
             <artifactId>jedis</artifactId>
             <version>${redis.version}</version>
             <type>jar</type>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
     <build>
