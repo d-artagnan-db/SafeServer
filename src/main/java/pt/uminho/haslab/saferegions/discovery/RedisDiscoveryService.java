@@ -42,8 +42,7 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
 
     public void closeConnection() {
         jedis.close();
-        jedis.shutdown();
-    }
+	}
 
     @Override
 	protected DiscoveryServiceClient getDiscoveryServiceClient() {
