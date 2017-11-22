@@ -91,7 +91,7 @@ public class SharemindMessageBroker implements MessageBroker {
 				protocolBatchMessagesLocks.awaitForWrite(requestId);
 			}
 
-			return batchMessagesReceived.get(requestId);
+            return batchMessagesReceived.get(requestId);
 
 		} catch (InterruptedException ex) {
 			LOG.error(ex);
@@ -159,7 +159,8 @@ public class SharemindMessageBroker implements MessageBroker {
 					|| protocolResults.get(requestID).size() < 2) {
 				protocolResultsLocks.awaitForWrite(requestID);
 			}
-			return protocolResults.get(requestID);
+
+            return protocolResults.get(requestID);
 
 		} catch (InterruptedException ex) {
 			LOG.error(ex);

@@ -25,6 +25,7 @@ public class SmpcConfiguration {
 	private final int sleepTime;
 	private final int incTime;
 	private final int retries;
+	private final String hostname;
 	private final String discoveryServiceLocation;
 
 	private final String databaseSchemaPath;
@@ -38,16 +39,19 @@ public class SmpcConfiguration {
 		relayPort = conf.getInt("smhbase.relay.port", -1);
 		isDevelopment = conf.getBoolean("hbase.coprocessor.development", true);
 
+
 		// SMCP library configuration
         batchSize = conf.getInt("smhbase.batch.size", 10);
         preRandomElems = conf.getInt("smhbase.smpc.prerandom.size", 0);
 
 		// DiscoveryService configuration
+		hostname = conf.get("smhbase.discovery.hostname", "localhost");
 		discoveryServiceLocation = conf.get("smhbase.discovery.location",
 				"localhost");
 		sleepTime = conf.getInt("smhbase.discovery.sleepTime", 200);
 		incTime = conf.getInt("smhbase.discovery.incTime", 100);
 		retries = conf.getInt("smhbase.discovery.retries", 5);
+
 
 		databaseSchemaPath = conf.get("smhbase.schema");
 		String file = getClass().getResource("/"+databaseSchemaPath).getFile();
@@ -57,7 +61,7 @@ public class SmpcConfiguration {
 
 	public Relay createRelay(MessageBroker broker) throws IOException {
 		DiscoveryServiceConfiguration conf = new DiscoveryServiceConfiguration(
-				discoveryServiceLocation, playerID, relayHost, relayPort,
+				discoveryServiceLocation, playerID, hostname, relayPort,
 				sleepTime, incTime, retries);
 		return new IORelay(relayHost, relayPort, broker, conf);
 	}

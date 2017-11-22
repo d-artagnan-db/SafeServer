@@ -73,12 +73,15 @@ public class HandleSafeFilter {
         if(hasProtectedColumn){
             // Get the protected column values and the row identifiers.
             processDatasetValues(rows, columnValues, rowIDs);
-
+            LOG.debug("SafeFilters keys " + safeFilters.size());
             // Evaluate all of the SMPC protocols required for the filter.
             for (Column col : safeFilters.keySet()) {
                 List<byte[]> values = columnValues.get(col);
+                LOG.debug("SafeFilter conditions size is " + safeFilters.get(col).size());
                 for(SearchCondition safeFilter: safeFilters.get(col)){
+                    LOG.debug("Going to evaluate searchCondition " + safeFilter.getCondition());
                     safeFilter.evaluateCondition(values, rowIDs, player);
+                    LOG.debug("Condition evaluated");
                 }
 
             }

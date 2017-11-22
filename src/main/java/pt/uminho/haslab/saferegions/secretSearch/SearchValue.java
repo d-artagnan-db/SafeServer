@@ -81,7 +81,7 @@ public class SearchValue extends AbstractSearchValue {
 			}
 
 
-
+			LOG.debug("Running protocol " + condition);
 			if (condition == Equal) {
 				result = ssf.equal(values, cmpValues, player);
 			} else {
@@ -89,7 +89,8 @@ public class SearchValue extends AbstractSearchValue {
 			}
 
 			if (player.isTargetPlayer()) {
-
+				LOG.debug("is Target Player ");
+				LOG.debug("Retrieve protocol results from peers");
 				// At this point the size of the list identifiers must be 2.
 				List<SearchResults> identifiers = player.getProtocolResults();
 
@@ -113,10 +114,12 @@ public class SearchValue extends AbstractSearchValue {
 					resultsList.add(b);
 
 				}
+				LOG.debug("Send filter results to peers");
 				FilteredIndexes filtIndex = new FilteredIndexes(toSend);
 				player.sendFilteredIndexes(filtIndex);
 
 			} else {
+				LOG.debug("Send protocol results to target");
 				player.sendProtocolResults(createBatchSearchResults(result,
 						rowIDs));
 				List<byte[]> res = player.getFilterIndexes().getIndexes();

@@ -63,7 +63,6 @@ public class SecureRegionScanner implements RegionScanner {
 		int batchSize = batcher.batchSize();
 		List<List<Cell>> localCells = new ArrayList<List<Cell>>();
 		int counter = 0;
-
 		do {
 			List<Cell> localResults = new ArrayList<Cell>();
 			hasMore = scanner.next(localResults);
@@ -76,6 +75,7 @@ public class SecureRegionScanner implements RegionScanner {
 			localCells.add(localResults);
 			counter += 1;
 		} while (counter < batchSize && hasMore);
+		LOG.debug("loaded batch size of " + batchSize);
 
 		return localCells;
 	}
@@ -87,7 +87,6 @@ public class SecureRegionScanner implements RegionScanner {
         }
 
         boolean run = resultsCache.isBatchEmpty() && !(handler.isStopOnInvalidRecord() && handler.foundInvalidRecord());
-
         if (run) {
             List<List<Cell>> fRows = new ArrayList<List<Cell>>();
 
@@ -136,22 +135,26 @@ public class SecureRegionScanner implements RegionScanner {
 
         if (!hasMore && resultsCache.isBatchEmpty()) {
 			results.addAll(new ArrayList<Cell>());
+			LOG.debug(" 1 - Next returned false");
 			return false;
         } else if (!hasMore && !resultsCache.isBatchEmpty()) {
             results.addAll(resultsCache.getNext());
-            return !resultsCache.isBatchEmpty();
+			LOG.debug(" 2 - Next returned " + !resultsCache.isBatchEmpty());
+
+			return !resultsCache.isBatchEmpty();
         } else if (hasMore && resultsCache.isBatchEmpty()) {
             results.addAll(new ArrayList<Cell>());
-            return !(handler.isStopOnInvalidRecord() && handler.foundInvalidRecord());
+			LOG.debug(" 3 - Next returned " + !(handler.isStopOnInvalidRecord() && handler.foundInvalidRecord()));
+			return !(handler.isStopOnInvalidRecord() && handler.foundInvalidRecord());
         } else if (hasMore && !resultsCache.isBatchEmpty()) {
             results.addAll(resultsCache.getNext());
-            return true;
+			LOG.debug(" 4 - Next returned " + true);
+			return true;
         } else {
             throw new IllegalStateException("Case not handled");
         }
 
     }
-
 
     public void close() throws IOException {
 		((SharemindPlayer) player).cleanValues();
@@ -169,9 +172,10 @@ public class SecureRegionScanner implements RegionScanner {
     }
 
     public long getMaxResultSize() {
-        LOG.debug("Mvcc result size was issued");
-        return scanner.getMaxResultSize();
-    }
+		long size = scanner.getMaxResultSize();
+		LOG.debug("Mvcc result size was issued " + size);
+		return size;
+	}
 
     public long getMvccReadPoint() {
         LOG.debug("MvccReadPoint was issued");
@@ -179,8 +183,8 @@ public class SecureRegionScanner implements RegionScanner {
     }
 
     public boolean nextRaw(List<Cell> result) throws IOException {
-        LOG.debug("Next raw was issued");
-        return this.next(result);
+		//LOG.debug("Next raw was issued");
+		return this.next(result);
     }
 
     public boolean nextRaw(List<Cell> result, int limit) throws IOException {
