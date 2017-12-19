@@ -8,7 +8,7 @@ public abstract class DiscoveryServiceAbs implements DiscoveryService {
 
 	protected final int playerID;
 	protected final int port;
-	final String locationMessage;
+	protected final String locationMessage;
 	private final String RegionServerIP;
 	private final String discoveryServeLocation;
 

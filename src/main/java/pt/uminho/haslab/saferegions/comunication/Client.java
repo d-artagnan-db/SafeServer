@@ -110,13 +110,14 @@ public class Client extends Thread {
 
 			}
 		} catch (IOException ex) {
-			LOG.debug(ex);
+			LOG.error(ex);
 			throw new IllegalStateException(ex);
 		} finally {
 			try {
+				assert in != null;
 				in.close();
 			} catch (IOException ex) {
-				LOG.debug(ex);
+				LOG.error(ex);
 				throw new IllegalStateException(ex);
 			}
 		}
@@ -146,7 +147,7 @@ public class Client extends Thread {
 				ResultsMessage message = ResultsMessage.parseFrom(msg);
 				broker.receiveProtocolResults(message);
 			} catch (InvalidProtocolBufferException ex) {
-				LOG.debug(ex);
+				LOG.error(ex);
 				throw new IllegalStateException(ex);
 			}
 
@@ -166,7 +167,7 @@ public class Client extends Thread {
 				FilterIndexMessage message = FilterIndexMessage.parseFrom(msg);
 				broker.receiveFilterIndex(message);
 			} catch (InvalidProtocolBufferException ex) {
-				LOG.debug(ex);
+				LOG.error(ex);
 				throw new IllegalStateException(ex);
 			}
 		}
@@ -184,7 +185,7 @@ public class Client extends Thread {
 				BatchShareMessage message = BatchShareMessage.parseFrom(msg);
 				broker.receiveBatchMessage(message);
 			} catch (InvalidProtocolBufferException ex) {
-				LOG.debug(ex);
+				LOG.error(ex);
 				throw new IllegalStateException(ex);
 
 			}

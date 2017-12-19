@@ -30,8 +30,6 @@ public class ComposedSearchValue extends AbstractSearchValue {
 
 	public void evaluateCondition(List<byte[]> value, List<byte[]> rowID,
 			SharemindPlayer p) {
-		LOG.debug("Going to do a composedSearchValue for condition "
-				+ condition);
 		val1.evaluateCondition(value, rowID, p);
 		val2.evaluateCondition(value, rowID, p);
 	}

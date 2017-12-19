@@ -6,7 +6,7 @@ import org.junit.BeforeClass;
 import pt.uminho.haslab.saferegions.benchmarks.RegionServer;
 import pt.uminho.haslab.saferegions.helpers.RedisUtils;
 import pt.uminho.haslab.saferegions.helpers.TestDistributedCluster;
-import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
+import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
 
 import java.io.IOException;
 import java.math.BigInteger;

@@ -7,7 +7,9 @@ import pt.uminho.haslab.saferegions.SmpcConfiguration;
 import pt.uminho.haslab.saferegions.comunication.MessageBroker;
 import pt.uminho.haslab.saferegions.comunication.Relay;
 import pt.uminho.haslab.saferegions.comunication.SharemindMessageBroker;
+import pt.uminho.haslab.saferegions.helpers.FilePaths;
 
+import java.io.File;
 import java.io.IOException;
 
 public abstract class TestRegionServer extends Thread implements RegionServer {
@@ -24,7 +26,22 @@ public abstract class TestRegionServer extends Thread implements RegionServer {
 		String resource = "hbase-site-" + playerID + ".xml";
 
 		Configuration conf = new Configuration();
-		conf.addResource(resource);
+		/**
+         *
+         * Hadoop configuration seems to have a weird behavior regarding file names.
+         * It can find file given their names without the path as long as theses files are built in the jar. If the
+         * files are not in the jar built but passed in the classpath, then it can not find the files.
+         *
+         * If a given a full file path, than it can't find the file either.
+         *
+         * the only way I found that works is to get the full file path and convert it to an URL.
+         *
+         * The FilePaths.getPath(String) function does the work of getting a full file path loaded to the classpath given
+         * a file name.
+         *
+         * */
+		conf.addResource(new File(FilePaths.getPath(resource)).toURI().toURL());
+		conf.reloadConfiguration();
 		searchConf = new SmpcConfiguration(conf);
 
 		broker = new SharemindMessageBroker();

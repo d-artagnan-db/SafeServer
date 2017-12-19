@@ -1,6 +1,7 @@
 package pt.uminho.haslab.saferegions.secureRegionScanner;
 
-import pt.uminho.haslab.smhbase.interfaces.Secret;
+
+import pt.uminho.haslab.smpc.interfaces.Secret;
 
 public class SearchResult {
 

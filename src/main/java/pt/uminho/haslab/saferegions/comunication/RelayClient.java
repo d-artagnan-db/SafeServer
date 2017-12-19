@@ -133,7 +133,9 @@ public class RelayClient extends Thread {
 
     @Override
 	public void run() {
-		LOG.debug(this.bindingPort + " is going to start relay client thread");
+		if (LOG.isDebugEnabled()) {
+			LOG.debug(this.bindingPort + " is going to start relay client thread");
+		}
 		while (running) {
 			try {
 				int vRead = in.readInt();
@@ -143,7 +145,7 @@ public class RelayClient extends Thread {
 					running = false;
 				}
 			} catch (IOException ex) {
-				LOG.debug("Error on closing socket that was waiting " + ex);
+				LOG.error("Error on closing socket that was waiting " + ex);
 				throw new IllegalStateException(ex);
 			}
 		}
@@ -153,7 +155,7 @@ public class RelayClient extends Thread {
             out.close();
             in.close();
         } catch (IOException ex) {
-			LOG.debug("socket could not be closed" + ex);
+			LOG.error("socket could not be closed" + ex);
 			throw new IllegalStateException(ex);
 
 		}

@@ -203,7 +203,7 @@ public class AllToAllMessageExchangeDistributedClusterTest
 				mb.waitRelayStart();
 
 			} catch (IOException e) {
-				LOG.debug("Error on binding to address " + serverBindingAddress
+				LOG.error("Error on binding to address " + serverBindingAddress
 						+ ":" + serverBindingPort);
 				LOG.error(e.getLocalizedMessage());
 				throw new IllegalStateException(e);
@@ -224,7 +224,7 @@ public class AllToAllMessageExchangeDistributedClusterTest
 			discoveryService = new RedisDiscoveryService("localhost", playerID,
 					serverBindingAddress, serverBindingPort,
 					DISC_SERVICE_SLEEP_TIME, DISC_SERVICE_INC_TIME,
-					DISC_SERVICE_RETRIES);
+					DISC_SERVICE_RETRIES, false);
 
 			// Create Client connections and send messages.
 			for (BigInteger reqIdent : requestIdentifiers) {

@@ -9,11 +9,11 @@ public class DiscoveryServiceConfiguration {
 	private final int sleepTime;
 	private final int incTime;
 	private final int retries;
-
+	private final boolean fixedRegions;
 
     public DiscoveryServiceConfiguration(String discoveryServiceLocation,
 			int playerID, String regionServerIP, int port, int sleepTime,
-			int incTime, int retries) {
+			int incTime, int retries, boolean fixedRegions) {
 		this.discoveryServiceLocation = discoveryServiceLocation;
 		this.playerID = playerID;
 		this.regionServerIP = regionServerIP;
@@ -21,6 +21,7 @@ public class DiscoveryServiceConfiguration {
 		this.sleepTime = sleepTime;
 		this.incTime = incTime;
 		this.retries = retries;
+		this.fixedRegions = fixedRegions;
 	}
 
 	public String getDiscoveryServiceLocation() {
@@ -50,4 +51,8 @@ public class DiscoveryServiceConfiguration {
 	public int getRetries() {
 		return retries;
 	}
+
+	public boolean areRegionsFixed(){
+        return fixedRegions;
+    }
 }

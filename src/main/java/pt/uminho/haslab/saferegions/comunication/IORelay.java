@@ -23,7 +23,7 @@ public class IORelay implements Relay {
 	public IORelay(String bindingAddress, int bindingPort,
 			MessageBroker broker, DiscoveryServiceConfiguration conf)
 			throws IOException {
-        LOG.debug("Relay server created in " + bindingAddress + ":" + bindingPort);
+        LOG.info("Player" + conf.getPlayerID() + " relay server created in " + bindingAddress + ":" + bindingPort);
         server = new RelayServer(bindingAddress, bindingPort, broker);
 		discoveryService = new RedisDiscoveryService(conf);
 		peerConnectionManager = new PeersConnectionManagerImpl(bindingPort);
@@ -50,12 +50,12 @@ public class IORelay implements Relay {
 
 	public void forceStopRelay() throws IOException {
 		try {
-			LOG.debug(server.getBindingPort() + " going to force stop relay");
-			peerConnectionManager.shutdownClients();
+            LOG.info(server.getBindingPort() + " going to force stop relay");
+            peerConnectionManager.shutdownClients();
             discoveryService.closeConnection();
             server.forceShutdown();
-            LOG.debug(server.getBindingPort() + " relay force stopped");
-		} catch (InterruptedException ex) {
+            LOG.info(server.getBindingPort() + " relay force stopped");
+        } catch (InterruptedException ex) {
 			LOG.error(ex);
 			throw new IllegalStateException(ex);
 		}
@@ -97,9 +97,9 @@ public class IORelay implements Relay {
 		try {
 			List<RegionLocation> locations = this.discoveryService
 					.discoverRegions(requestIdentifier);
-
 			for (RegionLocation location : locations) {
 				if (location.getPlayerID() == playerID) {
+					LOG.debug("Location PlayerID " + location.getPlayerID() + " - " + location.getIp() + ":" + location.getPort());
 					client = peerConnectionManager.getRelayClient(
 							location.getIp(), location.getPort());
 					break;

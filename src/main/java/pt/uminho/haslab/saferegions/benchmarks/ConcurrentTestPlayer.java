@@ -6,10 +6,10 @@ import pt.uminho.haslab.saferegions.comunication.MessageBroker;
 import pt.uminho.haslab.saferegions.comunication.Relay;
 import pt.uminho.haslab.saferegions.comunication.RequestIdentifier;
 import pt.uminho.haslab.saferegions.secretSearch.ContextPlayer;
-import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
-import pt.uminho.haslab.smhbase.interfaces.Player;
-import pt.uminho.haslab.smhbase.interfaces.Secret;
-import pt.uminho.haslab.smhbase.sharemindImp.SharemindSecret;
+import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
+import pt.uminho.haslab.smpc.interfaces.Player;
+import pt.uminho.haslab.smpc.interfaces.Secret;
+import pt.uminho.haslab.smpc.sharemindImp.SharemindSecret;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

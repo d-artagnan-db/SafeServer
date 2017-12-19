@@ -1,7 +1,7 @@
 package pt.uminho.haslab.saferegions.protocolresults;
 
 import pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition;
-import pt.uminho.haslab.smhbase.sharemindImp.SharemindSharedSecret;
+import pt.uminho.haslab.smpc.sharemindImp.SharemindSharedSecret;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

@@ -4,8 +4,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.saferegions.protocolresults.ResultsLengthMismatch;
 import pt.uminho.haslab.saferegions.protocolresults.SearchResults;
-import pt.uminho.haslab.smhbase.interfaces.Secret;
-import pt.uminho.haslab.smhbase.sharemindImp.SharemindSecret;
+import pt.uminho.haslab.smpc.interfaces.Secret;
+import pt.uminho.haslab.smpc.sharemindImp.SharemindSecret;
 
 import java.util.ArrayList;
 import java.util.List;

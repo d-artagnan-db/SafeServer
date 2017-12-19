@@ -9,7 +9,7 @@ import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.regionserver.RegionScanner;
 import pt.uminho.haslab.saferegions.SmpcConfiguration;
 import pt.uminho.haslab.saferegions.secretSearch.SharemindPlayer;
-import pt.uminho.haslab.smhbase.interfaces.Player;
+import pt.uminho.haslab.smpc.interfaces.Player;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,20 +41,26 @@ public class SecureRegionScanner implements RegionScanner {
 		this.handler = handler;
 		this.env = env;
 		this.player = player;
-
 		scan = new Scan(scanStartRow, scanStopRow);
-
 		scanner = env.getRegion().getScanner(scan);
+
 		batcher = new Batcher(config);
 		resultsCache = new BatchCache();
 		hasMore = false;
 	}
 
 	public HRegionInfo getRegionInfo() {
-		return env.getRegionInfo();
+
+	    if(LOG.isDebugEnabled()){
+	        LOG.debug("getRegionInfo");
+        }
+        return env.getRegion().getRegionInfo();
 	}
 
 	public boolean isFilterDone() throws IOException {
+	    if (LOG.isDebugEnabled()){
+	        LOG.debug("IsFilterDone issued");
+	    }
         return handler.isStopOnInvalidRecord() && handler.isStopOnInvalidRecord();
     }
 
@@ -75,14 +81,16 @@ public class SecureRegionScanner implements RegionScanner {
 			localCells.add(localResults);
 			counter += 1;
 		} while (counter < batchSize && hasMore);
-		LOG.debug("loaded batch size of " + batchSize);
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("loaded batch size of " + counter + " but was asked to load at most " + batchSize);
+		}
 
 		return localCells;
 	}
 
 	public boolean next(List<Cell> results) throws IOException {
 
-        if (LOG.isDebugEnabled()) {
+	    if(LOG.isDebugEnabled()) {
             LOG.debug("Next in SecureRegionScanner was issued ");
         }
 
@@ -135,28 +143,23 @@ public class SecureRegionScanner implements RegionScanner {
 
         if (!hasMore && resultsCache.isBatchEmpty()) {
 			results.addAll(new ArrayList<Cell>());
-			LOG.debug(" 1 - Next returned false");
 			return false;
         } else if (!hasMore && !resultsCache.isBatchEmpty()) {
             results.addAll(resultsCache.getNext());
-			LOG.debug(" 2 - Next returned " + !resultsCache.isBatchEmpty());
-
 			return !resultsCache.isBatchEmpty();
         } else if (hasMore && resultsCache.isBatchEmpty()) {
             results.addAll(new ArrayList<Cell>());
-			LOG.debug(" 3 - Next returned " + !(handler.isStopOnInvalidRecord() && handler.foundInvalidRecord()));
 			return !(handler.isStopOnInvalidRecord() && handler.foundInvalidRecord());
         } else if (hasMore && !resultsCache.isBatchEmpty()) {
             results.addAll(resultsCache.getNext());
-			LOG.debug(" 4 - Next returned " + true);
 			return true;
         } else {
             throw new IllegalStateException("Case not handled");
         }
-
     }
 
     public void close() throws IOException {
+	    LOG.debug("Close issued");
 		((SharemindPlayer) player).cleanValues();
 		scanner.close();
 	}
@@ -167,29 +170,37 @@ public class SecureRegionScanner implements RegionScanner {
     }
 
     public boolean reseek(byte[] row) throws IOException {
-        LOG.debug("reseek was issued");
-        throw new UnsupportedOperationException("Not supported yet.");
+		LOG.error("reseek was issued");
+		throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public long getMaxResultSize() {
-		long size = scanner.getMaxResultSize();
-		LOG.debug("Mvcc result size was issued " + size);
-		return size;
+    public long getMaxResultSize()
+    {
+        if(LOG.isDebugEnabled()){
+            LOG.debug("getMaxResultSize issued");
+        }
+	    return scanner.getMaxResultSize();
 	}
 
     public long getMvccReadPoint() {
-        LOG.debug("MvccReadPoint was issued");
-        return scanner.getMvccReadPoint();
+	    if(LOG.isDebugEnabled()){
+            LOG.debug("getMvccReadPoint issued");
+	    }
+	    return scanner.getMvccReadPoint();
     }
 
     public boolean nextRaw(List<Cell> result) throws IOException {
-		//LOG.debug("Next raw was issued");
+	    if(LOG.isDebugEnabled()){
+	        LOG.debug("NextRaw issued");
+	    }
 		return this.next(result);
     }
 
     public boolean nextRaw(List<Cell> result, int limit) throws IOException {
-        LOG.debug("Next raw with limit was issued");
-        throw new UnsupportedOperationException("Not supported yet.");
+	    if(LOG.isDebugEnabled()){
+		    LOG.error("Next raw with limit was issued");
+	    }
+		throw new UnsupportedOperationException("Not supported yet.");
     }
 
     private class BatchCache {
@@ -206,7 +217,6 @@ public class SecureRegionScanner implements RegionScanner {
 
 		public List<Cell> getNext() {
 			return this.cells.poll();
-
 		}
 
 		boolean isBatchEmpty() {

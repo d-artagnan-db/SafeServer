@@ -12,7 +12,7 @@ import pt.uminho.haslab.saferegions.comunication.RequestIdentifier;
 import pt.uminho.haslab.saferegions.protocolresults.FilteredIndexes;
 import pt.uminho.haslab.saferegions.protocolresults.ResultsLengthMismatch;
 import pt.uminho.haslab.saferegions.protocolresults.SearchResults;
-import pt.uminho.haslab.smhbase.interfaces.Player;
+import pt.uminho.haslab.smpc.interfaces.Player;
 
 import java.io.IOException;
 import java.math.BigInteger;

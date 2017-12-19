@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import pt.uminho.haslab.saferegions.helpers.RegionServer;
 import pt.uminho.haslab.saferegions.helpers.TestLinkedRegions;
-import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
+import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
 import pt.uminho.haslab.testingutils.ValuesGenerator;
 
 import java.io.IOException;

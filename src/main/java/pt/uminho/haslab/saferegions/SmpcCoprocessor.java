@@ -5,10 +5,12 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.CoprocessorEnvironment;
 import org.apache.hadoop.hbase.client.OperationWithAttributes;
+import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.coprocessor.BaseRegionObserver;
 import org.apache.hadoop.hbase.coprocessor.ObserverContext;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
+import org.apache.hadoop.hbase.regionserver.InternalScanner;
 import org.apache.hadoop.hbase.regionserver.RegionScanner;
 import pt.uminho.haslab.safemapper.DatabaseSchema;
 import pt.uminho.haslab.safemapper.TableSchema;
@@ -20,18 +22,24 @@ import pt.uminho.haslab.saferegions.secretSearch.ContextPlayer;
 import pt.uminho.haslab.saferegions.secretSearch.SharemindPlayer;
 import pt.uminho.haslab.saferegions.secureRegionScanner.HandleSafeFilter;
 import pt.uminho.haslab.saferegions.secureRegionScanner.SecureRegionScanner;
-import pt.uminho.haslab.smhbase.interfaces.Player;
+import pt.uminho.haslab.smpc.interfaces.Player;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 
 public class SmpcCoprocessor extends BaseRegionObserver {
 
 	private static final Log LOG = LogFactory.getLog(SmpcCoprocessor.class
 			.getName());
+
+	private final static Semaphore available = new Semaphore(1);
 
 	/* Region Environment */
 	private RegionCoprocessorEnvironment env;
@@ -58,58 +66,87 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 	 */
 	@Override
 	public void start(CoprocessorEnvironment e) throws IOException {
-		env = (RegionCoprocessorEnvironment) e;
 
-		Configuration conf = e.getConfiguration();
-		searchConf = new SmpcConfiguration(conf);
+
+        env = (RegionCoprocessorEnvironment) e;
+        Configuration conf = e.getConfiguration();
+        searchConf = new SmpcConfiguration(conf);
 
 		LOG.info("Starting coprocessor "
 				+ env.getRegion().getRegionNameAsString());
 
-		if (!playerHasStarted()) {
-			wasFirst = true;
-			schema = searchConf.getSchema();
-			broker = new SharemindMessageBroker();
-			relay = searchConf.createRelay(broker);
-			relay.bootRelay();
+        try {
+            available.acquire();
 
-			// Wait some time before trying to connect with other region servers
-			LOG.debug("Player " + searchConf.getPlayerID()
-					+ " is waiting for Relay server to start");
-			try {
-				waitServerStart();
-			} catch (InterruptedException e1) {
-				LOG.error("Relay not booted correctly "
-						+ e1.getLocalizedMessage());
-				throw new IllegalStateException(e1);
-			}
+            if (!playerHasStarted()) {
+                   LOG.info("Starting player configuration");
 
-			initiateSharedResources(searchConf);
 
-			if (searchConf.getPreRandomSize() > 0) {
-				LOG.debug("Defining "
-						+ searchConf.getPreRandomSize()
-						+ " as the number of random numbers on the SMPC library");
-				// SharemindSecretFunctions.initRandomElemes(
-				// searchConf.getPreRandomSize());
-			}
-			LOG.info("Resources initiated " + searchConf.getPlayerIDasString());
-		} else {
-			LOG.debug("Second start " + searchConf.getPlayerIDasString());
-			setupSharedResources(searchConf);
-		}
+                    wasFirst = true;
+                    schema = searchConf.getSchema();
+                    broker = new SharemindMessageBroker();
+                    relay = searchConf.createRelay(broker);
+                    relay.bootRelay();
 
-	}
+                    // Wait some time before trying to connect with other region servers
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Player " + searchConf.getPlayerID()
+                                + " is waiting for Relay server to start");
+                    }
+                    try {
+                        waitServerStart();
+                    } catch (InterruptedException e1) {
+                        LOG.error("Relay not booted correctly "
+                                + e1.getLocalizedMessage());
+                        throw new IllegalStateException(e1);
+                    }
 
+                    initiateSharedResources(searchConf);
+                    initOutFiles();
+                    LOG.info("Resources initiated " + searchConf.getPlayerIDasString());
+                } else {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Second start ");
+                    }
+                    setupSharedResources(searchConf);
+                }
+        } catch (InterruptedException e1) {
+            LOG.error(e1);
+            throw new IllegalStateException(e1);
+        }   finally {
+            available.release();
+
+        }
+
+    }
+
+    private void initOutFiles() throws IOException {
+
+	    /**
+         * Java uncaught exceptions are sent to stdout or stderr and not caught on log4j.
+         * To catch these exceptions we define an output stream on the jvm to redirect the messages to a file.
+         * Maybe integrate this with a log4j. How is this not an option of log4j?
+         * */
+
+        PrintStream o = new PrintStream(new File("/var/log/hbase/out.log"));
+        PrintStream er = new PrintStream(new File("/var/log/hbase/error.log"));
+
+        System.setOut(o);
+        System.setErr(er);
+    }
 	@Override
 	public void stop(CoprocessorEnvironment e) throws IOException {
+
 		if (wasFirst) {
 			if (!searchConf.isDevelopment()) {
+				LOG.debug("Stop Coprocessors was issued " + env.getRegion().getRegionNameAsString());
 				relay.stopRelay();
 			} else {
                 RegionCoprocessorEnvironment env = (RegionCoprocessorEnvironment) e;
 
-                LOG.debug("Stoping coprocessor " + env.getRegion().getRegionNameAsString());
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Stoping coprocessor " + env.getRegion().getRegionNameAsString());
+                }
                 /*
 				 * In development mode clusters are not concurrent and the stop
 				 * requests by default waits for the other players to cancel
@@ -130,6 +167,7 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 		relay = (Relay) values.get(SharedResourcesIdentifiers.RELAY);
 		broker = (MessageBroker) values.get(SharedResourcesIdentifiers.BROKER);
 		schema = (DatabaseSchema) values.get(SharedResourcesIdentifiers.SCHEMA);
+		searchConf = (SmpcConfiguration) values.get(SharedResourcesIdentifiers.CONFIG);
 	}
 
 	private void initiateSharedResources(SmpcConfiguration searchConf) {
@@ -137,6 +175,7 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 		values.put(SharedResourcesIdentifiers.RELAY, relay);
 		values.put(SharedResourcesIdentifiers.BROKER, broker);
 		values.put(SharedResourcesIdentifiers.SCHEMA, schema);
+		values.put(SharedResourcesIdentifiers.CONFIG, searchConf);
 		env.getSharedData().put(searchConf.getPlayerIDasString(), values);
 	}
 
@@ -174,7 +213,6 @@ public class SmpcCoprocessor extends BaseRegionObserver {
         }
 
 		return new RequestIdentifier(requestID, regionID);
-
 	}
 
 
@@ -205,7 +243,10 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 		HandleSafeFilter handler = new HandleSafeFilter(tSchema,
 				op.getFilter(), player);
 		handler.processFilter();
-
+        if(LOG.isDebugEnabled()){
+            LOG.debug("Is player targetPlayer " + ((ContextPlayer) player).isTargetPlayer());
+            LOG.debug("Returning SecureRegionScanner");
+        }
 		return new SecureRegionScanner(env, player, this.searchConf, handler,
 				startRow, stopRow);
 
@@ -305,6 +346,7 @@ public class SmpcCoprocessor extends BaseRegionObserver {
         }
         if (scanType != null) {
             String table = env.getRegion().getTableDesc().getNameAsString();
+
             switch (scanType) {
                 case ProtectedIdentifierGet :
 						throw new IllegalArgumentException(
@@ -318,5 +360,4 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 		}
 		return s;
 	}
-
 }

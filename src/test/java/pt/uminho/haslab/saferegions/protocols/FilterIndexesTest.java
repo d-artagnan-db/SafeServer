@@ -9,7 +9,7 @@ import pt.uminho.haslab.saferegions.helpers.TestRegionServer;
 import pt.uminho.haslab.saferegions.protocolresults.FilteredIndexes;
 import pt.uminho.haslab.saferegions.secretSearch.ContextPlayer;
 import pt.uminho.haslab.saferegions.secretSearch.SharemindPlayer;
-import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
+import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
 import pt.uminho.haslab.testingutils.ValuesGenerator;
 
 import java.io.IOException;

@@ -1,9 +1,9 @@
 package pt.uminho.haslab.saferegions.secretSearch;
 
 import pt.uminho.haslab.saferegions.protocolresults.*;
-import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
-import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
-import pt.uminho.haslab.smhbase.sharemindImp.SharemindSecretFunctions;
+import pt.uminho.haslab.smpc.exceptions.InvalidNumberOfBits;
+import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
+import pt.uminho.haslab.smpc.sharemindImp.SharemindSecretFunctions;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -69,8 +69,8 @@ public class SearchValue extends AbstractSearchValue {
 			 */
 
 			if (value.size() == 1 && cmpValues.size() > 1) {
-				// If there is only a single value replica-te it
-				for (int i = 0; i < cmpValues.size(); i++) {
+                // If there is only a single value replicate it
+                for (int i = 0; i < cmpValues.size(); i++) {
 					values.add(value.get(0));
 				}
 			} else if (value.size() == cmpValues.size()) {
@@ -81,17 +81,20 @@ public class SearchValue extends AbstractSearchValue {
 			}
 
 
-			LOG.debug("Running protocol " + condition);
-			if (condition == Equal) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Running protocol " + condition);
+            }
+            if (condition == Equal) {
 				result = ssf.equal(values, cmpValues, player);
 			} else {
 				result = ssf.greaterOrEqualThan(cmpValues, values, player);
 			}
 
 			if (player.isTargetPlayer()) {
-				LOG.debug("is Target Player ");
-				LOG.debug("Retrieve protocol results from peers");
-				// At this point the size of the list identifiers must be 2.
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Retrieve protocol results from peers");
+                }
+                // At this point the size of the list identifiers must be 2.
 				List<SearchResults> identifiers = player.getProtocolResults();
 
 				identifiers.add(createBatchSearchResults(result, rowIDs));
@@ -114,13 +117,17 @@ public class SearchValue extends AbstractSearchValue {
 					resultsList.add(b);
 
 				}
-				LOG.debug("Send filter results to peers");
-				FilteredIndexes filtIndex = new FilteredIndexes(toSend);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Send filter results to peers");
+                }
+                FilteredIndexes filtIndex = new FilteredIndexes(toSend);
 				player.sendFilteredIndexes(filtIndex);
 
 			} else {
-				LOG.debug("Send protocol results to target");
-				player.sendProtocolResults(createBatchSearchResults(result,
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Send protocol results to target");
+                }
+                player.sendProtocolResults(createBatchSearchResults(result,
 						rowIDs));
 				List<byte[]> res = player.getFilterIndexes().getIndexes();
 
@@ -133,9 +140,9 @@ public class SearchValue extends AbstractSearchValue {
 				}
 			}
 		} catch (InvalidSecretValue | ResultsLengthMismatch | InvalidNumberOfBits | ResultsIdentifiersMismatch ex) {
-			LOG.error(ex);
-			throw new IllegalStateException(ex);
-		}
+            LOG.error(ex);
+            throw new IllegalStateException(ex);
+        }
 	}
 
 }

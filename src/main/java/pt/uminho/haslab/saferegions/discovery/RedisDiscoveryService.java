@@ -5,9 +5,8 @@ import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.saferegions.comunication.RequestIdentifier;
 import redis.clients.jedis.Jedis;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RedisDiscoveryService extends DiscoveryServiceAbs {
 
@@ -18,27 +17,35 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
 	private final int sleepTime;
 	private final int incTime;
 	private final int retries;
+	private final boolean fixedRegions;
+
+	//Cache of region Locations. Region ID -> Region Locaiton
+	private final Map<String, List<RegionLocation>> regionsCache;
 
 	public RedisDiscoveryService(DiscoveryServiceConfiguration conf) {
 		super(conf.getDiscoveryServiceLocation(), conf.getPlayerID(), conf
 				.getRegionServerIP(), conf.getPort());
+        fixedRegions = conf.areRegionsFixed();
+        regionsCache = new HashMap<String, List<RegionLocation>>();
 		jedis = new Jedis(conf.getDiscoveryServiceLocation());
 		client = new Client();
 		this.sleepTime = conf.getSleepTime();
 		this.incTime = conf.getIncTime();
 		this.retries = conf.getRetries();
-	}
 
-	public RedisDiscoveryService(String discoveryServiceLocation, int playerID,
-			String regionServerIP, int port, int sleepTime, int incTime,
-			int retries) {
-		super(discoveryServiceLocation, playerID, regionServerIP, port);
-		jedis = new Jedis(discoveryServiceLocation);
-		client = new Client();
-		this.sleepTime = sleepTime;
-		this.incTime = incTime;
-		this.retries = retries;
 	}
+    public RedisDiscoveryService(String discoveryServiceLocation, int playerID,
+                                 String regionServerIP, int port, int sleepTime, int incTime,
+                                 int retries, boolean fixedRegions) {
+        super(discoveryServiceLocation, playerID, regionServerIP, port);
+        this.fixedRegions = fixedRegions;
+        regionsCache = new HashMap<String, List<RegionLocation>>();
+        jedis = new Jedis(discoveryServiceLocation);
+        client = new Client();
+        this.sleepTime = sleepTime;
+        this.incTime = incTime;
+        this.retries = retries;
+    }
 
     public void closeConnection() {
         jedis.close();
@@ -61,12 +68,15 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
 		public synchronized void sendCurrentLocationOfPlayerInRequest(
 				RequestIdentifier requestIdentifier) {
 			String key = getKey(requestIdentifier);
-			try{
-				jedis.lpush(key, locationMessage);
-			}catch(Exception ex){
-                LOG.debug(ex.getMessage());
-                throw new IllegalStateException(ex);
-			}
+			String regionID = Arrays.toString(requestIdentifier.getRegionID());
+            if(!(fixedRegions && regionsCache.containsKey(regionID))){
+                try{
+                    jedis.lpush(key, locationMessage);
+                }catch(Exception ex){
+                    LOG.error(ex.getMessage());
+                    throw new IllegalStateException(ex);
+                }
+            }
 
 		}
 
@@ -76,7 +86,7 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
 			jedis.del(key);
 		}
 
-		private List<RegionLocation> parseJedisResult(List<String> results)
+		private List<RegionLocation> parseJedisResult(String regionID, List<String> results)
 				throws FailedRegionDiscovery {
 			/**
 			 * The result size should either be 0 because no jedis. lrange was
@@ -86,8 +96,8 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
 
 			if (results.size() != 3) {
 				String msg = "Illegal results input size: " + results.size();
-				LOG.debug(msg);
-				throw new FailedRegionDiscovery(msg);
+                LOG.error(msg);
+                throw new FailedRegionDiscovery(msg);
 			}
 
 			for (String result : results) {
@@ -100,6 +110,8 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
 					regionResult.add(rl);
 				}
 			}
+
+			regionsCache.put(regionID, regionResult);
 			return regionResult;
 		}
 
@@ -112,7 +124,11 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
 
 			int sleepTimeInc = sleepTime;
 			int nAttempts = 0;
-
+            String regionID = Arrays
+                    .toString(requestIdentifier.getRequestID());
+			if(fixedRegions && regionsCache.containsKey(regionID)){
+			    return regionsCache.get(regionID);
+            }
 			while (run) {
 				clients = jedis.lrange(key, 0, -1);
 
@@ -126,13 +142,15 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
 						nAttempts += 1;
 						sleepTimeInc += incTime;
 					} catch (InterruptedException ex) {
-						LOG.debug(ex);
-						throw new IllegalStateException(ex);
+                        LOG.error(ex);
+                        throw new IllegalStateException(ex);
 
 					}
 				}
 			}
-			return parseJedisResult(clients);
+
+
+			return parseJedisResult(regionID, clients);
 		}
 
 	}

@@ -5,12 +5,12 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import pt.uminho.haslab.saferegions.comunication.RequestIdentifier;
-import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
-import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
-import pt.uminho.haslab.smhbase.interfaces.Dealer;
-import pt.uminho.haslab.smhbase.interfaces.Player;
-import pt.uminho.haslab.smhbase.sharemindImp.SharemindDealer;
-import pt.uminho.haslab.smhbase.sharemindImp.SharemindSharedSecret;
+import pt.uminho.haslab.smpc.exceptions.InvalidNumberOfBits;
+import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
+import pt.uminho.haslab.smpc.interfaces.Dealer;
+import pt.uminho.haslab.smpc.interfaces.Player;
+import pt.uminho.haslab.smpc.sharemindImp.SharemindDealer;
+import pt.uminho.haslab.smpc.sharemindImp.SharemindSharedSecret;
 import pt.uminho.haslab.testingutils.ValuesGenerator;
 
 import java.io.IOException;
@@ -21,7 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertEquals;
+
 
 @RunWith(Parameterized.class)
 public abstract class BatchProtocolTest extends TestLinkedRegions {

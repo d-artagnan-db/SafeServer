@@ -7,9 +7,9 @@ import pt.uminho.haslab.saferegions.comunication.Relay;
 import pt.uminho.haslab.saferegions.comunication.RequestIdentifier;
 import pt.uminho.haslab.saferegions.helpers.ConcurrentBatchProtocolTest;
 import pt.uminho.haslab.saferegions.helpers.ConcurrentBatchTestPlayer;
-import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
-import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
-import pt.uminho.haslab.smhbase.sharemindImp.SharemindSecretFunctions;
+import pt.uminho.haslab.smpc.exceptions.InvalidNumberOfBits;
+import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
+import pt.uminho.haslab.smpc.sharemindImp.SharemindSecretFunctions;
 
 import java.io.IOException;
 import java.math.BigInteger;

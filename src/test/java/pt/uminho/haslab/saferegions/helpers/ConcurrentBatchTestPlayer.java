@@ -6,7 +6,7 @@ import pt.uminho.haslab.saferegions.comunication.MessageBroker;
 import pt.uminho.haslab.saferegions.comunication.Relay;
 import pt.uminho.haslab.saferegions.comunication.RequestIdentifier;
 import pt.uminho.haslab.saferegions.secretSearch.ContextPlayer;
-import pt.uminho.haslab.smhbase.interfaces.Player;
+import pt.uminho.haslab.smpc.interfaces.Player;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -15,7 +15,7 @@ import java.util.Map;
 
 public abstract class ConcurrentBatchTestPlayer extends Thread
 		implements
-			Player {
+        Player {
 
 	private static final Log LOG = LogFactory
 			.getLog(ConcurrentBatchTestPlayer.class.getName());

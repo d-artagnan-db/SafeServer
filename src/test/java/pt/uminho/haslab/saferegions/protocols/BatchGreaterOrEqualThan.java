@@ -3,10 +3,10 @@ package pt.uminho.haslab.saferegions.protocols;
 import pt.uminho.haslab.saferegions.comunication.RequestIdentifier;
 import pt.uminho.haslab.saferegions.helpers.BatchProtocolTest;
 import pt.uminho.haslab.saferegions.helpers.RegionServer;
-import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
-import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
-import pt.uminho.haslab.smhbase.interfaces.Player;
-import pt.uminho.haslab.smhbase.sharemindImp.SharemindSecretFunctions;
+import pt.uminho.haslab.smpc.exceptions.InvalidNumberOfBits;
+import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
+import pt.uminho.haslab.smpc.interfaces.Player;
+import pt.uminho.haslab.smpc.sharemindImp.SharemindSecretFunctions;
 
 import java.io.IOException;
 import java.math.BigInteger;

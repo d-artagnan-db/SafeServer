@@ -33,7 +33,7 @@ public class ConcurrentSucessRedisDiscoveryServiceTest
 		public void run() {
 			RedisDiscoveryService service = new RedisDiscoveryService(
 					"localhost", playerID, ip, port, DISC_SERVICE_SLEEP_TIME,
-					DISC_SERVICE_INC_TIME, DISC_SERVICE_RETRIES);
+					DISC_SERVICE_INC_TIME, DISC_SERVICE_RETRIES, false);
 			RequestIdentifier reqi = new RequestIdentifier(requestID, regionID);
 			service.registerRegion(reqi);
 			List<RegionLocation> playerLocations = null;

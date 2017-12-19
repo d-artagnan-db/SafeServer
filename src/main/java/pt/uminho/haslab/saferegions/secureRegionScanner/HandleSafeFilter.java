@@ -10,7 +10,7 @@ import pt.uminho.haslab.saferegions.secretSearch.AbstractSearchValue;
 import pt.uminho.haslab.saferegions.secretSearch.SearchCondition;
 import pt.uminho.haslab.saferegions.secretSearch.SharemindPlayer;
 import pt.uminho.haslab.saferegions.secureFilters.*;
-import pt.uminho.haslab.smhbase.interfaces.Player;
+import pt.uminho.haslab.smpc.interfaces.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;

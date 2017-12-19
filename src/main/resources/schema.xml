@@ -1,0 +1,11 @@
+<schema>
+    <default>
+        <key>PLT</key>
+        <columns>PLT</columns>
+        <keypadding>false</keypadding>
+        <colpadding>false</colpadding>
+        <keyformatsize>10</keyformatsize>
+        <colformatsize>10</colformatsize>
+        <encryptionmode>disable</encryptionmode>
+    </default>
+</schema>

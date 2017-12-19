@@ -5,9 +5,9 @@ import pt.uminho.haslab.saferegions.helpers.BatchProtocolTest;
 import pt.uminho.haslab.saferegions.helpers.RegionServer;
 import pt.uminho.haslab.saferegions.secretSearch.SearchCondition;
 import pt.uminho.haslab.saferegions.secretSearch.SharemindPlayer;
-import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
-import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
-import pt.uminho.haslab.smhbase.interfaces.Player;
+import pt.uminho.haslab.smpc.exceptions.InvalidNumberOfBits;
+import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
+import pt.uminho.haslab.smpc.interfaces.Player;
 
 import java.io.IOException;
 import java.math.BigInteger;

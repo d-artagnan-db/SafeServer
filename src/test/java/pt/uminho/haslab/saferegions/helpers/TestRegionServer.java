@@ -52,13 +52,9 @@ public abstract class TestRegionServer extends Thread implements RegionServer {
 			relay.stopRelay();
 			Thread.sleep(1000);
 
-		} catch (InterruptedException ex) {
+		} catch (InterruptedException | IOException ex) {
 			runStatus = false;
-			LOG.debug(ex);
-			throw new IllegalStateException(ex);
-		} catch (IOException ex) {
-			runStatus = false;
-			LOG.debug(ex);
+			LOG.error(ex);
 			throw new IllegalStateException(ex);
 		}
 

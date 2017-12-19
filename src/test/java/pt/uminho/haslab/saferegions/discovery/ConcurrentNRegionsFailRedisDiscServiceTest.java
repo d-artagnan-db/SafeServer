@@ -4,7 +4,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import pt.uminho.haslab.saferegions.benchmarks.RegionServer;
 import pt.uminho.haslab.saferegions.comunication.RequestIdentifier;
-import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
+import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
 import pt.uminho.haslab.testingutils.ValuesGenerator;
 
 import java.io.IOException;
@@ -90,7 +90,7 @@ public class ConcurrentNRegionsFailRedisDiscServiceTest
 		public void run() {
 			RedisDiscoveryService service = new RedisDiscoveryService(
 					"localhost", playerID, ip, port, DISC_SERVICE_SLEEP_TIME,
-					DISC_SERVICE_INC_TIME, DISC_SERVICE_RETRIES);
+					DISC_SERVICE_INC_TIME, DISC_SERVICE_RETRIES, false);
 			if (!(bannedRequestIDs.contains(pos) && bannedPlayers.get(pos) == playerID)) {
 				RequestIdentifier reqi = new RequestIdentifier(requestID,
 						regionID);
@@ -100,8 +100,8 @@ public class ConcurrentNRegionsFailRedisDiscServiceTest
 				try {
 					playerLocations = service.discoverRegions(reqi);
 				} catch (FailedRegionDiscovery failedRegionDiscovery) {
-					LOG.debug(failedRegionDiscovery);
-					fails.addAndGet(1);
+                    LOG.error(failedRegionDiscovery);
+                    fails.addAndGet(1);
 				}
 				locations.get(playerID).put(pos, playerLocations);
 				// service.unregisterRegion(reqi);

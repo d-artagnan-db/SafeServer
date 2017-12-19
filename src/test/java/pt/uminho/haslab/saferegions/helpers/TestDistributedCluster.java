@@ -2,7 +2,7 @@ package pt.uminho.haslab.saferegions.helpers;
 
 import org.junit.Test;
 import pt.uminho.haslab.saferegions.benchmarks.RegionServer;
-import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
+import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
 
 import java.io.IOException;
 import java.util.ArrayList;

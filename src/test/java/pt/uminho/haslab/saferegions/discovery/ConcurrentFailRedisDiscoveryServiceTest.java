@@ -2,7 +2,7 @@ package pt.uminho.haslab.saferegions.discovery;
 
 import pt.uminho.haslab.saferegions.comunication.RequestIdentifier;
 import pt.uminho.haslab.saferegions.helpers.RegionServer;
-import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
+import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -53,7 +53,7 @@ public class ConcurrentFailRedisDiscoveryServiceTest
 				RedisDiscoveryService service = new RedisDiscoveryService(
 						"localhost", playerID, ip, port,
 						DISC_SERVICE_SLEEP_TIME, DISC_SERVICE_INC_TIME,
-						DISC_SERVICE_RETRIES);
+						DISC_SERVICE_RETRIES, false);
 				RequestIdentifier reqi = new RequestIdentifier(requestID,
 						regionID);
 				List<RegionLocation> playerLocations = new ArrayList<RegionLocation>();

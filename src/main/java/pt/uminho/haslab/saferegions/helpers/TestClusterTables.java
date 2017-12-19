@@ -16,11 +16,11 @@ import pt.uminho.haslab.safemapper.Family;
 import pt.uminho.haslab.safemapper.Qualifier;
 import pt.uminho.haslab.safemapper.TableSchema;
 import pt.uminho.haslab.saferegions.OperationAttributesIdentifiers;
-import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
-import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
-import pt.uminho.haslab.smhbase.interfaces.Dealer;
-import pt.uminho.haslab.smhbase.sharemindImp.SharemindDealer;
-import pt.uminho.haslab.smhbase.sharemindImp.SharemindSharedSecret;
+import pt.uminho.haslab.smpc.exceptions.InvalidNumberOfBits;
+import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
+import pt.uminho.haslab.smpc.interfaces.Dealer;
+import pt.uminho.haslab.smpc.sharemindImp.SharemindDealer;
+import pt.uminho.haslab.smpc.sharemindImp.SharemindSharedSecret;
 import pt.uminho.haslab.testingutils.ClusterScanResult;
 import pt.uminho.haslab.testingutils.ClusterTables;
 

@@ -7,11 +7,11 @@ import org.junit.runners.Parameterized;
 import pt.uminho.haslab.saferegions.comunication.MessageBroker;
 import pt.uminho.haslab.saferegions.comunication.Relay;
 import pt.uminho.haslab.saferegions.comunication.RequestIdentifier;
-import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
-import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
-import pt.uminho.haslab.smhbase.interfaces.Dealer;
-import pt.uminho.haslab.smhbase.sharemindImp.SharemindDealer;
-import pt.uminho.haslab.smhbase.sharemindImp.SharemindSharedSecret;
+import pt.uminho.haslab.smpc.exceptions.InvalidNumberOfBits;
+import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
+import pt.uminho.haslab.smpc.interfaces.Dealer;
+import pt.uminho.haslab.smpc.sharemindImp.SharemindDealer;
+import pt.uminho.haslab.smpc.sharemindImp.SharemindSharedSecret;
 import pt.uminho.haslab.testingutils.ValuesGenerator;
 
 import java.io.IOException;

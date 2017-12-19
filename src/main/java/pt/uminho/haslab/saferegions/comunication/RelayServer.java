@@ -35,8 +35,11 @@ public class RelayServer extends Thread {
 		this.bindingPort = bindingPort;
 		this.bindingAddress = bindingAddress;
 		this.broker = broker;
-		LOG.debug("Starting server " + bindingAddress + ":" + bindingPort);
-		clientsReceived = 0;
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Starting server " + bindingAddress + ":" + bindingPort);
+        }
+        clientsReceived = 0;
 		clients = new ArrayList<Client>();
 		serverSocket = new ServerSocket(bindingPort);
 		running = true;
@@ -75,7 +78,9 @@ public class RelayServer extends Thread {
 	 * server
 	 */
 	private void voidClient() throws IOException, InterruptedException {
-
+		if(LOG.isDebugEnabled()){
+			LOG.debug("Void client is triggered to stop server");
+		}
 		RelayClient closeClient = new RelayClient(bindingPort, bindingAddress,
 				bindingPort);
 		closeClient.connectToTarget();
@@ -96,7 +101,9 @@ public class RelayServer extends Thread {
 	public void startServer() {
 		this.start();
 		broker.relayStarted();
-		LOG.debug(this.bindingPort + " is starting relay server");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(this.bindingPort + " is starting relay server");
+        }
 
 	}
 
@@ -120,8 +127,8 @@ public class RelayServer extends Thread {
             LOG.debug(this.bindingPort + " closed Relay Server main loop");
 
         } catch (IOException ex) {
-			LOG.debug(ex);
-			throw new IllegalStateException(ex);
+            LOG.error(ex);
+            throw new IllegalStateException(ex);
 		}
 	}
 }

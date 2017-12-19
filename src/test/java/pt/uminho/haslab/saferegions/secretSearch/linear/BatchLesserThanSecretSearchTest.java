@@ -2,8 +2,8 @@ package pt.uminho.haslab.saferegions.secretSearch.linear;
 
 import pt.uminho.haslab.saferegions.secretSearch.AbstractSearchValue;
 import pt.uminho.haslab.saferegions.secretSearch.SearchCondition;
-import pt.uminho.haslab.smhbase.exceptions.InvalidNumberOfBits;
-import pt.uminho.haslab.smhbase.exceptions.InvalidSecretValue;
+import pt.uminho.haslab.smpc.exceptions.InvalidNumberOfBits;
+import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
 
 import java.io.IOException;
 import java.math.BigInteger;

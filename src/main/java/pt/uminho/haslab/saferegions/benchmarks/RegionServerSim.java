@@ -4,100 +4,91 @@ import pt.uminho.haslab.saferegions.comunication.RequestIdentifier;
 import pt.uminho.haslab.saferegions.secretSearch.AbstractSearchValue;
 import pt.uminho.haslab.saferegions.secretSearch.SearchCondition;
 import pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition;
+import pt.uminho.haslab.saferegions.secretSearch.SharemindPlayer;
 
 import java.io.IOException;
-import java.math.BigInteger;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
-import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition.Equal;
 
 /***
  * Simulator of a region server used to benchmark the SMPC protocols
  */
 public class RegionServerSim extends TestRegionServer {
-	private final static SecureRandom generator = new SecureRandom();
 
-	private final int runTime;
+    private final Condition cond;
+    private final int nBits;
 
-	public RegionServerSim(int playerID, int runTime) throws IOException {
+    private final List<List<byte[]>> firstInputs;
+    private final  List<List<byte[]>> secondInputs;
+    private final List<byte[]> ids;
+
+
+    private final List<TestPlayer> players;
+    private final List<SearchCondition> searchConditions;
+    private final List<Long> latency;
+
+    public RegionServerSim(int playerID, Condition condition, int nBits, List<List<byte[]>> firstInputs, List<List<byte[]>> secondInputs) throws IOException {
 
 		super(playerID);
-		this.runTime = runTime;
+        this.cond = condition;
+        this.nBits = nBits;
+        this.firstInputs = firstInputs;
+        this.secondInputs = secondInputs;
+        this.players = new ArrayList<TestPlayer>();
+        this.searchConditions = new ArrayList<SearchCondition>();
+        this.ids = new ArrayList<byte[]>();
+        latency = new ArrayList<Long>();
+        initResources();
 
 	}
 
-	private SearchCondition getSearchCondition(Condition cond, int nBits,
-			byte[] secTwo) {
-		List<byte[]> secTwos = new ArrayList<byte[]>();
-		secTwos.add(secTwo);
-		return AbstractSearchValue.conditionTransformer(cond, nBits + 1,
-				secTwos);
-	}
+    private void initResources() {
+        byte[] regionID = "1".getBytes();
+        for (int i = 0; i < firstInputs.size(); i++) {
+            byte[] requestID = ("" + i).getBytes();
+            RequestIdentifier ident = new RequestIdentifier(requestID,
+                    regionID);
 
-	public int getMSent(TestPlayer player) {
-		int mSent = 0;
-		Map<Integer, List<BigInteger>> messagesSent = player.getMessagesSent();
+            SharemindPlayer p = new TestPlayer(relay, ident, playerID, broker);
+            p.setTargetPlayer(1);
+            players.add((TestPlayer) p);
 
-		for (Integer keys : messagesSent.keySet()) {
-			mSent += messagesSent.get(keys).size();
-		}
-		return mSent;
-	}
+            searchConditions.add(getSearchCondition(secondInputs.get(i)));
+            relay.registerRequest(ident);
+        }
+
+        for (int i = 0; i < firstInputs.get(0).size(); i++) {
+            byte[] requestID = ("" + i).getBytes();
+            ids.add(requestID);
+        }
+    }
+
+    private SearchCondition getSearchCondition(
+            List<byte[]> secTwo) {
+
+        return AbstractSearchValue.conditionTransformer(cond, nBits + 1,
+                secTwo);
+    }
+
+    public List<Long> getLatency(){
+        return this.latency;
+    }
 
 	@Override
 	public void doComputation() {
-		Condition[] conds = {Equal};
-
-		int[] nbits = {2};
-
-		long reqID = 1;
-		long regionID = 1;
-
-		for (Condition cond : conds) {
-			for (int nbit : nbits) {
-
-				double elapsed = 0;
-				long nops = 0;
-				long start = System.nanoTime();
-
-				while (elapsed < runTime) {
-
-					byte[] breqID = ("" + reqID).getBytes();
-					byte[] bregionID = ("" + regionID).getBytes();
-					RequestIdentifier ident = new RequestIdentifier(breqID,
-							bregionID);
-					TestPlayer player = new TestPlayer(relay, ident, playerID,
-							broker);
-					player.setTargetPlayer(1);
-
-					BigInteger valOne = new BigInteger(nbit, generator);
-					BigInteger valTwo = new BigInteger(nbit, generator);
-
-					List<byte[]> valsOne = new ArrayList<byte[]>();
-					List<byte[]> ids = new ArrayList<byte[]>();
-					valsOne.add(valOne.toByteArray());
-					ids.add(breqID);
-					SearchCondition scond = getSearchCondition(cond, nbit,
-							valTwo.toByteArray());
-
-					scond.evaluateCondition(valsOne, ids, player);
-					reqID += 1;
-					regionID += 1;
-					long stop = System.nanoTime();
-
-					elapsed = (stop - start) / 1000000000;
-					nops += 1;
-					broker.allBatchMessagesRead(ident);
-
-				}
-
-			}
-
-		}
-
+        while(!searchConditions.isEmpty()) {
+            if(playerID == 0){
+                long start = System.nanoTime();
+                searchConditions.get(0).evaluateCondition(firstInputs.get(0), ids, players.get(0));
+                long end = System.nanoTime();
+                long duration = end - start;
+                latency.add(duration);
+            }else{
+                searchConditions.get(0).evaluateCondition(firstInputs.get(0), ids, players.get(0));
+            }
+            searchConditions.remove(0);
+            players.remove(0);
+        }
 	}
 
 }
