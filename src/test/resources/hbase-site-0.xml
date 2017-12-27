@@ -55,6 +55,18 @@
             pt.uminho.haslab.saferegions.SmpcCoprocessor
         </value>
     </property>
+
+    <!-- SMPC pre-random cache size -->
+    <property>
+        <name>smhbase.smpc.prerandom.size</name>
+        <value>300000</value>
+    </property>
+    <property>
+        <name>smhbase.smpc.prerandom.nbits</name>
+        <value>81</value>
+    </property>
+
+    <!-- SMPC context player -->
     <property>
         <name>smhbase.player.id</name>
         <value>0</value>
@@ -80,10 +92,6 @@
         <value>200</value>
     </property>
     <property>
-        <name>smhbase.smpc.prerandom.size</name>
-        <value>0</value>
-    </property>
-    <property>
         <name>smhbase.discovery.location</name>
         <value>localhost</value>
     </property>
@@ -101,6 +109,6 @@
     </property>
     <property>
         <name>smhbase.schema</name>
-        <value>protected-schema.xml</value>
+        <value>/Users/roger/Documents/HASLab/safecloud-eu/saferegions/src/test/resources/protected-schema.xml</value>
     </property>
 </configuration>

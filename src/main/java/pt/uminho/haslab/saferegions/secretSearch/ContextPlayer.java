@@ -11,7 +11,6 @@ import pt.uminho.haslab.saferegions.comunication.Relay;
 import pt.uminho.haslab.saferegions.comunication.RequestIdentifier;
 import pt.uminho.haslab.saferegions.protocolresults.FilteredIndexes;
 import pt.uminho.haslab.saferegions.protocolresults.ResultsLengthMismatch;
-import pt.uminho.haslab.saferegions.protocolresults.SearchResults;
 import pt.uminho.haslab.smpc.interfaces.Player;
 
 import java.io.IOException;
@@ -56,6 +55,8 @@ public class ContextPlayer implements Player, SharemindPlayer {
 	 */
 	private final Map<Integer, Queue<List<byte[]>>> playerBatchMessages;
 	private final BatchShareMessage.Builder bmBuilder;
+       
+        
 
 	private int targetPlayerID;
 	private boolean isTargetPlayer;
@@ -103,18 +104,14 @@ public class ContextPlayer implements Player, SharemindPlayer {
 
 	}
 
-	public void sendProtocolResults(SearchResults res) {
-		try {
+    public void sendProtocolResults(List<byte[]> res) {
+        try {
 			List<ByteString> bsValues = new ArrayList<ByteString>();
-			List<ByteString> bsIds = new ArrayList<ByteString>();
 
-			for (byte[] val : res.getSecrets()) {
-				bsValues.add(ByteString.copyFrom(val));
+            for (byte[] val : res) {
+                bsValues.add(ByteString.copyFrom(val));
 			}
 
-			for (byte[] val : res.getIdentifiers()) {
-				bsIds.add(ByteString.copyFrom(val));
-			}
 
 			ResultsMessage msg = ResultsMessage
 					.newBuilder()
@@ -122,8 +119,8 @@ public class ContextPlayer implements Player, SharemindPlayer {
 					.setRequestID(ByteString.copyFrom(requestID.getRequestID()))
 					.setRegionID(ByteString.copyFrom(requestID.getRegionID()))
 					.setPlayerDest(targetPlayerID).addAllValues(bsValues)
-					.addAllSecretID(bsIds).build();
-			relay.sendProtocolResults(msg);
+                    .build();
+            relay.sendProtocolResults(msg);
 		} catch (IOException ex) {
 			LOG.error(ex);
 			throw new IllegalStateException(ex);
@@ -220,24 +217,19 @@ public class ContextPlayer implements Player, SharemindPlayer {
 	 * parties, thus the result returned by this function should be a list with
 	 * size equal to two.
 	 */
-	public List<SearchResults> getProtocolResults()
-			throws ResultsLengthMismatch {
+    public List<List<byte[]>> getProtocolResults()
+            throws ResultsLengthMismatch {
 		Queue<ResultsMessage> messages = broker.getProtocolResults(requestID);
-		List<SearchResults> results = new ArrayList<SearchResults>();
+        List<List<byte[]>> results = new ArrayList<List<byte[]>>();
 
 		for (ResultsMessage msg : messages) {
-			List<byte[]> identifiers = new ArrayList<byte[]>();
 			List<byte[]> values = new ArrayList<byte[]>();
-
-			for (ByteString ident : msg.getSecretIDList()) {
-				identifiers.add(ident.toByteArray());
-			}
 
 			for (ByteString val : msg.getValuesList()) {
 				values.add(val.toByteArray());
 			}
-			results.add(new SearchResults(values, identifiers));
-		}
+            results.add(values);
+        }
 		messages.clear();
 		broker.protocolResultsRead(requestID);
 

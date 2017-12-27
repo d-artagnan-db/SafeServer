@@ -12,25 +12,16 @@ import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Conditio
 
 public class PlayerResults {
 
-	private final List<SearchResults> results;
 	private final Condition condition;
 	private final int nBits;
+    private final List<List<byte[]>> results;
 
-	/* TODO: this function has to validate if the protocol results are all ok. */
-	public PlayerResults(List<SearchResults> results, Condition condition,
-			int nBits) throws ResultsLengthMismatch {
+    /**
+     * We are assuming that the class is created correctly with 3 lists inside the results list. One for each player.
+     **/
+    public PlayerResults(List<List<byte[]>> results, Condition condition,
+                         int nBits) throws ResultsLengthMismatch {
 
-		/*
-		 * for(int i =0; i < results.size(); i++){ results.get(i).printSize(); }
-		 */
-
-		int nIdentifiers = results.get(0).getIdentifiers().size();
-
-		for (SearchResults d : results) {
-			if (nIdentifiers != d.getIdentifiers().size()) {
-				throw new ResultsLengthMismatch();
-			}
-		}
 		this.condition = condition;
 		this.results = results;
 		this.nBits = nBits;
@@ -40,36 +31,24 @@ public class PlayerResults {
 	 * Iterates through the results of the smpc protocols and declassifies the
 	 * result. The function returns True for row keys that satisfy the
 	 * protocols.
-	 * 
-	 * @return BigInteger with the corresponding Index
+     *
+     * @return BigInteger with the corresponding Index
 	 * @throws ResultsIdentifiersMismatch
 	 */
 	public List<Boolean> declassify() throws ResultsIdentifiersMismatch {
-		int nIdentifiers = results.get(0).getIdentifiers().size();
 
 		List<Boolean> resultIDS = new ArrayList<Boolean>();
 
-		for (int i = 0; i < nIdentifiers; i++) {
-			byte[] bFirstIdent = results.get(0).getIdentifiers().get(i);
-			byte[] bSecondIdent = results.get(1).getIdentifiers().get(i);
-			byte[] bThirdIdent = results.get(2).getIdentifiers().get(i);
+        for (int i = 0; i < results.get(0).size(); i++) {
 
-			byte[] bFirstSecret = results.get(0).getSecrets().get(i);
-			byte[] bSecondSecret = results.get(1).getSecrets().get(i);
-			byte[] bThirdSecret = results.get(2).getSecrets().get(i);
+            byte[] bFirstSecret = results.get(0).get(i);
+            byte[] bSecondSecret = results.get(1).get(i);
+            byte[] bThirdSecret = results.get(2).get(i);
 
-			BigInteger firstIdent = new BigInteger(bFirstIdent);
-			BigInteger secondIdent = new BigInteger(bSecondIdent);
-			BigInteger thirdIdent = new BigInteger(bThirdIdent);
-
-			BigInteger firstSecret = new BigInteger(bFirstSecret);
+            BigInteger firstSecret = new BigInteger(bFirstSecret);
 			BigInteger secondSecret = new BigInteger(bSecondSecret);
 			BigInteger thirdSecret = new BigInteger(bThirdSecret);
 
-			if (!firstIdent.equals(secondIdent)
-					|| !secondIdent.equals(thirdIdent)) {
-				throw new ResultsIdentifiersMismatch();
-			}
 
 			if (condition == Equal) {
 				SharemindSharedSecret secretResult = new SharemindSharedSecret(

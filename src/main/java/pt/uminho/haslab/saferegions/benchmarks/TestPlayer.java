@@ -7,7 +7,6 @@ import pt.uminho.haslab.saferegions.comunication.Relay;
 import pt.uminho.haslab.saferegions.comunication.RequestIdentifier;
 import pt.uminho.haslab.saferegions.protocolresults.FilteredIndexes;
 import pt.uminho.haslab.saferegions.protocolresults.ResultsLengthMismatch;
-import pt.uminho.haslab.saferegions.protocolresults.SearchResults;
 import pt.uminho.haslab.saferegions.secretSearch.ContextPlayer;
 import pt.uminho.haslab.saferegions.secretSearch.SharemindPlayer;
 
@@ -79,11 +78,11 @@ public class TestPlayer implements SharemindPlayer {
 		return player.getPlayerID();
 	}
 
-	public void sendProtocolResults(SearchResults res) {
+	public void sendProtocolResults(List<byte[]> res) {
 		player.sendProtocolResults(res);
 	}
 
-	public List<SearchResults> getProtocolResults()
+	public List<List<byte[]>> getProtocolResults()
 			throws ResultsLengthMismatch {
 		return player.getProtocolResults();
 	}

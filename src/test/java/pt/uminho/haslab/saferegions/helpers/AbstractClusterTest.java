@@ -29,6 +29,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public abstract class AbstractClusterTest {
+
     protected static final Log LOG = LogFactory
             .getLog(AbstractClusterTest.class.getName());
 
@@ -41,6 +42,7 @@ public abstract class AbstractClusterTest {
 
     @Before
     public void initializeRedisContainer() throws IOException {
+        LOG.debug("Initalize redis");
         RedisUtils.initializeRedisContainer();
     }
 
@@ -217,7 +219,10 @@ public abstract class AbstractClusterTest {
             tables.put(p);
         }
         LOG.debug("Execute test");
+        long startTime = System.nanoTime();
         testExecution(tables);
+        long stopTime = System.nanoTime();
+        System.out.println("Execution time was " + (stopTime - startTime));
     }
 
 

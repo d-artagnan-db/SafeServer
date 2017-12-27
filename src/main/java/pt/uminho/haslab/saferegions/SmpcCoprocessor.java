@@ -5,12 +5,10 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.CoprocessorEnvironment;
 import org.apache.hadoop.hbase.client.OperationWithAttributes;
-import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.coprocessor.BaseRegionObserver;
 import org.apache.hadoop.hbase.coprocessor.ObserverContext;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
-import org.apache.hadoop.hbase.regionserver.InternalScanner;
 import org.apache.hadoop.hbase.regionserver.RegionScanner;
 import pt.uminho.haslab.safemapper.DatabaseSchema;
 import pt.uminho.haslab.safemapper.TableSchema;
@@ -22,6 +20,7 @@ import pt.uminho.haslab.saferegions.secretSearch.ContextPlayer;
 import pt.uminho.haslab.saferegions.secretSearch.SharemindPlayer;
 import pt.uminho.haslab.saferegions.secureRegionScanner.HandleSafeFilter;
 import pt.uminho.haslab.saferegions.secureRegionScanner.SecureRegionScanner;
+import pt.uminho.haslab.smpc.helpers.RandomGenerator;
 import pt.uminho.haslab.smpc.interfaces.Player;
 
 import java.io.File;
@@ -29,7 +28,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
@@ -88,6 +86,12 @@ public class SmpcCoprocessor extends BaseRegionObserver {
                     relay = searchConf.createRelay(broker);
                     relay.bootRelay();
 
+                     //init smpc cache of random BigIntegers
+                    if(searchConf.getPreRandomSize() > 0){
+                        LOG.debug("Generating batch of random bigIntegers " + searchConf.getPreRandomSize());
+                        RandomGenerator.initBatch(searchConf.getPreRandomNBits(), searchConf.getPreRandomSize());
+                    }
+
                     // Wait some time before trying to connect with other region servers
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Player " + searchConf.getPlayerID()
@@ -128,9 +132,16 @@ public class SmpcCoprocessor extends BaseRegionObserver {
          * Maybe integrate this with a log4j. How is this not an option of log4j?
          * */
 
-        PrintStream o = new PrintStream(new File("/var/log/hbase/out.log"));
-        PrintStream er = new PrintStream(new File("/var/log/hbase/error.log"));
+	    PrintStream o = null;
+	    PrintStream er = null;
 
+	    if(searchConf.isDevelopment()){
+            o = new PrintStream(new File("/tmp/out.log"));
+            er = new PrintStream(new File("/tmp/error.log"));
+        }else{
+	        o = new PrintStream(new File("/var/log/hbase/out.log"));
+            er = new PrintStream(new File("/var/log/hbase/error.log"));
+	    }
         System.setOut(o);
         System.setErr(er);
     }
@@ -347,15 +358,15 @@ public class SmpcCoprocessor extends BaseRegionObserver {
         if (scanType != null) {
             String table = env.getRegion().getTableDesc().getNameAsString();
 
-            switch (scanType) {
-                case ProtectedIdentifierGet :
-						throw new IllegalArgumentException(
+			switch (scanType) {
+				case ProtectedIdentifierGet:
+					throw new IllegalArgumentException(
 								"Gets over protected identifiers are not currently supported");
-					case ProtectedIdentifierScan :
-						throw new IllegalArgumentException(
+				case ProtectedIdentifierScan:
+					throw new IllegalArgumentException(
 								"Scans over protected identifiers are not currently supported");
-					case ProtectedColumnScan :
-						return secretScanSearchWithFilter(scan, env, table);
+				case ProtectedColumnScan:
+					return secretScanSearchWithFilter(scan, env, table);
 				}
 		}
 		return s;

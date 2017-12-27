@@ -95,6 +95,7 @@ public class SecureRegionScanner implements RegionScanner {
         }
 
         boolean run = resultsCache.isBatchEmpty() && !(handler.isStopOnInvalidRecord() && handler.foundInvalidRecord());
+
         if (run) {
             List<List<Cell>> fRows = new ArrayList<List<Cell>>();
 

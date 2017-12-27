@@ -10,7 +10,6 @@ import pt.uminho.haslab.saferegions.comunication.RequestIdentifier;
 import pt.uminho.haslab.saferegions.helpers.RedisUtils;
 import pt.uminho.haslab.saferegions.helpers.TestRegionServer;
 import pt.uminho.haslab.saferegions.protocolresults.ResultsLengthMismatch;
-import pt.uminho.haslab.saferegions.protocolresults.SearchResults;
 import pt.uminho.haslab.saferegions.secretSearch.ContextPlayer;
 import pt.uminho.haslab.saferegions.secretSearch.SharemindPlayer;
 import pt.uminho.haslab.testingutils.ValuesGenerator;
@@ -80,7 +79,7 @@ public class ProtocolResultsTest {
 
 			List<BigInteger> peerOneValues = new ArrayList<BigInteger>();
 			List<BigInteger> peerTwoValues = new ArrayList<BigInteger>();
-			List<SearchResults> receivedPeerResults = new ArrayList<SearchResults>();
+			List<List<byte[]>> receivedPeerResults = new ArrayList<List<byte[]>>();
 			List<BigInteger> peerOneConvertedReceivedPeerReults = new ArrayList<BigInteger>();
 			List<BigInteger> peerTwoConvertedReceivedPeerReults = new ArrayList<BigInteger>();
 
@@ -102,13 +101,11 @@ public class ProtocolResultsTest {
 					break;
 			}
 
-			for (byte[] peerOneResults : receivedPeerResults.get(0)
-					.getSecrets()) {
+			for (byte[] peerOneResults : receivedPeerResults.get(0)) {
 				peerOneConvertedReceivedPeerReults.add(new BigInteger(
 						peerOneResults));
 			}
-			for (byte[] peerOneResults : receivedPeerResults.get(1)
-					.getSecrets()) {
+			for (byte[] peerOneResults : receivedPeerResults.get(1)) {
 				peerTwoConvertedReceivedPeerReults.add(new BigInteger(
 						peerOneResults));
 			}
@@ -149,15 +146,15 @@ public class ProtocolResultsTest {
 	private class RegionServerImpl extends TestRegionServer {
 
 		private final List<List<BigInteger>> values;
-		private final List<List<SearchResults>> peerResults;
+		private final List<List<List<byte[]>>> peerResults;
 
 		public RegionServerImpl(int playerID) throws IOException {
 			super(playerID);
 			values = new ArrayList<List<BigInteger>>();
-			peerResults = new ArrayList<List<SearchResults>>();
+			peerResults = new ArrayList<List<List<byte[]>>>();
 		}
 
-		public List<List<SearchResults>> getPeerResults() {
+		public List<List<List<byte[]>>> getPeerResults() {
 			return peerResults;
 		}
 
@@ -219,7 +216,7 @@ public class ProtocolResultsTest {
 		private final MessageBroker broker;
 		private final Relay relay;
 		private List<BigInteger> values;
-		private List<SearchResults> peerResults;
+		private List<List<byte[]>> peerResults;
 
 		public ConcurrentPlayer(int playerID, int requestID, Relay relay,
 				MessageBroker broker) {
@@ -238,7 +235,7 @@ public class ProtocolResultsTest {
 			return this.values;
 		}
 
-		public List<SearchResults> getPeerResults() {
+		public List<List<byte[]>> getPeerResults() {
 			return this.peerResults;
 		}
 
@@ -255,19 +252,15 @@ public class ProtocolResultsTest {
 				values = new ArrayList<BigInteger>();
 				List<byte[]> valuesToSend = new ArrayList<byte[]>();
 
-				List<byte[]> ids = new ArrayList<byte[]>();
 				for (int i = 0; i < nMessages; i++) {
 					BigInteger val = new BigInteger(nBits, random);
-					BigInteger id = BigInteger.valueOf(i);
 					values.add(val);
 					valuesToSend.add(val.toByteArray());
-					ids.add(id.toByteArray());
 				}
 
 				int target = playerDestIDs.get(requestID);
 				if (playerID != target) {
-					player.sendProtocolResults(new SearchResults(valuesToSend,
-							ids));
+					player.sendProtocolResults(valuesToSend);
 				} else {
 					peerResults = player.getProtocolResults();
 					player.cleanValues();

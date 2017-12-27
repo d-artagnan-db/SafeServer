@@ -27,6 +27,7 @@ public class SmpcConfiguration {
 	// SMPC library configuration
 	private final int batchSize;
 	private final int preRandomElems;
+	private final int preRandomNBits;
 
 	// DiscoveryService configuration
 	private final int sleepTime;
@@ -52,6 +53,8 @@ public class SmpcConfiguration {
 		// SMCP library configuration
         batchSize = conf.getInt("smhbase.batch.size", 10);
         preRandomElems = conf.getInt("smhbase.smpc.prerandom.size", 0);
+        preRandomNBits = conf.getInt("smhbase.smpc.prerandom.nbits", 0);
+
 
 		String localHostname  = "localhost";
 
@@ -60,7 +63,6 @@ public class SmpcConfiguration {
 		} catch (UnknownHostException e) {
 			LOG.error(e);
 		}
-
 		// DiscoveryService configuration
 		hostname = conf.get("smhbase.discovery.hostname", localHostname);
 		discoveryServiceLocation = conf.get("smhbase.discovery.location",
@@ -68,14 +70,12 @@ public class SmpcConfiguration {
 		sleepTime = conf.getInt("smhbase.discovery.sleepTime", 200);
 		incTime = conf.getInt("smhbase.discovery.incTime", 100);
 		retries = conf.getInt("smhbase.discovery.retries", 5);
-
 		databaseSchemaPath = conf.get("smhbase.schema");
-
 		regionsFixed = conf.getBoolean("smhbase.regions.fixed", false);
 
 		if(LOG.isDebugEnabled()){
             LOG.debug("Player ID is "+playerID);
-            LOG.debug("Machine hostname is "+hostname);
+            LOG.debug("Machine hostname is "+ hostname);
             LOG.debug("Loading schema file " + databaseSchemaPath);
 		}
 		schema = new DatabaseSchema(databaseSchemaPath);
@@ -103,6 +103,8 @@ public class SmpcConfiguration {
 	public int getPreRandomSize() {
 		return preRandomElems;
 	}
+
+	public int getPreRandomNBits(){ return preRandomNBits;}
 
 	public String getRelayHost() {
 		return relayHost;

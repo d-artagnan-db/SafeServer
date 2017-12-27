@@ -1,6 +1,9 @@
 package pt.uminho.haslab.saferegions.secretSearch;
 
-import pt.uminho.haslab.saferegions.protocolresults.*;
+import pt.uminho.haslab.saferegions.protocolresults.FilteredIndexes;
+import pt.uminho.haslab.saferegions.protocolresults.PlayerResults;
+import pt.uminho.haslab.saferegions.protocolresults.ResultsIdentifiersMismatch;
+import pt.uminho.haslab.saferegions.protocolresults.ResultsLengthMismatch;
 import pt.uminho.haslab.smpc.exceptions.InvalidNumberOfBits;
 import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
 import pt.uminho.haslab.smpc.sharemindImp.SharemindSecretFunctions;
@@ -95,12 +98,11 @@ public class SearchValue extends AbstractSearchValue {
                     LOG.debug("Retrieve protocol results from peers");
                 }
                 // At this point the size of the list identifiers must be 2.
-				List<SearchResults> identifiers = player.getProtocolResults();
+                List<List<byte[]>> results = player.getProtocolResults();
 
-				identifiers.add(createBatchSearchResults(result, rowIDs));
-				PlayerResults playerResults = new PlayerResults(identifiers,
-						condition, nBits);
-				fIndex = playerResults.declassify();
+                results.add(result);
+                PlayerResults playerResults = new PlayerResults(results, condition, nBits);
+                fIndex = playerResults.declassify();
 				/**
 				 * if no matching element was found, an empty list is sent. When
 				 * the other players receives an empty list, it knows that no
@@ -127,9 +129,8 @@ public class SearchValue extends AbstractSearchValue {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Send protocol results to target");
                 }
-                player.sendProtocolResults(createBatchSearchResults(result,
-						rowIDs));
-				List<byte[]> res = player.getFilterIndexes().getIndexes();
+                player.sendProtocolResults(result);
+                List<byte[]> res = player.getFilterIndexes().getIndexes();
 
 				for (int i = 0; i < res.size(); i++) {
 					byte[] val = res.get(i);

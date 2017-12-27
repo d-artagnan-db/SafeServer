@@ -3,7 +3,6 @@ package pt.uminho.haslab.saferegions.secretSearch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.saferegions.protocolresults.ResultsLengthMismatch;
-import pt.uminho.haslab.saferegions.protocolresults.SearchResults;
 import pt.uminho.haslab.smpc.interfaces.Secret;
 import pt.uminho.haslab.smpc.sharemindImp.SharemindSecret;
 
@@ -65,21 +64,13 @@ public abstract class AbstractSearchValue implements SearchCondition {
 		return condition;
 	}
 
-	protected SearchResults createSearchResults(Secret secret, byte[] id)
+	protected List<byte[]> createSearchResults(Secret secret)
 			throws ResultsLengthMismatch {
 		List<byte[]> secrets = new ArrayList<byte[]>();
-		List<byte[]> ids = new ArrayList<byte[]>();
 
-		ids.add(id);
 		secrets.add(((SharemindSecret) secret).getValue().toByteArray());
 
-		return new SearchResults(secrets, ids);
-
-	}
-
-	protected SearchResults createBatchSearchResults(List<byte[]> secrets,
-			List<byte[]> ids) throws ResultsLengthMismatch {
-		return new SearchResults(secrets, ids);
+		return secrets;
 
 	}
 

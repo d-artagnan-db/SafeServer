@@ -14,11 +14,11 @@ import java.util.Random;
 public abstract class AbsSingleColumnValueFilterTest extends AbstractClusterTest {
     private Random randomGenerator;
     byte[]  chosenVal;
+
     public AbsSingleColumnValueFilterTest() throws Exception {
         super();
         randomGenerator = new Random();
     }
-
 
     abstract CompareFilter.CompareOp getComparator();
 
@@ -41,7 +41,6 @@ public abstract class AbsSingleColumnValueFilterTest extends AbstractClusterTest
         String cf = "User";
         String cq = "Age";
         return new SingleColumnValueFilter(cf.getBytes(), cq.getBytes(), getComparator(), chosenVal);
-
     }
 
     protected int getNumberOfRegions() {
@@ -78,6 +77,6 @@ public abstract class AbsSingleColumnValueFilterTest extends AbstractClusterTest
     }
 
     protected long getNumberOfRecords() {
-        return 15;
+        return 1000;
     }
 }
