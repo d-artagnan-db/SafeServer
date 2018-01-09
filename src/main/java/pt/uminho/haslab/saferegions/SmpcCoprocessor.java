@@ -87,10 +87,10 @@ public class SmpcCoprocessor extends BaseRegionObserver {
                     relay.bootRelay();
 
                      //init smpc cache of random BigIntegers
-                    if(searchConf.getPreRandomSize() > 0){
-                        LOG.debug("Generating batch of random bigIntegers " + searchConf.getPreRandomSize());
-                        RandomGenerator.initBatch(searchConf.getPreRandomNBits(), searchConf.getPreRandomSize());
-                    }
+                    //if(searchConf.getPreRandomSize() > 0){
+                    //    LOG.debug("Generating batch of random bigIntegers " + searchConf.getPreRandomSize());
+                    //    RandomGenerator.initBatch(searchConf.getPreRandomNBits(), searchConf.getPreRandomSize());
+                    //}
 
                     // Wait some time before trying to connect with other region servers
                     if (LOG.isDebugEnabled()) {
