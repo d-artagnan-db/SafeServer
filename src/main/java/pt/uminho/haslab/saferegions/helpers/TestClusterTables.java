@@ -19,6 +19,7 @@ import pt.uminho.haslab.saferegions.OperationAttributesIdentifiers;
 import pt.uminho.haslab.smpc.exceptions.InvalidNumberOfBits;
 import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
 import pt.uminho.haslab.smpc.interfaces.Dealer;
+import pt.uminho.haslab.smpc.sharemindImp.IntSharemindDealer;
 import pt.uminho.haslab.smpc.sharemindImp.SharemindDealer;
 import pt.uminho.haslab.smpc.sharemindImp.SharemindSharedSecret;
 import pt.uminho.haslab.testingutils.ClusterScanResult;
@@ -27,20 +28,23 @@ import pt.uminho.haslab.testingutils.ClusterTables;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import static pt.uminho.haslab.safemapper.DatabaseSchema.CryptoType.SMPC;
 
 public class TestClusterTables extends ClusterTables {
 
 	static final Log LOG = LogFactory.getLog(TestClusterTables.class.getName());
-
 	private boolean usesMPC;
 	private TableSchema schema;
 
 	public TestClusterTables(List<Configuration> configs, TableName tbname)
 			throws IOException {
 		super(configs, tbname);
-	}
+    }
 
 
 	public void usesMpc(){
@@ -76,20 +80,43 @@ public class TestClusterTables extends ClusterTables {
 
                    byte[] val  = CellUtil.cloneValue(cell.get(0));
 
-                   if(qual.getCryptoType() == DatabaseSchema.CryptoType.SMPC){
+                   if (qual.getCryptoType() == SMPC || qual.getCryptoType() == DatabaseSchema.CryptoType.ISMPC) {
                        try {
                            String safeQual = qual.getName();
                            byte[] bSafeQual = safeQual.getBytes();
                            Dealer dealer = new SharemindDealer(qual.getFormatSize());
 
-						   BigInteger bigVal = new BigInteger(val);
-                           //LOG.debug(safeQual + " - Putting secure value "+ bigVal);
-                           SharemindSharedSecret secret = (SharemindSharedSecret) dealer
-                                   .share(bigVal);
+                           if (qual.getCryptoType() == DatabaseSchema.CryptoType.ISMPC) {
+                               int value = ByteBuffer.wrap(val).getInt();
+                               IntSharemindDealer intSharemindDealer = new IntSharemindDealer();
+                               int[] secrets = intSharemindDealer.share(value);
+                               Put[] puts = new Put[3];
+                               puts[0] = p1;
+                               puts[1] = p2;
+                               puts[2] = p3;
+                               LOG.debug("Inserted value " + value + " with secrets " + Arrays.toString(secrets));
 
-                           p1.add(cfb, bSafeQual, secret.getU1().toByteArray());
-                           p2.add(cfb, bSafeQual, secret.getU2().toByteArray());
-                           p3.add(cfb, bSafeQual, secret.getU3().toByteArray());
+                               for (int i = 0; i < secrets.length; i++) {
+                                   int secretValue = secrets[i];
+                                   Put p = puts[i];
+                                   ByteBuffer byteBuffer = ByteBuffer.allocate(4);
+                                   byteBuffer.putInt(secretValue);
+                                   byteBuffer.flip();
+                                   p.add(cfb, bSafeQual, byteBuffer.array());
+                               }
+
+
+                           } else {
+                               LOG.info("Inserting as BigInteger");
+                               BigInteger bigVal = new BigInteger(val);
+                               //LOG.debug(safeQual + " - Putting secure value "+ bigVal);
+                               SharemindSharedSecret secret = (SharemindSharedSecret) dealer
+                                       .share(bigVal);
+
+                               p1.add(cfb, bSafeQual, secret.getU1().toByteArray());
+                               p2.add(cfb, bSafeQual, secret.getU2().toByteArray());
+                               p3.add(cfb, bSafeQual, secret.getU3().toByteArray());
+                           }
                        } catch (InvalidNumberOfBits invalidNumberOfBits) {
                            LOG.debug("Number of bytes is not valid "+ qual.getFormatSize());
                            throw new IllegalStateException(invalidNumberOfBits);
@@ -216,20 +243,42 @@ public class TestClusterTables extends ClusterTables {
             String sFamily = new String(family);
             String sQualifier = new String(qualifier);
 
-            int formatSize = schema.getFormatSizeFromQualifier(sFamily, sQualifier);
-            try {
-                Dealer dealer = new SharemindDealer(formatSize);
-                byte[] sQualifierMod = sQualifier.getBytes();
-                BigInteger bigVal = new BigInteger(value);
-                SharemindSharedSecret secret = (SharemindSharedSecret) dealer.share(bigVal);
-                fList.add(new SingleColumnValueFilter(family, sQualifierMod, operator, secret.getU1().toByteArray()));
-                fList.add(new SingleColumnValueFilter(family, sQualifierMod, operator, secret.getU2().toByteArray()));
-                fList.add(new SingleColumnValueFilter(family, sQualifierMod, operator, secret.getU3().toByteArray()));
+            DatabaseSchema.CryptoType type = schema.getCryptoTypeFromQualifier(sFamily, sQualifier);
+            if (type == SMPC) {
+                int formatSize = schema.getFormatSizeFromQualifier(sFamily, sQualifier);
+                try {
+                    Dealer dealer = new SharemindDealer(formatSize);
+                    byte[] sQualifierMod = sQualifier.getBytes();
+                    BigInteger bigVal = new BigInteger(value);
+                    SharemindSharedSecret secret = (SharemindSharedSecret) dealer.share(bigVal);
+                    fList.add(new SingleColumnValueFilter(family, sQualifierMod, operator, secret.getU1().toByteArray()));
+                    fList.add(new SingleColumnValueFilter(family, sQualifierMod, operator, secret.getU2().toByteArray()));
+                    fList.add(new SingleColumnValueFilter(family, sQualifierMod, operator, secret.getU3().toByteArray()));
 
-                LOG.debug("Filter value is encoded in " + secret.getU1() + " : " + secret.getU2() + " : " + secret.getU3());
-            } catch (InvalidNumberOfBits | InvalidSecretValue ex) {
-                LOG.debug(ex);
-                throw new IllegalStateException(ex);
+                    LOG.debug("Filter value is encoded in " + secret.getU1() + " : " + secret.getU2() + " : " + secret.getU3());
+                } catch (InvalidNumberOfBits | InvalidSecretValue ex) {
+                    LOG.debug(ex);
+                    throw new IllegalStateException(ex);
+                }
+            } else {
+                IntSharemindDealer dealer = new IntSharemindDealer();
+                try {
+                    int iValue = ByteBuffer.wrap(value).getInt();
+                    int[] secrets = dealer.share(iValue);
+                    byte[] sQualifierMod = sQualifier.getBytes();
+
+                    for(int i = 0; i < 3; i++){
+                        int secret = secrets[i];
+                        ByteBuffer byteBuffer  = ByteBuffer.allocate(4);
+                        byteBuffer.putInt(secret);
+                        byteBuffer.flip();
+                        fList.add(new SingleColumnValueFilter(family, sQualifierMod, operator, byteBuffer.array()));
+                    }
+                    LOG.debug("Value to search " + iValue +  " encoded in  integer secrets " + Arrays.toString(secrets));
+
+                } catch (InvalidSecretValue invalidSecretValue) {
+                    throw new IllegalStateException(invalidSecretValue);
+                }
             }
         }else{
             fList.add(filter);

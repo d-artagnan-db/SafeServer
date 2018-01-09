@@ -1,10 +1,8 @@
 package pt.uminho.haslab.saferegions.benchmarks;
 
 import pt.uminho.haslab.saferegions.comunication.RequestIdentifier;
-import pt.uminho.haslab.saferegions.secretSearch.AbstractSearchValue;
-import pt.uminho.haslab.saferegions.secretSearch.SearchCondition;
+import pt.uminho.haslab.saferegions.secretSearch.*;
 import pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition;
-import pt.uminho.haslab.saferegions.secretSearch.SharemindPlayer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -66,8 +64,7 @@ public class RegionServerSim extends TestRegionServer {
     private SearchCondition getSearchCondition(
             List<byte[]> secTwo) {
 
-        return AbstractSearchValue.conditionTransformer(cond, nBits + 1,
-                secTwo);
+        return new BigIntegerSearchConditionFactory(cond, nBits +1, secTwo).conditionTransformer();
     }
 
     public List<Long> getLatency(){

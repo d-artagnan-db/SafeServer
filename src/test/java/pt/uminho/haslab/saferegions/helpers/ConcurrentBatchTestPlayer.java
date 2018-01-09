@@ -100,4 +100,19 @@ public abstract class ConcurrentBatchTestPlayer extends Thread
 
 	protected abstract List<byte[]> testingProtocol(
 			List<byte[]> firstValueSecret, List<byte[]> secondValueSecret);
+
+	@Override
+	public void storeValues(Integer integer, Integer integer1, int[] ints) {
+		player.storeValues(integer, integer1, ints);
+	}
+
+	@Override
+	public void sendValueToPlayer(Integer integer, int[] ints) {
+		player.sendValueToPlayer(integer, ints);
+	}
+
+	@Override
+	public int[] getIntValues(Integer integer) {
+		return player.getIntValues(integer);
+	}
 }

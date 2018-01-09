@@ -79,7 +79,6 @@ public class SmpcCoprocessor extends BaseRegionObserver {
             if (!playerHasStarted()) {
                    LOG.info("Starting player configuration");
 
-
                     wasFirst = true;
                     schema = searchConf.getSchema();
                     broker = new SharemindMessageBroker();

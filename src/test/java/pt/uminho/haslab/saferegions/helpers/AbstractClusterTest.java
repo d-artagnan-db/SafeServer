@@ -20,6 +20,7 @@ import pt.uminho.haslab.testingutils.ValuesGenerator;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,8 @@ public abstract class AbstractClusterTest {
 
     protected static final Log LOG = LogFactory
             .getLog(AbstractClusterTest.class.getName());
+
+    private ByteBuffer byteBuffer;
 
     private Clusters clusters;
     protected SmpcConfiguration config;
@@ -59,6 +62,7 @@ public abstract class AbstractClusterTest {
         generatedValues = new HashMap<String, Map<String, List<byte[]>>>();
         qualifierColTypes = new HashMap<String, Map<String, ColType>>();
         rowIdentifiers = new ArrayList<byte[]>();
+        byteBuffer =  ByteBuffer.allocate(4);
     }
 
     private List<Put> generatePuts() {
@@ -79,6 +83,7 @@ public abstract class AbstractClusterTest {
                             val = ValuesGenerator.randomString(10).getBytes();
                             break;
                         case INT:
+                            LOG.debug("Going to generate BigInteger");
                             //val = ValuesGenerator.randomBigInteger(10).toByteArray();
 
                             boolean invalid = true;
@@ -96,6 +101,12 @@ public abstract class AbstractClusterTest {
                                     invalid = false;
                                 }
                             } while (invalid);
+                            break;
+                        case INTEGER:
+                            byteBuffer.putInt((int) (Math.abs(ValuesGenerator.randomInt())%Math.pow(2, 31)));
+                            byteBuffer.flip();
+                            val = byteBuffer.array();
+                            byteBuffer.clear();
                             break;
 
                     }
@@ -267,7 +278,7 @@ public abstract class AbstractClusterTest {
 
 
     public enum ColType {
-        STRING, INT
+        STRING, INT, INTEGER
     }
 
 

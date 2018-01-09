@@ -3,8 +3,10 @@ package pt.uminho.haslab.saferegions.comunication;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
+import pt.uminho.haslab.protocommunication.Search.IntBatchShareMessage;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
+import pt.uminho.haslab.protocommunication.Search.IntResultsMessage;
 import pt.uminho.haslab.protocommunication.Search.Shutdown;
 
 import java.io.*;
@@ -64,6 +66,14 @@ public class RelayClient extends Thread {
 		sendToClient(1, msg.toByteArray());
 	}
 
+	public void sendProtocolResults(IntResultsMessage msg) throws IOException {
+		//LOG.debug("Send IntResultsMessage");
+
+		messagesAskedToSend.addAndGet(1);
+		sendToClient(5, msg.toByteArray());
+	}
+
+
 	public void sendFilteredIndexes(FilterIndexMessage msg) throws IOException {
 		messagesAskedToSend.addAndGet(1);
 		sendToClient(2, msg.toByteArray());
@@ -77,6 +87,11 @@ public class RelayClient extends Thread {
 	public void sendBatchMessages(BatchShareMessage msgs) throws IOException {
 		messagesAskedToSend.addAndGet(1);
 		sendToClient(3, msgs.toByteArray());
+	}
+
+	public void sendBatchMessages(IntBatchShareMessage msgs) throws IOException {
+		messagesAskedToSend.addAndGet(1);
+		sendToClient(4, msgs.toByteArray());
 	}
 
 	public synchronized void sendTestMessage(byte[] message) throws IOException {

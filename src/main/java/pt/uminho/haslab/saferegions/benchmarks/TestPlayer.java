@@ -82,9 +82,19 @@ public class TestPlayer implements SharemindPlayer {
 		player.sendProtocolResults(res);
 	}
 
+	@Override
+	public void sendIntProtocolResults(int[] dest) {
+		this.player.sendIntProtocolResults(dest);
+	}
+
 	public List<List<byte[]>> getProtocolResults()
 			throws ResultsLengthMismatch {
 		return player.getProtocolResults();
+	}
+
+	@Override
+	public List<List<Integer>> getIntProtocolResults() throws ResultsLengthMismatch {
+		return player.getIntProtocolResults();
 	}
 
 	public void cleanValues() {
@@ -116,6 +126,11 @@ public class TestPlayer implements SharemindPlayer {
 		player.storeValues(playerDest, playerDest, values);
 	}
 
+	@Override
+	public void storeValues(Integer integer, Integer integer1, int[] ints) {
+		player.storeValues(integer, integer1, ints);
+	}
+
 	public void sendValueToPlayer(Integer destPlayer, List<byte[]> values) {
 
 		if (!batchMessagesSent.containsKey(destPlayer)) {
@@ -137,6 +152,16 @@ public class TestPlayer implements SharemindPlayer {
 		batchMessagesReceived.get(originPlayerID).add(res);
 
 		return res;
+	}
+
+	@Override
+	public void sendValueToPlayer(Integer integer, int[] ints) {
+		player.sendValueToPlayer(integer, ints);
+	}
+
+	@Override
+	public int[] getIntValues(Integer integer) {
+		return player.getIntValues(integer);
 	}
 
 }

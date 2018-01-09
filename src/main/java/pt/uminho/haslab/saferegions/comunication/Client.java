@@ -3,9 +3,11 @@ package pt.uminho.haslab.saferegions.comunication;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import pt.uminho.haslab.protocommunication.Search.IntBatchShareMessage;
 import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
+import pt.uminho.haslab.protocommunication.Search.IntResultsMessage;
 
 import java.io.*;
 import java.net.Socket;
@@ -57,6 +59,16 @@ public class Client extends Thread {
 			}
 			case 3 : {
 				new BatchShareHandler(message).handle();
+				break;
+			}
+			case 4 : {
+				//LOG.debug("Client received Int Batch Share Handler ");
+				new IntBatchShareHandler(message).handle();
+				break;
+			}
+			case 5 : {
+               // LOG.debug("Client received Int results handler ");
+                new IntResultsHandler(message).handle();
 				break;
 			}
 			// Message issued to close connection.
@@ -155,6 +167,28 @@ public class Client extends Thread {
 
 	}
 
+
+	private class IntResultsHandler extends MessageHandler {
+
+		public IntResultsHandler(byte[] msg) {
+			super(msg);
+		}
+
+		@Override
+		public void handle() {
+			try {
+				IntResultsMessage message = IntResultsMessage.parseFrom(msg);
+				broker.receiveProtocolResults(message);
+			} catch (InvalidProtocolBufferException ex) {
+				LOG.error(ex);
+				throw new IllegalStateException(ex);
+			}
+
+		}
+
+	}
+
+
 	private class FilterIndexHandler extends MessageHandler {
 
 		public FilterIndexHandler(byte[] msg) {
@@ -192,6 +226,28 @@ public class Client extends Thread {
 
 		}
 	}
+
+	private class IntBatchShareHandler extends MessageHandler {
+
+		public IntBatchShareHandler(byte[] msg) {
+			super(msg);
+		}
+
+		@Override
+		public void handle() {
+			try {
+				IntBatchShareMessage message = IntBatchShareMessage.parseFrom(msg);
+				broker.receiveBatchMessage(message);
+			} catch (InvalidProtocolBufferException ex) {
+				LOG.error(ex);
+				throw new IllegalStateException(ex);
+
+			}
+
+		}
+	}
+
+
 
 	private class TestMessageHandler extends MessageHandler {
 

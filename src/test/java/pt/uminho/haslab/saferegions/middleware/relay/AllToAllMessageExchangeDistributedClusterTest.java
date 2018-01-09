@@ -5,6 +5,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import pt.uminho.haslab.protocommunication.Search;
 import pt.uminho.haslab.saferegions.comunication.*;
 import pt.uminho.haslab.saferegions.discovery.DiscoveryService;
 import pt.uminho.haslab.saferegions.discovery.FailedRegionDiscovery;
@@ -19,6 +20,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Queue;
 
 import static org.junit.Assert.assertEquals;
 
@@ -128,7 +130,7 @@ public class AllToAllMessageExchangeDistributedClusterTest
 			receivedMessages.add(message);
 		}
 
-		public String getServerBindingAddress() {
+        public String getServerBindingAddress() {
 			return serverBindingAddress;
 		}
 

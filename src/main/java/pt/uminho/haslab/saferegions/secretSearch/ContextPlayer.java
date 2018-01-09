@@ -3,9 +3,12 @@ package pt.uminho.haslab.saferegions.secretSearch;
 import com.google.protobuf.ByteString;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
+import pt.uminho.haslab.protocommunication.Search.IntBatchShareMessage;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
+import pt.uminho.haslab.protocommunication.Search.IntResultsMessage;
 import pt.uminho.haslab.saferegions.comunication.MessageBroker;
 import pt.uminho.haslab.saferegions.comunication.Relay;
 import pt.uminho.haslab.saferegions.comunication.RequestIdentifier;
@@ -54,7 +57,11 @@ public class ContextPlayer implements Player, SharemindPlayer {
 	 * exists.
 	 */
 	private final Map<Integer, Queue<List<byte[]>>> playerBatchMessages;
+
+	private final Map<Integer, Queue<int[]>> playerBatchMessagesInt;
+
 	private final BatchShareMessage.Builder bmBuilder;
+	private final IntBatchShareMessage.Builder ibmBuilder;
        
         
 
@@ -71,12 +78,20 @@ public class ContextPlayer implements Player, SharemindPlayer {
 
 		playerBatchMessages = new HashMap<Integer, Queue<List<byte[]>>>();
 
+		playerBatchMessagesInt = new HashMap<Integer, Queue<int[]>>();
+
 		int[] players = getPlayerSources();
 
 		playerBatchMessages.put(players[0], new LinkedList<List<byte[]>>());
 		playerBatchMessages.put(players[1], new LinkedList<List<byte[]>>());
 
+
+		playerBatchMessagesInt.put(players[0], new LinkedList<int[]>());
+		playerBatchMessagesInt.put(players[1], new LinkedList<int[]>());
+
 		bmBuilder = BatchShareMessage.newBuilder();
+		ibmBuilder = IntBatchShareMessage.newBuilder();
+
 
 	}
 
@@ -128,7 +143,31 @@ public class ContextPlayer implements Player, SharemindPlayer {
 
 	}
 
-	private void sendFilteredIndexesToPlayer(int destPlayer,
+    @Override
+    public void sendIntProtocolResults(int[] dest) {
+        try {
+            List<Integer> bsValues = new ArrayList<Integer>();
+
+            for (int val : dest) {
+                bsValues.add(val);
+            }
+
+            IntResultsMessage msg = IntResultsMessage
+                    .newBuilder()
+                    .setPlayerSource(this.playerID)
+                    .setRequestID(ByteString.copyFrom(requestID.getRequestID()))
+                    .setRegionID(ByteString.copyFrom(requestID.getRegionID()))
+                    .setPlayerDest(targetPlayerID).addAllValues(bsValues)
+                    .build();
+
+            relay.sendProtocolResults(msg);
+        } catch (IOException ex) {
+            LOG.error(ex);
+            throw new IllegalStateException(ex);
+        }
+    }
+
+    private void sendFilteredIndexesToPlayer(int destPlayer,
 			List<ByteString> ids) throws IOException {
 		FilterIndexMessage msg = FilterIndexMessage.newBuilder()
 				.setPlayerSource(this.playerID)
@@ -210,6 +249,78 @@ public class ContextPlayer implements Player, SharemindPlayer {
 		}
 	}
 
+    @Override
+    public int[] getIntValues(Integer originPlayerId) {
+
+        /**
+         * First check for messages already stored when reading another value.
+         * Since values are not received in order, the player may read a value
+         * from another player besides the one it is expecting from. When this
+         * happens it stores in playersMessages variable.
+         */
+        if (!playerBatchMessagesInt.get(originPlayerId).isEmpty()) {
+            return playerBatchMessagesInt.get(originPlayerId).poll();
+        }
+
+        try {
+            Queue<IntBatchShareMessage> messages = broker
+                    .getReceivedBatchMessagesInt(requestID);
+
+            while (messages.peek() == null) {
+                broker.waitNewBatchMessage(requestID);
+            }
+
+            IntBatchShareMessage shareMessage = messages.poll();
+            broker.readBatchMessages(requestID);
+
+            List<Integer> recbMessages = shareMessage.getValuesList();
+            int[] recMessages = new int[recbMessages.size()];
+
+            for(int i = 0; i < recbMessages.size(); i++){
+                recMessages[i] = recbMessages.get(i);
+            }
+
+            if (shareMessage.getPlayerSource() != originPlayerId) {
+                playerBatchMessagesInt.get(shareMessage.getPlayerSource()).add(
+                        recMessages);
+
+                return this.getIntValues(originPlayerId);
+            } else {
+                return recMessages;
+            }
+
+        } catch (InterruptedException ex) {
+            LOG.error(ex);
+            throw new IllegalArgumentException(ex.getMessage());
+        }
+    }
+
+
+	@Override
+	public void sendValueToPlayer(Integer destPlayer, int[] ints) {
+        try {
+                IntBatchShareMessage.Builder bsm = ibmBuilder
+                    .setPlayerSource(this.playerID)
+                    .setRequestID(ByteString.copyFrom(requestID.getRequestID()))
+                    .setRegionID(ByteString.copyFrom(requestID.getRegionID()))
+                    .setPlayerDest(destPlayer);
+            List<Integer> integers  = new ArrayList<Integer>();
+            for(int v: ints){
+                integers.add(v);
+            }
+
+            bsm.addAllValues(integers);
+            relay.sendBatchMessages(bsm.build());
+            ibmBuilder.clear();
+
+        } catch (IOException ex) {
+            LOG.error(ex);
+            throw new IllegalStateException(ex);
+        }
+	}
+
+
+
 	/**
 	 * The output should be SearchResults and not DataIdentifiers. That way the
 	 * result would be consistent with the output of secretSearch. This function
@@ -232,6 +343,21 @@ public class ContextPlayer implements Player, SharemindPlayer {
         }
 		messages.clear();
 		broker.protocolResultsRead(requestID);
+
+		assert results.size() == 2;
+		return results;
+	}
+
+	@Override
+	public List<List<Integer>> getIntProtocolResults() throws ResultsLengthMismatch {
+		Queue<IntResultsMessage> messages = broker.getIntProtocolResults(requestID);
+		List<List<Integer>> results = new ArrayList<List<Integer>>();
+
+		for (IntResultsMessage msg : messages) {
+			results.add(msg.getValuesList());
+		}
+		messages.clear();
+		broker.intProtocolResultsRead(requestID);
 
 		assert results.size() == 2;
 		return results;
@@ -305,6 +431,12 @@ public class ContextPlayer implements Player, SharemindPlayer {
 	public void storeValues(Integer playerDest, Integer playerSource,
 			List<byte[]> values) {
 		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public void storeValues(Integer integer, Integer integer1, int[] ints) {
+        throw new UnsupportedOperationException("Not supported yet.");
+
 	}
 
 	public void sendValueToPlayer(int playerId, BigInteger value) {

@@ -1,6 +1,7 @@
 package pt.uminho.haslab.saferegions.secretSearch.linear;
 
 import pt.uminho.haslab.saferegions.secretSearch.AbstractSearchValue;
+import pt.uminho.haslab.saferegions.secretSearch.BigIntegerSearchConditionFactory;
 import pt.uminho.haslab.saferegions.secretSearch.SearchCondition;
 import pt.uminho.haslab.smpc.exceptions.InvalidNumberOfBits;
 import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
@@ -31,8 +32,8 @@ public class BatchEqualSecretSearchTest extends SecretSearchTest {
 
 	protected SearchCondition getSearchCondition(int nBits,
 			List<byte[]> firstValueSecret) {
-		return AbstractSearchValue.conditionTransformer(Equal, nBits,
-				firstValueSecret);
+		return new BigIntegerSearchConditionFactory(Equal, nBits,
+				firstValueSecret).conditionTransformer();
 	}
 
 }

@@ -47,6 +47,11 @@ public class BatchTestPlayer implements SharemindPlayer {
 		player.storeValues(playerDest, playerSource, values);
 	}
 
+	@Override
+	public void storeValues(Integer integer, Integer integer1, int[] ints) {
+
+	}
+
 	public BigInteger getValue(Integer originPlayerId) {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
@@ -63,6 +68,16 @@ public class BatchTestPlayer implements SharemindPlayer {
 		return player.getValues(rec);
 	}
 
+	@Override
+	public void sendValueToPlayer(Integer integer, int[] ints) {
+		player.sendValueToPlayer(integer, ints);
+	}
+
+	@Override
+	public int[] getIntValues(Integer integer) {
+		return player.getIntValues(integer);
+	}
+
 	public Map<Integer, List<List<byte[]>>> getMessagesSent() {
 		return messagesSent;
 	}
@@ -75,9 +90,19 @@ public class BatchTestPlayer implements SharemindPlayer {
 		player.sendProtocolResults(res);
 	}
 
+	@Override
+	public void sendIntProtocolResults(int[] dest) {
+		player.sendIntProtocolResults(dest);
+	}
+
 	public List<List<byte[]>> getProtocolResults()
 			throws ResultsLengthMismatch {
 		return player.getProtocolResults();
+	}
+
+	@Override
+	public List<List<Integer>> getIntProtocolResults() throws ResultsLengthMismatch {
+		return player.getIntProtocolResults();
 	}
 
 	public void cleanValues() {

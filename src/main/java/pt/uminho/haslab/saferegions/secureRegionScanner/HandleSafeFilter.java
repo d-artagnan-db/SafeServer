@@ -6,9 +6,7 @@ import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.filter.*;
 import pt.uminho.haslab.safemapper.TableSchema;
-import pt.uminho.haslab.saferegions.secretSearch.AbstractSearchValue;
-import pt.uminho.haslab.saferegions.secretSearch.SearchCondition;
-import pt.uminho.haslab.saferegions.secretSearch.SharemindPlayer;
+import pt.uminho.haslab.saferegions.secretSearch.*;
 import pt.uminho.haslab.saferegions.secureFilters.*;
 import pt.uminho.haslab.smpc.interfaces.Player;
 
@@ -17,6 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static pt.uminho.haslab.safemapper.DatabaseSchema.CryptoType.ISMPC;
+import static pt.uminho.haslab.safemapper.DatabaseSchema.isIntegerType;
 import static pt.uminho.haslab.safemapper.DatabaseSchema.isProtectedColumn;
 
 public class HandleSafeFilter {
@@ -201,6 +201,8 @@ public class HandleSafeFilter {
         byte[] family = filter.getFamily();
         byte[] qualifier = filter.getQualifier();
         byte[] value = filter.getComparator().getValue();
+        String sFamily = new String(family);
+        String sQualifier = new String(qualifier);
 
         CompareFilter.CompareOp operator = filter.getOperator();
         SearchCondition.Condition cond = getFilterCondition(operator);
@@ -215,8 +217,22 @@ public class HandleSafeFilter {
 
             int nBits = getColumnFormatSize(family, qualifier);
 
-            SearchCondition searchCond = AbstractSearchValue
-                    .conditionTransformer(cond, nBits, values);
+            boolean isTypeInteger =  schema.getCryptoTypeFromQualifier(sFamily, sQualifier) == ISMPC;
+            SearchConditionFactory factory;
+            String log;
+
+            if(isTypeInteger){
+                log = "IntSearchConditionFactory";
+                factory = new IntSearchConditionFactory(cond, nBits, values);
+            }else{
+                log = "BigIntegerSearchConditionFactory";
+                factory  = new BigIntegerSearchConditionFactory(cond, nBits, values);
+            }
+
+            if(LOG.isDebugEnabled()){
+                LOG.debug(log);
+            }
+            SearchCondition searchCond = factory.conditionTransformer();
 
             //Initialize list of Search Conditions if this is the first one.
             if (!this.safeFilters.containsKey(col)) {

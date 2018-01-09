@@ -22,43 +22,7 @@ public abstract class AbstractSearchValue implements SearchCondition {
 		this.condition = condition;
 	}
 
-	public static SearchCondition conditionTransformer(Condition op, int nBits,
-			List<byte[]> value) {
-		switch (op) {
-			case Equal :
-				return new SearchValue(nBits, value, Equal);
-			case GreaterOrEqualThan :
-				return new SearchValue(nBits, value, GreaterOrEqualThan);
-			case Greater :
-				SearchCondition equal = new SearchValue(nBits, value, Equal);
-				SearchCondition notEqual = new UnarySearchValue(Not, equal,
-						Equal);
-				SearchCondition greaterEqualThan = new SearchValue(nBits,
-						value, GreaterOrEqualThan);
-				return new ComposedSearchValue(And, notEqual, greaterEqualThan,
-						Greater);
-			case Less :
-				greaterEqualThan = new SearchValue(nBits, value,
-						GreaterOrEqualThan);
-				return new UnarySearchValue(Not, greaterEqualThan,
-						GreaterOrEqualThan);
-			case LessOrEqualThan :
-				greaterEqualThan = new SearchValue(nBits, value,
-						GreaterOrEqualThan);
 
-				equal = new SearchValue(nBits, value, Equal);
-				SearchCondition notGreater = new UnarySearchValue(Not,
-						greaterEqualThan, GreaterOrEqualThan);
-				return new ComposedSearchValue(Xor, equal, notGreater,
-						LessOrEqualThan);
-			case NotEqual :
-				equal = new SearchValue(nBits, value, Equal);
-				return new UnarySearchValue(Not, equal, Equal);
-
-		}
-		return null;
-
-	}
 
 	public Condition getCompare() {
 		return condition;

@@ -101,8 +101,9 @@ public class SecureRegionScanner implements RegionScanner {
 
 			do {
 				List<List<Cell>> batch = loadBatch();
-
+				LOG.debug("Batch loaded");
 				if (!batch.isEmpty()) {
+					LOG.debug("Going to filterBatch");
 					// Only returns rows that satisfy the protocol
 					fRows = this.handler.filterBatch(batch);
 				}

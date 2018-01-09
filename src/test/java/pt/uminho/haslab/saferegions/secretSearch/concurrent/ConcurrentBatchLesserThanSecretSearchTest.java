@@ -1,6 +1,7 @@
 package pt.uminho.haslab.saferegions.secretSearch.concurrent;
 
 import pt.uminho.haslab.saferegions.secretSearch.AbstractSearchValue;
+import pt.uminho.haslab.saferegions.secretSearch.BigIntegerSearchConditionFactory;
 import pt.uminho.haslab.saferegions.secretSearch.SearchCondition;
 import pt.uminho.haslab.smpc.exceptions.InvalidNumberOfBits;
 import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
@@ -24,8 +25,8 @@ public class ConcurrentBatchLesserThanSecretSearchTest
 
 	protected SearchCondition getSearchCondition(int nBits,
 			List<byte[]> firstValueSecret) {
-		return AbstractSearchValue.conditionTransformer(Less, nBits,
-				firstValueSecret);
+		return new BigIntegerSearchConditionFactory(Less, nBits,
+				firstValueSecret).conditionTransformer();
 	}
 
 	protected List<Boolean> getSearchExpectedResult(Integer request) {

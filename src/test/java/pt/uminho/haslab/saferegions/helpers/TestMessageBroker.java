@@ -108,4 +108,35 @@ public abstract class TestMessageBroker implements MessageBroker {
 		throw new UnsupportedOperationException(
 				"Method not currently supported on testing framework");
 	}
+
+	@Override
+	public void receiveProtocolResults(Search.IntResultsMessage message) {
+		throw new UnsupportedOperationException(
+				"Method not currently supported on testing framework");
+	}
+
+	@Override
+	public Queue<Search.IntResultsMessage> getIntProtocolResults(RequestIdentifier requestID) {
+		throw new UnsupportedOperationException(
+				"Method not currently supported on testing framework");
+	}
+
+	@Override
+	public void intProtocolResultsRead(RequestIdentifier requestID) {
+		throw new UnsupportedOperationException(
+				"Method not currently supported on testing framework");
+	}
+
+	@Override
+	public void receiveBatchMessage(Search.IntBatchShareMessage message) {
+		throw new UnsupportedOperationException(
+				"Method not currently supported on testing framework");
+	}
+
+    @Override
+    public Queue<Search.IntBatchShareMessage> getReceivedBatchMessagesInt(RequestIdentifier requestId) {
+        throw new UnsupportedOperationException(
+                "Method not currently supported on testing framework");
+    }
+
 }
