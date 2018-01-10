@@ -85,11 +85,13 @@ public class SmpcCoprocessor extends BaseRegionObserver {
                     relay = searchConf.createRelay(broker);
                     relay.bootRelay();
 
-                     //init smpc cache of random BigIntegers
-                    //if(searchConf.getPreRandomSize() > 0){
-                    //    LOG.debug("Generating batch of random bigIntegers " + searchConf.getPreRandomSize());
-                    //    RandomGenerator.initBatch(searchConf.getPreRandomNBits(), searchConf.getPreRandomSize());
-                    //}
+                    if(searchConf.getPreRandomSize() > 0){
+                        LOG.debug("Generating batch of random bigIntegers " + searchConf.getPreRandomSize());
+
+                        RandomGenerator.initBatch(searchConf.getPreRandomNBits(), searchConf.getPreRandomSize());
+                        RandomGenerator.initIntBatch(searchConf.getPreRandomSize());
+                        RandomGenerator.initLongBatch(searchConf.getPreRandomSize());
+                    }
 
                     // Wait some time before trying to connect with other region servers
                     if (LOG.isDebugEnabled()) {
@@ -257,9 +259,9 @@ public class SmpcCoprocessor extends BaseRegionObserver {
             LOG.debug("Is player targetPlayer " + ((ContextPlayer) player).isTargetPlayer());
             LOG.debug("Returning SecureRegionScanner");
         }
-		return new SecureRegionScanner(env, player, this.searchConf, handler,
-				startRow, stopRow);
 
+		return new SecureRegionScanner(env, player, this.searchConf, handler,
+                    startRow, stopRow);
 	}
 
     private void validateOperationAttributes(OperationWithAttributes op) {

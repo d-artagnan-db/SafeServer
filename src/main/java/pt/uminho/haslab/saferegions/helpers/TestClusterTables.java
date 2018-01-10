@@ -94,7 +94,7 @@ public class TestClusterTables extends ClusterTables {
                                puts[0] = p1;
                                puts[1] = p2;
                                puts[2] = p3;
-                               LOG.debug("Inserted value " + value + " with secrets " + Arrays.toString(secrets));
+                               //LOG.debug("Inserted value " + value + " with secrets " + Arrays.toString(secrets));
 
                                for (int i = 0; i < secrets.length; i++) {
                                    int secretValue = secrets[i];
@@ -107,7 +107,7 @@ public class TestClusterTables extends ClusterTables {
 
 
                            } else {
-                               LOG.info("Inserting as BigInteger");
+                               //LOG.info("Inserting as BigInteger");
                                BigInteger bigVal = new BigInteger(val);
                                //LOG.debug(safeQual + " - Putting secure value "+ bigVal);
                                SharemindSharedSecret secret = (SharemindSharedSecret) dealer
@@ -274,7 +274,7 @@ public class TestClusterTables extends ClusterTables {
                         byteBuffer.flip();
                         fList.add(new SingleColumnValueFilter(family, sQualifierMod, operator, byteBuffer.array()));
                     }
-                    LOG.debug("Value to search " + iValue +  " encoded in  integer secrets " + Arrays.toString(secrets));
+                    //LOG.debug("Value to search " + iValue +  " encoded in  integer secrets " + Arrays.toString(secrets));
 
                 } catch (InvalidSecretValue invalidSecretValue) {
                     throw new IllegalStateException(invalidSecretValue);

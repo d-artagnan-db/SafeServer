@@ -3,12 +3,7 @@ package pt.uminho.haslab.saferegions.secretSearch;
 import com.google.protobuf.ByteString;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
-import pt.uminho.haslab.protocommunication.Search.IntBatchShareMessage;
-import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
-import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
-import pt.uminho.haslab.protocommunication.Search.IntResultsMessage;
+import pt.uminho.haslab.protocommunication.Search.*;
 import pt.uminho.haslab.saferegions.comunication.MessageBroker;
 import pt.uminho.haslab.saferegions.comunication.Relay;
 import pt.uminho.haslab.saferegions.comunication.RequestIdentifier;
@@ -97,7 +92,7 @@ public class ContextPlayer implements Player, SharemindPlayer {
 
 	public void sendValueToPlayer(Integer destPlayer, List<byte[]> values) {
 		try {
-			BatchShareMessage.Builder bsm = bmBuilder
+            BatchShareMessage.Builder bsm = bmBuilder
 					.setPlayerSource(this.playerID)
 					.setRequestID(ByteString.copyFrom(requestID.getRequestID()))
 					.setRegionID(ByteString.copyFrom(requestID.getRegionID()))
@@ -126,7 +121,6 @@ public class ContextPlayer implements Player, SharemindPlayer {
             for (byte[] val : res) {
                 bsValues.add(ByteString.copyFrom(val));
 			}
-
 
 			ResultsMessage msg = ResultsMessage
 					.newBuilder()
@@ -274,6 +268,7 @@ public class ContextPlayer implements Player, SharemindPlayer {
             broker.readBatchMessages(requestID);
 
             List<Integer> recbMessages = shareMessage.getValuesList();
+
             int[] recMessages = new int[recbMessages.size()];
 
             for(int i = 0; i < recbMessages.size(); i++){
@@ -299,7 +294,7 @@ public class ContextPlayer implements Player, SharemindPlayer {
 	@Override
 	public void sendValueToPlayer(Integer destPlayer, int[] ints) {
         try {
-                IntBatchShareMessage.Builder bsm = ibmBuilder
+            IntBatchShareMessage.Builder bsm = ibmBuilder
                     .setPlayerSource(this.playerID)
                     .setRequestID(ByteString.copyFrom(requestID.getRequestID()))
                     .setRegionID(ByteString.copyFrom(requestID.getRegionID()))

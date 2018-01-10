@@ -20,18 +20,18 @@ public class IntSearchValue  extends SearchValue{
 
 
     public int[] convertInts(List<byte[]> value){
-        int[] vals = new int[value.size()];
-        ByteBuffer buffer = ByteBuffer.allocate(4* value.size());
+       int[] vals = new int[value.size()];
+        //ByteBuffer buffer = ByteBuffer.allocate(4* value.size());
 
-        for(byte[] val: value){
+        /*for(byte[] val: value){
             buffer.put(val);
-        }
-        buffer.flip();
+        }*/
+        //buffer.flip();
         for(int i = 0; i < value.size(); i++){
-            vals[i] = buffer.getInt(i);
+            vals[i] = ByteBuffer.wrap(value.get(i)).getInt();//buffer.getInt(i);
         }
 
-        buffer.clear();
+        //buffer.clear();
         return vals;
     }
 
@@ -50,7 +50,6 @@ public class IntSearchValue  extends SearchValue{
     public void evaluateCondition(List<byte[]> cmpValues, List<byte[]> rowIDs,
                                   SharemindPlayer player) {
 
-        LOG.debug("IntSearchValue evaluate condition");
         List<Boolean> fIndex;
         try {
             int[] result;
@@ -87,12 +86,13 @@ public class IntSearchValue  extends SearchValue{
                 LOG.debug("Running protocol " + condition);
             }
 
-            LOG.debug(player.getPlayerID()+ " protocol input values are  " + Arrays.toString(values) + " and stored values are "+ Arrays.toString(intCmpValues));
+           // LOG.debug(player.getPlayerID()+ " protocol input values are  " + Arrays.toString(values) + " and stored values are "+ Arrays.toString(intCmpValues));
             if (condition == Equal) {
                 result = ssf.equal(values, intCmpValues, player);
             } else {
                 throw new IllegalStateException("Operation not yet supported");
             }
+            //LOG.debug(player.getPlayerID()+ " has result " + Arrays.toString(result));
 
             List<Integer> protoResults = new ArrayList<Integer>(result.length);
             for(int val: result){
@@ -133,8 +133,7 @@ public class IntSearchValue  extends SearchValue{
 
             } else {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("S" +
-                            "end protocol results to target");
+                    LOG.debug("end protocol results to target");
                 }
                 player.sendIntProtocolResults(result);
                 List<byte[]> res = player.getFilterIndexes().getIndexes();

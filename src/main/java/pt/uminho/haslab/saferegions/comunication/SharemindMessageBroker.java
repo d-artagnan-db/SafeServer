@@ -103,7 +103,7 @@ public class SharemindMessageBroker implements MessageBroker {
             if (intBatchMessagesReceived.containsKey(requestID)) {
                 intBatchMessagesReceived.get(requestID).add(message);
             } else {
-                Queue values = new ConcurrentLinkedQueue<BatchShareMessage>();
+                Queue values = new ConcurrentLinkedQueue<IntBatchShareMessage>();
                 values.add(message);
                 intBatchMessagesReceived.put(requestID, values);
             }
@@ -255,7 +255,7 @@ public class SharemindMessageBroker implements MessageBroker {
 	}
 
 	@Override
-	public Queue<Search.IntResultsMessage> getIntProtocolResults(RequestIdentifier requestID) {
+	public Queue<IntResultsMessage> getIntProtocolResults(RequestIdentifier requestID) {
         lock.lock();
         try {
             protocolResultsLocks.lockOnRequest(requestID);
@@ -326,6 +326,7 @@ public class SharemindMessageBroker implements MessageBroker {
 	public void allResultsRead(RequestIdentifier requestID) {
 		protocolResultsLocks.removeLock(requestID);
 		protocolResults.remove(requestID);
+		intProtocolResults.remove(requestID);
 	}
 
 	public void protocolResultsRead(RequestIdentifier requestID) {

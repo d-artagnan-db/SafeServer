@@ -83,7 +83,7 @@ public abstract class AbstractClusterTest {
                             val = ValuesGenerator.randomString(10).getBytes();
                             break;
                         case INT:
-                            LOG.debug("Going to generate BigInteger");
+                            //LOG.debug("Going to generate BigInteger");
                             //val = ValuesGenerator.randomBigInteger(10).toByteArray();
 
                             boolean invalid = true;
@@ -233,7 +233,7 @@ public abstract class AbstractClusterTest {
         long startTime = System.nanoTime();
         testExecution(tables);
         long stopTime = System.nanoTime();
-        System.out.println("Execution time was " + (stopTime - startTime));
+        LOG.debug("Execution time was " + (stopTime - startTime));
     }
 
 

@@ -41,10 +41,11 @@ public class SecureRegionScanner implements RegionScanner {
 		this.handler = handler;
 		this.env = env;
 		this.player = player;
+		batcher = new Batcher(config);
+
 		scan = new Scan(scanStartRow, scanStopRow);
 		scanner = env.getRegion().getScanner(scan);
 
-		batcher = new Batcher(config);
 		resultsCache = new BatchCache();
 		hasMore = false;
 	}
@@ -71,6 +72,7 @@ public class SecureRegionScanner implements RegionScanner {
 		int counter = 0;
 		do {
 			List<Cell> localResults = new ArrayList<Cell>();
+
 			hasMore = scanner.next(localResults);
 
 			// Return case when there are no records in the table;
@@ -204,27 +206,5 @@ public class SecureRegionScanner implements RegionScanner {
 	    }
 		throw new UnsupportedOperationException("Not supported yet.");
     }
-
-    private class BatchCache {
-
-		private Queue<List<Cell>> cells;
-
-		BatchCache() {
-			cells = new LinkedList<List<Cell>>();
-		}
-
-		void addListCells(List<List<Cell>> cells) {
-            this.cells.addAll(cells);
-        }
-
-		public List<Cell> getNext() {
-			return this.cells.poll();
-		}
-
-		boolean isBatchEmpty() {
-			return cells.isEmpty();
-		}
-
-	}
 
 }

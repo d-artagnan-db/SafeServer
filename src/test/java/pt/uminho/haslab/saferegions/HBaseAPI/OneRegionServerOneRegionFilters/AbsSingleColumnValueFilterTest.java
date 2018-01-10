@@ -77,6 +77,6 @@ public abstract class AbsSingleColumnValueFilterTest extends AbstractClusterTest
     }
 
     protected long getNumberOfRecords() {
-        return 1000;
+        return 5000;
     }
 }

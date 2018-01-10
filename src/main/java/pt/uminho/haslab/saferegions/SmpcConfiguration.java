@@ -40,6 +40,7 @@ public class SmpcConfiguration {
 	private final DatabaseSchema schema;
 
 	private boolean regionsFixed;
+	private boolean cachedData;
 
 	public SmpcConfiguration(Configuration conf) {
 
@@ -72,6 +73,9 @@ public class SmpcConfiguration {
 		retries = conf.getInt("smhbase.discovery.retries", 5);
 		databaseSchemaPath = conf.get("smhbase.schema");
 		regionsFixed = conf.getBoolean("smhbase.regions.fixed", false);
+
+		cachedData = conf.getBoolean("smhbase.cached.data", false);
+
 
 		if(LOG.isDebugEnabled()){
             LOG.debug("Player ID is "+playerID);
@@ -121,4 +125,7 @@ public class SmpcConfiguration {
 	public DatabaseSchema getSchema() {
 		return schema;
 	}
+
+	public boolean isCachedData(){ return this.cachedData;}
+
 }

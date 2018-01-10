@@ -26,12 +26,15 @@ public class IntEqualSingleColumnValueFilerTest extends AbsSingleColumnValueFilt
     }
 
     protected long getNumberOfRecords() {
-        return 10;
+        return 5000;
     }
 
 
     @Override
     CompareFilter.CompareOp getComparator() {
         return CompareFilter.CompareOp.EQUAL;
+    }
+    
+    public static void main(String[] args){
     }
 }
