@@ -1,10 +1,9 @@
 package pt.uminho.haslab.saferegions.comunication;
 
-import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
-import pt.uminho.haslab.protocommunication.Search.IntBatchShareMessage;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
 import pt.uminho.haslab.protocommunication.Search.IntResultsMessage;
+import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
 
 
 
@@ -14,7 +13,7 @@ public interface Relay {
 
 	void sendBatchMessages(BatchShareMessage msg) throws IOException;
 
-	void sendBatchMessages(IntBatchShareMessage msg) throws IOException;
+	void sendBatchMessages(CIntBatchShareMessage msg) throws IOException;
 
 	void sendProtocolResults(ResultsMessage msg) throws IOException;
 

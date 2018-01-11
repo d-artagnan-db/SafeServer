@@ -252,16 +252,13 @@ public class SmpcCoprocessor extends BaseRegionObserver {
         checkTargetPlayer(player, op);
 
 		TableSchema tSchema = schema.getTableSchema(tableName);
-		HandleSafeFilter handler = new HandleSafeFilter(tSchema,
-				op.getFilter(), player);
-		handler.processFilter();
         if(LOG.isDebugEnabled()){
             LOG.debug("Is player targetPlayer " + ((ContextPlayer) player).isTargetPlayer());
             LOG.debug("Returning SecureRegionScanner");
         }
 
-		return new SecureRegionScanner(env, player, this.searchConf, handler,
-                    startRow, stopRow);
+		return new SecureRegionScanner(env, player, this.searchConf,
+                    startRow, stopRow, tSchema, op);
 	}
 
     private void validateOperationAttributes(OperationWithAttributes op) {

@@ -3,12 +3,10 @@ package pt.uminho.haslab.saferegions.secureRegionScanner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.filter.*;
 import pt.uminho.haslab.safemapper.TableSchema;
 import pt.uminho.haslab.saferegions.secretSearch.*;
 import pt.uminho.haslab.saferegions.secureFilters.*;
-import pt.uminho.haslab.smpc.interfaces.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,18 +14,16 @@ import java.util.List;
 import java.util.Map;
 
 import static pt.uminho.haslab.safemapper.DatabaseSchema.CryptoType.ISMPC;
-import static pt.uminho.haslab.safemapper.DatabaseSchema.isIntegerType;
 import static pt.uminho.haslab.safemapper.DatabaseSchema.isProtectedColumn;
 
 public class HandleSafeFilter {
 
     private static final Log LOG = LogFactory.getLog(HandleSafeFilter.class
             .getName());
-    private final Filter inputFilter;
     private final TableSchema schema;
     private final Map<Column, List<SearchCondition>> safeFilters;
-    private final SharemindPlayer player;
     private boolean filterWasProcessed;
+
 
     /**
      * Stop On Match is used for WhileMatchFilters, it is turned to true to signal that this handler only needs to
@@ -39,23 +35,21 @@ public class HandleSafeFilter {
     private boolean foundInvalidRecord;
 
     private SecureFilter secureFilter;
-    private boolean hasProtectedColumn;
 
-    public HandleSafeFilter(TableSchema schema, Filter filter, Player player) {
-        this.inputFilter = filter;
+
+    public HandleSafeFilter(TableSchema schema) {
         this.schema = schema;
         safeFilters = new HashMap<Column, List<SearchCondition>>();
-        this.player = (SharemindPlayer) player;
         foundInvalidRecord = false;
     }
 
-    public void processFilter() {
+    public void processFilter(Filter inputFilter) {
 
         secureFilter = handleFilter(inputFilter);
         filterWasProcessed = true;
     }
 
-    public List<List<Cell>> filterBatch(List<List<Cell>> rows) {
+    public List<List<Cell>> filterBatch(List<List<Cell>> rows, Map<Column, List<byte[]>> columnValues, List<byte[]> rowIDs, SharemindPlayer player) {
         /**
          * Clear flag foundInvalidRecord from previous execution.
          * This cleaning operation can not be on the end of the function because other objects (SecureRegionScanner)
@@ -67,24 +61,20 @@ public class HandleSafeFilter {
             throw new IllegalStateException(
                     "Filters must be processed before before filtering data");
         }
-        Map<Column, List<byte[]>> columnValues = new HashMap<Column, List<byte[]>>();
-        List<byte[]> rowIDs = new ArrayList<byte[]>();
 
-        if(hasProtectedColumn){
-            // Get the protected column values and the row identifiers.
-            processDatasetValues(rows, columnValues, rowIDs);
-            LOG.debug("SafeFilters keys " + safeFilters.size());
-            // Evaluate all of the SMPC protocols required for the filter.
-            for (Column col : safeFilters.keySet()) {
-                List<byte[]> values = columnValues.get(col);
-                LOG.debug("SafeFilter conditions size is " + safeFilters.get(col).size());
-                for(SearchCondition safeFilter: safeFilters.get(col)){
-                    LOG.debug("Going to evaluate searchCondition " + safeFilter.getCondition());
-                    safeFilter.evaluateCondition(values, rowIDs, player);
-                    LOG.debug("Condition evaluated");
-                }
 
+        // Get the protected column values and the row identifiers.
+        LOG.debug("SafeFilters keys " + safeFilters.size());
+        // Evaluate all of the SMPC protocols required for the filter.
+        for (Column col : safeFilters.keySet()) {
+            List<byte[]> values = columnValues.get(col);
+            //LOG.debug("SafeFilter conditions size is " + safeFilters.get(col).size());
+            for (SearchCondition safeFilter : safeFilters.get(col)) {
+                // LOG.debug("Going to evaluate searchCondition " + safeFilter.getCondition());
+                safeFilter.evaluateCondition(values, rowIDs, player);
+                // LOG.debug("Condition evaluated");
             }
+
         }
 
         List<List<Cell>> result = filterDataset(rows);
@@ -95,30 +85,6 @@ public class HandleSafeFilter {
 
     }
 
-    private void processDatasetValues(List<List<Cell>> rows,
-                                      Map<Column, List<byte[]>> columnValues, List<byte[]> rowIDs) {
-        // Process rows and store the values of the protected columns in a Map.
-        for (List<Cell> row : rows) {
-
-            for (Cell cell : row) {
-                byte[] cellCF = CellUtil.cloneFamily(cell);
-                byte[] cellCQ = CellUtil.cloneQualifier(cell);
-                byte[] rowID = CellUtil.cloneRow(cell);
-                byte[] cellVal = CellUtil.cloneValue(cell);
-
-                if (isProtectedColumn(schema, cellCF, cellCQ)) {
-                    Column col = new Column(cellCF, cellCQ);
-
-                    if (!columnValues.containsKey(col)) {
-                        columnValues.put(col, new ArrayList<byte[]>());
-                    }
-                    columnValues.get(col).add(cellVal);
-                    rowIDs.add(rowID);
-
-                }
-            }
-        }
-    }
 
     private List<List<Cell>> filterDataset(List<List<Cell>> rows) {
         List<List<Cell>> results = new ArrayList<List<Cell>>();
@@ -127,7 +93,7 @@ public class HandleSafeFilter {
             boolean isValid = secureFilter.filterRow(row);
             if (isValid) {
                 results.add(row);
-            }else {
+            } else {
                 foundInvalidRecord = true;
             }
 
@@ -179,9 +145,9 @@ public class HandleSafeFilter {
             FilterList.Operator operator) {
 
         switch (operator) {
-            case MUST_PASS_ALL :
+            case MUST_PASS_ALL:
                 return SearchCondition.Condition.And;
-            case MUST_PASS_ONE :
+            case MUST_PASS_ONE:
                 return SearchCondition.Condition.Or;
         }
         return null;
@@ -217,19 +183,19 @@ public class HandleSafeFilter {
 
             int nBits = getColumnFormatSize(family, qualifier);
 
-            boolean isTypeInteger =  schema.getCryptoTypeFromQualifier(sFamily, sQualifier) == ISMPC;
+            boolean isTypeInteger = schema.getCryptoTypeFromQualifier(sFamily, sQualifier) == ISMPC;
             SearchConditionFactory factory;
             String log;
 
-            if(isTypeInteger){
+            if (isTypeInteger) {
                 log = "IntSearchConditionFactory";
                 factory = new IntSearchConditionFactory(cond, nBits, values);
-            }else{
+            } else {
                 log = "BigIntegerSearchConditionFactory";
-                factory  = new BigIntegerSearchConditionFactory(cond, nBits, values);
+                factory = new BigIntegerSearchConditionFactory(cond, nBits, values);
             }
 
-            if(LOG.isDebugEnabled()){
+            if (LOG.isDebugEnabled()) {
                 LOG.debug(log);
             }
             SearchCondition searchCond = factory.conditionTransformer();
@@ -240,7 +206,6 @@ public class HandleSafeFilter {
             }
 
             this.safeFilters.get(col).add(searchCond);
-            this.hasProtectedColumn = true;
 
             return new SearchConditionFilter(searchCond, col);
 
@@ -268,17 +233,17 @@ public class HandleSafeFilter {
             CompareFilter.CompareOp operator) {
 
         switch (operator) {
-            case LESS :
+            case LESS:
                 return SearchCondition.Condition.Less;
-            case LESS_OR_EQUAL :
+            case LESS_OR_EQUAL:
                 return SearchCondition.Condition.LessOrEqualThan;
-            case EQUAL :
+            case EQUAL:
                 return SearchCondition.Condition.Equal;
-            case GREATER_OR_EQUAL :
+            case GREATER_OR_EQUAL:
                 return SearchCondition.Condition.GreaterOrEqualThan;
-            case GREATER :
+            case GREATER:
                 return SearchCondition.Condition.Greater;
-            default :
+            default:
                 return null;
         }
     }
@@ -294,4 +259,5 @@ public class HandleSafeFilter {
     public boolean foundInvalidRecord() {
         return foundInvalidRecord;
     }
+
 }

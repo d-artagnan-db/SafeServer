@@ -3,19 +3,23 @@ package pt.uminho.haslab.saferegions.secureRegionScanner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.regionserver.RegionScanner;
+import pt.uminho.haslab.safemapper.TableSchema;
 import pt.uminho.haslab.saferegions.SmpcConfiguration;
 import pt.uminho.haslab.saferegions.secretSearch.SharemindPlayer;
 import pt.uminho.haslab.smpc.interfaces.Player;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import static pt.uminho.haslab.safemapper.DatabaseSchema.isProtectedColumn;
 
 public class SecureRegionScanner implements RegionScanner {
 	static final Log LOG = LogFactory.getLog(SecureRegionScanner.class
@@ -35,12 +39,21 @@ public class SecureRegionScanner implements RegionScanner {
 
 	private boolean hasMore;
 
+	private final TableSchema schema;
+	private final SmpcConfiguration config;
+
+	private static BatchData cacheBatchData = null;
+    private final Lock cacheDataLock = new ReentrantLock();
+
+
+
+
 	public SecureRegionScanner(RegionCoprocessorEnvironment env, Player player,
-			SmpcConfiguration config, HandleSafeFilter handler,
-			byte[] scanStartRow, byte[] scanStopRow) throws IOException {
-		this.handler = handler;
+                               SmpcConfiguration config,
+                               byte[] scanStartRow, byte[] scanStopRow, TableSchema schema, Scan originalScan) throws IOException {
 		this.env = env;
 		this.player = player;
+		this.config = config;
 		batcher = new Batcher(config);
 
 		scan = new Scan(scanStartRow, scanStopRow);
@@ -48,6 +61,11 @@ public class SecureRegionScanner implements RegionScanner {
 
 		resultsCache = new BatchCache();
 		hasMore = false;
+
+        this.schema = schema;
+
+		handler = new HandleSafeFilter(schema);
+		handler.processFilter(originalScan.getFilter());
 	}
 
 	public HRegionInfo getRegionInfo() {
@@ -102,12 +120,34 @@ public class SecureRegionScanner implements RegionScanner {
             List<List<Cell>> fRows = new ArrayList<List<Cell>>();
 
 			do {
-				List<List<Cell>> batch = loadBatch();
-				LOG.debug("Batch loaded");
-				if (!batch.isEmpty()) {
-					LOG.debug("Going to filterBatch");
-					// Only returns rows that satisfy the protocol
-					fRows = this.handler.filterBatch(batch);
+			    if(config.isCachedData() && cacheBatchData != null){
+                    List<List<Cell>> batch = cacheBatchData.getRows();
+                    fRows = this.handler.filterBatch(batch, cacheBatchData.getColumnValues(), cacheBatchData.getRowIDs() ,  (SharemindPlayer) player);
+
+                }else{
+                    List<List<Cell>> batch = loadBatch();
+                    LOG.debug("Batch loaded");
+                    if (!batch.isEmpty()) {
+                        LOG.debug("Going to filterBatch");
+                        // Only returns rows that satisfy the protocol
+                        BatchData batchData = new BatchData(batch);
+                        batchData.processDatasetValues();
+                        fRows = this.handler.filterBatch(batch, batchData.getColumnValues(), batchData.getRowIDs() ,  (SharemindPlayer) player);
+                        /**
+                         *  If in this part of the code and cache data is requested than its one of the threads that
+                         *  is doing the first load of data.
+                         *  There maybe more threads reaaing for the first time the data.
+                         */
+                        if(config.isCachedData()){
+                            cacheDataLock.lock();
+
+                            if(cacheBatchData == null){
+                                cacheBatchData = batchData;
+                            }
+                            cacheDataLock.unlock();
+
+                        }
+				    }
 				}
 			} while (hasMore && fRows.isEmpty());
 
@@ -206,5 +246,58 @@ public class SecureRegionScanner implements RegionScanner {
 	    }
 		throw new UnsupportedOperationException("Not supported yet.");
     }
+
+
+    private class BatchData{
+        private final Map<Column, List<byte[]>> columnValues;
+        private final List<byte[]> rowIDs;
+        private final List<List<Cell>> rows;
+
+        public BatchData(List<List<Cell>> rows){
+            this.rows = rows;
+            this.columnValues  = new HashMap<Column, List<byte[]>>();
+            this.rowIDs = new ArrayList<byte[]>();
+
+        }
+
+        public void processDatasetValues() {
+
+                // Process rows and store the values of the protected columns in a Map.
+                for (List<Cell> row : rows) {
+
+                    for (Cell cell : row) {
+                        byte[] cellCF = CellUtil.cloneFamily(cell);
+                        byte[] cellCQ = CellUtil.cloneQualifier(cell);
+                        byte[] rowID = CellUtil.cloneRow(cell);
+                        byte[] cellVal = CellUtil.cloneValue(cell);
+
+                        if (isProtectedColumn(schema, cellCF, cellCQ)) {
+                            Column col = new Column(cellCF, cellCQ);
+
+                            if (!columnValues.containsKey(col)) {
+                                columnValues.put(col, new ArrayList<byte[]>());
+                            }
+                            columnValues.get(col).add(cellVal);
+                            rowIDs.add(rowID);
+
+                        }
+                    }
+                }
+            }
+
+        public Map<Column, List<byte[]>> getColumnValues(){
+	        return this.columnValues;
+
+        }
+
+        public List<byte[]> getRowIDs(){
+            return this.rowIDs;
+        }
+
+        public List<List<Cell>> getRows() {
+            return rows;
+        }
+    }
+
 
 }

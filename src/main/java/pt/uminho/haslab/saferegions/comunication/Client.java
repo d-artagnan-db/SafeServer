@@ -3,11 +3,11 @@ package pt.uminho.haslab.saferegions.comunication;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import pt.uminho.haslab.protocommunication.Search.IntBatchShareMessage;
-import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
+import pt.uminho.haslab.protocommunication.Search;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
 import pt.uminho.haslab.protocommunication.Search.IntResultsMessage;
+import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
 
 import java.io.*;
 import java.net.Socket;
@@ -218,12 +218,11 @@ public class Client extends Thread {
 			try {
 				BatchShareMessage message = BatchShareMessage.parseFrom(msg);
 				broker.receiveBatchMessage(message);
-			} catch (InvalidProtocolBufferException ex) {
-				LOG.error(ex);
-				throw new IllegalStateException(ex);
 
+			} catch (InvalidProtocolBufferException e) {
+				LOG.error(e);
+				throw new IllegalStateException(e);
 			}
-
 		}
 	}
 
@@ -235,15 +234,8 @@ public class Client extends Thread {
 
 		@Override
 		public void handle() {
-			try {
-				IntBatchShareMessage message = IntBatchShareMessage.parseFrom(msg);
+				CIntBatchShareMessage message = CIntBatchShareMessage.parseFrom(msg);
 				broker.receiveBatchMessage(message);
-			} catch (InvalidProtocolBufferException ex) {
-				LOG.error(ex);
-				throw new IllegalStateException(ex);
-
-			}
-
 		}
 	}
 

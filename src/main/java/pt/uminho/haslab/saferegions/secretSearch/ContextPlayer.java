@@ -3,10 +3,14 @@ package pt.uminho.haslab.saferegions.secretSearch;
 import com.google.protobuf.ByteString;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import pt.uminho.haslab.protocommunication.Search.*;
-import pt.uminho.haslab.saferegions.comunication.MessageBroker;
-import pt.uminho.haslab.saferegions.comunication.Relay;
-import pt.uminho.haslab.saferegions.comunication.RequestIdentifier;
+import pt.uminho.haslab.protocommunication.Search;
+import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
+import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
+import pt.uminho.haslab.protocommunication.Search.IntResultsMessage;
+import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
+
+
+import pt.uminho.haslab.saferegions.comunication.*;
 import pt.uminho.haslab.saferegions.protocolresults.FilteredIndexes;
 import pt.uminho.haslab.saferegions.protocolresults.ResultsLengthMismatch;
 import pt.uminho.haslab.smpc.interfaces.Player;
@@ -55,10 +59,10 @@ public class ContextPlayer implements Player, SharemindPlayer {
 
 	private final Map<Integer, Queue<int[]>> playerBatchMessagesInt;
 
-	private final BatchShareMessage.Builder bmBuilder;
-	private final IntBatchShareMessage.Builder ibmBuilder;
-       
-        
+	private final Search.BatchShareMessage.Builder bmBuilder;
+
+
+
 
 	private int targetPlayerID;
 	private boolean isTargetPlayer;
@@ -85,20 +89,21 @@ public class ContextPlayer implements Player, SharemindPlayer {
 		playerBatchMessagesInt.put(players[1], new LinkedList<int[]>());
 
 		bmBuilder = BatchShareMessage.newBuilder();
-		ibmBuilder = IntBatchShareMessage.newBuilder();
+
 
 
 	}
 
 	public void sendValueToPlayer(Integer destPlayer, List<byte[]> values) {
 		try {
-            BatchShareMessage.Builder bsm = bmBuilder
+
+			BatchShareMessage.Builder bsm = bmBuilder
 					.setPlayerSource(this.playerID)
 					.setRequestID(ByteString.copyFrom(requestID.getRequestID()))
 					.setRegionID(ByteString.copyFrom(requestID.getRegionID()))
 					.setPlayerDest(destPlayer);
 
-            List<ByteString> bsl = new ArrayList<ByteString>();
+			List<ByteString> bsl = new ArrayList<ByteString>();
 			for (byte[] val : values) {
 				ByteString bsVal = ByteString.copyFrom(val);
 				bsl.add(bsVal);
@@ -106,6 +111,7 @@ public class ContextPlayer implements Player, SharemindPlayer {
 			bsm.addAllValues(bsl);
 			relay.sendBatchMessages(bsm.build());
 			bmBuilder.clear();
+
 
 		} catch (IOException ex) {
 			LOG.error(ex);
@@ -237,6 +243,7 @@ public class ContextPlayer implements Player, SharemindPlayer {
 				return recMessages;
 			}
 
+
 		} catch (InterruptedException ex) {
 			LOG.error(ex);
 			throw new IllegalArgumentException(ex.getMessage());
@@ -257,31 +264,24 @@ public class ContextPlayer implements Player, SharemindPlayer {
         }
 
         try {
-            Queue<IntBatchShareMessage> messages = broker
+            Queue<CIntBatchShareMessage> messages = broker
                     .getReceivedBatchMessagesInt(requestID);
 
             while (messages.peek() == null) {
                 broker.waitNewBatchMessage(requestID);
             }
 
-            IntBatchShareMessage shareMessage = messages.poll();
+            CIntBatchShareMessage shareMessage = messages.poll();
             broker.readBatchMessages(requestID);
 
-            List<Integer> recbMessages = shareMessage.getValuesList();
 
-            int[] recMessages = new int[recbMessages.size()];
-
-            for(int i = 0; i < recbMessages.size(); i++){
-                recMessages[i] = recbMessages.get(i);
-            }
-
-            if (shareMessage.getPlayerSource() != originPlayerId) {
-                playerBatchMessagesInt.get(shareMessage.getPlayerSource()).add(
-                        recMessages);
+            if (shareMessage.getSourcePlayer() != originPlayerId) {
+                playerBatchMessagesInt.get(shareMessage.getSourcePlayer()).add(
+                        shareMessage.getValues());
 
                 return this.getIntValues(originPlayerId);
             } else {
-                return recMessages;
+                return shareMessage.getValues();
             }
 
         } catch (InterruptedException ex) {
@@ -294,19 +294,9 @@ public class ContextPlayer implements Player, SharemindPlayer {
 	@Override
 	public void sendValueToPlayer(Integer destPlayer, int[] ints) {
         try {
-            IntBatchShareMessage.Builder bsm = ibmBuilder
-                    .setPlayerSource(this.playerID)
-                    .setRequestID(ByteString.copyFrom(requestID.getRequestID()))
-                    .setRegionID(ByteString.copyFrom(requestID.getRegionID()))
-                    .setPlayerDest(destPlayer);
-            List<Integer> integers  = new ArrayList<Integer>();
-            for(int v: ints){
-                integers.add(v);
-            }
 
-            bsm.addAllValues(integers);
-            relay.sendBatchMessages(bsm.build());
-            ibmBuilder.clear();
+            CIntBatchShareMessage msg = new CIntBatchShareMessage(this.playerID, destPlayer, requestID, ints);
+            relay.sendBatchMessages(msg);
 
         } catch (IOException ex) {
             LOG.error(ex);

@@ -47,8 +47,8 @@ public class HandleSafeFilterTest {
 		SingleColumnValueFilter filter = new SingleColumnValueFilter(column,
 				column, op, val);
 		WhileMatchFilter wmf = new WhileMatchFilter(filter);
-		HandleSafeFilter sfh = new HandleSafeFilter(getTableSchema(), wmf, null);
-		sfh.processFilter();
+		HandleSafeFilter sfh = new HandleSafeFilter(getTableSchema());
+		sfh.processFilter(wmf);
 
         assertEquals(true, sfh.isStopOnInvalidRecord());
 
@@ -64,9 +64,8 @@ public class HandleSafeFilterTest {
 	public void testFilterListAllProtected() {
 
 		FilterList fList = generateFilterList();
-		HandleSafeFilter sfh = new HandleSafeFilter(getTableSchema(), fList,
-				null);
-		sfh.processFilter();
+		HandleSafeFilter sfh = new HandleSafeFilter(getTableSchema());
+		sfh.processFilter(fList);
 		SecureFilter scond = sfh.getSecureFilter();
 
 		assertEquals(true, scond instanceof SecureFilterList);
@@ -116,9 +115,8 @@ public class HandleSafeFilterTest {
 	public void testFilterListAllUnProtected() {
 
 		FilterList fList = generateUnprotectedFilterList();
-		HandleSafeFilter sfh = new HandleSafeFilter(getTableSchema(), fList,
-				null);
-		sfh.processFilter();
+		HandleSafeFilter sfh = new HandleSafeFilter(getTableSchema());
+		sfh.processFilter(fList);
 		SecureFilter scond = sfh.getSecureFilter();
 
 		assertEquals(true, scond instanceof SecureFilterList);
@@ -170,9 +168,8 @@ public class HandleSafeFilterTest {
 
 		SingleColumnValueFilter filter = new SingleColumnValueFilter(
 				"teste2".getBytes(), "teste2".getBytes(), EQUAL, val);
-		HandleSafeFilter sfh = new HandleSafeFilter(getTableSchema(), filter,
-				null);
-		sfh.processFilter();
+		HandleSafeFilter sfh = new HandleSafeFilter(getTableSchema());
+		sfh.processFilter(filter);
 		SecureFilter sf = sfh.getSecureFilter();
 		assertEquals(true, sf instanceof SecureSingleColumnValueFilter);
 
@@ -183,9 +180,8 @@ public class HandleSafeFilterTest {
 
 		RowFilter rFilter = new RowFilter(EQUAL, null);
 
-		HandleSafeFilter sfh = new HandleSafeFilter(getTableSchema(), rFilter,
-				null);
-		sfh.processFilter();
+		HandleSafeFilter sfh = new HandleSafeFilter(getTableSchema());
+		sfh.processFilter(rFilter);
 
 		SecureFilter sf = sfh.getSecureFilter();
 		assertEquals(true, sf instanceof SecureIdentifierFilter);
@@ -196,9 +192,8 @@ public class HandleSafeFilterTest {
 
 		SingleColumnValueFilter filter = new SingleColumnValueFilter(column,
 				column, cOp, val);
-		HandleSafeFilter sfh = new HandleSafeFilter(getTableSchema(), filter,
-				null);
-		sfh.processFilter();
+		HandleSafeFilter sfh = new HandleSafeFilter(getTableSchema());
+		sfh.processFilter(filter);
 		SecureFilter scond = sfh.getSecureFilter();
 		assertEquals(true, scond instanceof SearchConditionFilter);
 		SearchConditionFilter scf = (SearchConditionFilter) scond;

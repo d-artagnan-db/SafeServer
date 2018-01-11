@@ -88,7 +88,7 @@
     </property>
     <property>
         <name>smhbase.batch.size</name>
-        <value>10000</value>
+        <value>100000</value>
     </property>
     <property>
         <name>smhbase.discovery.location</name>
@@ -111,7 +111,11 @@
         <value>True</value>
     </property>
     <property>
+        <name>smhbase.cached.data</name>
+        <value>True</value>
+    </property>
+    <property>
         <name>smhbase.schema</name>
-        <value>/Users/roger/Documents/HASLab/safecloud-eu/saferegions/src/test/resources/int-protected-schema.xml</value>
+        <value>/Users/roger/Documents/HASLab/safecloud-eu/saferegions/src/test/resources/protected-schema.xml</value>
     </property>
 </configuration>

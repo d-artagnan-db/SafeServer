@@ -2,12 +2,10 @@ package pt.uminho.haslab.saferegions.comunication;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import pt.uminho.haslab.protocommunication.Search;
-import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
-import pt.uminho.haslab.protocommunication.Search.IntBatchShareMessage;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
 import pt.uminho.haslab.protocommunication.Search.IntResultsMessage;
+import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
 
 import pt.uminho.haslab.saferegions.discovery.*;
 
@@ -123,10 +121,9 @@ public class IORelay implements Relay {
 		getTargetClient(msg.getPlayerDest(), ident).sendBatchMessages(msg);
 	}
 
-	public synchronized  void sendBatchMessages(IntBatchShareMessage msg) throws IOException {
-        RequestIdentifier ident = new RequestIdentifier(msg.getRequestID()
-                .toByteArray(), msg.getRegionID().toByteArray());
-        getTargetClient(msg.getPlayerDest(), ident).sendBatchMessages(msg);
+	public synchronized  void sendBatchMessages(CIntBatchShareMessage msg) throws IOException {
+
+        getTargetClient(msg.getPlayerDest(), msg.getRequestID()).sendBatchMessages(msg);
 
 	}
 
