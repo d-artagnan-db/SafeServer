@@ -8,6 +8,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.Coprocessor;
 import org.apache.hadoop.hbase.CoprocessorEnvironment;
 import org.apache.hadoop.hbase.client.OperationWithAttributes;
@@ -16,6 +17,7 @@ import org.apache.hadoop.hbase.coprocessor.CoprocessorService;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.exceptions.DeserializationException;
 import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.regionserver.RegionScanner;
 import pt.uminho.haslab.protocommunication.Smpc;
 import pt.uminho.haslab.safemapper.DatabaseSchema;
@@ -39,7 +41,7 @@ import java.util.concurrent.Semaphore;
 public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
         implements Coprocessor, CoprocessorService {
 
-    private static final Log LOG = LogFactory.getLog(SmpcCoprocessor.class
+    private static final Log LOG = LogFactory.getLog(ConcurrentScanCoprocessor.class
             .getName());
 
     private final static Semaphore available = new Semaphore(1);
@@ -317,26 +319,46 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
 
         try {
             Scan scan = new Scan(scanMessage.getStartRow().toByteArray(), scanMessage.getStopRow().toByteArray());
-            Filter f = Filter.parseFrom(scanMessage.getFilter().toByteArray());
+            scan.setAttribute(OperationAttributesIdentifiers.RequestIdentifier,  scanMessage.getRequestID().toByteArray());
+            scan.setAttribute(OperationAttributesIdentifiers.TargetPlayer, (""+scanMessage.getTargetPlayer()).getBytes());
+            Filter f = SingleColumnValueFilter.parseFrom(scanMessage.getFilter().toByteArray());
             scan.setFilter(f);
             String table = env.getRegion().getTableDesc().getNameAsString();
             RegionScanner scanner = secretScanSearchWithFilter(scan, env, table);
-            Smpc.Results.Builder resBuilder = Smpc.Results.newBuilder();
 
             List<List<Cell>> results = new ArrayList<List<Cell>>();
             List<Cell>  row = new ArrayList<Cell>();
+            Smpc.Results.Builder resBuilder = Smpc.Results.newBuilder();
 
-            while(scanner.next(row)){
-                Smpc.Row.Builder rowBuilder = Smpc.Row.newBuilder();
+            boolean run = true;
+            do{
+                run = scanner.next(row);
+                if(!row.isEmpty()){
+                    results.add(row);
+                }
+                row = new ArrayList<Cell>();
 
-                for(Cell cell: row){
-                    rowBuilder.addCells(ByteString.copyFrom(cell.getValueArray()));
+            } while(run);
+
+            LOG.debug("Results size " + results.size() + " is empty");
+            for(List<Cell> resRow : results){
+                Smpc.Row.Builder  rowBuilder  = Smpc.Row.newBuilder();
+                for(Cell cell: resRow){
+                    LOG.debug("Generating cell");
+                    Smpc.Cell.Builder cellBuilder = Smpc.Cell.newBuilder();
+                    cellBuilder.setColumnFamily(ByteString.copyFrom(CellUtil.cloneFamily(cell)));
+                    cellBuilder.setColumnQualifier(ByteString.copyFrom(CellUtil.cloneQualifier(cell)));
+                    cellBuilder.setTimestamp(cell.getTimestamp());
+                    cellBuilder.setRow(ByteString.copyFrom(CellUtil.cloneRow(cell)));
+                    cellBuilder.setValue(ByteString.copyFrom(CellUtil.cloneValue(cell)));
+                    byte[] type = new byte[1];
+                    type[0] = cell.getTypeByte();
+                    cellBuilder.setType(ByteString.copyFrom(type));
+                    rowBuilder.addCells(cellBuilder.build());
                 }
                 resBuilder.addRows(rowBuilder.build());
-                row = new ArrayList<Cell>();
             }
             rpcCallback.run(resBuilder.build());
-
 
         } catch (IOException | DeserializationException e) {
             LOG.debug(e);
