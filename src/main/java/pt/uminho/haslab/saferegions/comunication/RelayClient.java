@@ -60,12 +60,12 @@ public class RelayClient extends Thread {
 
 	}
 
-	public void sendProtocolResults(ResultsMessage msg) throws IOException {
+	public synchronized void sendProtocolResults(ResultsMessage msg) throws IOException {
 		messagesAskedToSend.addAndGet(1);
 		sendToClient(1, msg.toByteArray());
 	}
 
-	public void sendProtocolResults(IntResultsMessage msg) throws IOException {
+	public synchronized void sendProtocolResults(IntResultsMessage msg) throws IOException {
 		//LOG.debug("Send IntResultsMessage");
 
 		messagesAskedToSend.addAndGet(1);
@@ -73,7 +73,7 @@ public class RelayClient extends Thread {
 	}
 
 
-	public void sendFilteredIndexes(FilterIndexMessage msg) throws IOException {
+	public synchronized void sendFilteredIndexes(FilterIndexMessage msg) throws IOException {
 		messagesAskedToSend.addAndGet(1);
 		sendToClient(2, msg.toByteArray());
 	}
@@ -83,12 +83,12 @@ public class RelayClient extends Thread {
 	 * is the only Exception, which can be invoked by multiple clients and thus
 	 * needs to be synchronized.
 	 * */
-	public void sendBatchMessages(BatchShareMessage msgs) throws IOException {
+	public synchronized void sendBatchMessages(BatchShareMessage msgs) throws IOException {
 		messagesAskedToSend.addAndGet(1);
 		sendToClient(3, msgs.toByteArray());
 	}
 
-	public void sendBatchMessages(CIntBatchShareMessage msgs) throws IOException {
+	public synchronized  void sendBatchMessages(CIntBatchShareMessage msgs) throws IOException {
 		messagesAskedToSend.addAndGet(1);
 		sendToClient(4, msgs.toByteArray());
 	}
@@ -176,4 +176,11 @@ public class RelayClient extends Thread {
 
 	}
 
+	public int getTargetPort() {
+		return targetPort;
+	}
+
+	public String getTargetAddress() {
+		return targetAddress;
+	}
 }

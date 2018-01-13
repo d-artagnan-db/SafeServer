@@ -226,7 +226,7 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
         byte[] regionID = env.getRegion().getStartKey();
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Region Request unique identifier has requestID " + new String(requestID) + " and regionID " + new String(regionID));
+            LOG.debug("Region Request unique identifier has requestID " + Arrays.toString(requestID) + " and regionID " + Arrays.toString(regionID));
         }
 
         return new RequestIdentifier(requestID, regionID);
@@ -240,15 +240,21 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
 
 
         RequestIdentifier ident = getRequestIdentifier(op, env);
+        LOG.debug("Going to registerRequest");
         relay.registerRequest(ident);
         Player player = getPlayer(ident);
         byte[] startRow = op.getStartRow();
         byte[] stopRow = op.getStopRow();
+        byte[] regionStartKey = env.getRegion().getStartKey();
+        byte[] regionEndKey = env.getRegion().getEndKey();
 
         if (LOG.isDebugEnabled()) {
+            String requestID = Arrays
+                    .toString(ident.getRequestID());
+            String regionID = Arrays.toString(ident.getRegionID());
             LOG.debug(player.getPlayerID() + " has scan with "
                     + Arrays.toString(startRow) + ", " + Arrays.toString(stopRow)
-                    + ", " + op.getFilter());
+                    + ", " + op.getFilter() + " and has identifier with identifier " + requestID+":"+regionID);
         }
 
         checkTargetPlayer(player, op);
@@ -258,9 +264,8 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
             LOG.debug("Is player targetPlayer " + ((ContextPlayer) player).isTargetPlayer());
             LOG.debug("Returning SecureRegionScanner");
         }
-
         return new SecureRegionScanner(env, player, this.searchConf,
-                startRow, stopRow, tSchema, op);
+                startRow, stopRow, regionStartKey, regionEndKey, tSchema, op);
     }
 
     private void validateOperationAttributes(OperationWithAttributes op) {
@@ -340,11 +345,11 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
 
             } while(run);
 
-            LOG.debug("Results size " + results.size() + " is empty");
+           // LOG.debug("Results size " + results.size() + " is empty");
             for(List<Cell> resRow : results){
                 Smpc.Row.Builder  rowBuilder  = Smpc.Row.newBuilder();
                 for(Cell cell: resRow){
-                    LOG.debug("Generating cell");
+                    //LOG.debug("Generating cell");
                     Smpc.Cell.Builder cellBuilder = Smpc.Cell.newBuilder();
                     cellBuilder.setColumnFamily(ByteString.copyFrom(CellUtil.cloneFamily(cell)));
                     cellBuilder.setColumnQualifier(ByteString.copyFrom(CellUtil.cloneQualifier(cell)));

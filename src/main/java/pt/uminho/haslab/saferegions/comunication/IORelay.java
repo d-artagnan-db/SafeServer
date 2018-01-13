@@ -10,6 +10,7 @@ import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
 import pt.uminho.haslab.saferegions.discovery.*;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 public class IORelay implements Relay {
@@ -99,6 +100,19 @@ public class IORelay implements Relay {
 		try {
 			List<RegionLocation> locations = this.discoveryService
 					.discoverRegions(requestIdentifier);
+
+			/*if(LOG.isDebugEnabled()){
+
+                String requestID = Arrays
+                        .toString(requestIdentifier.getRequestID());
+                String regionID = Arrays.toString(requestIdentifier.getRegionID());
+                String request =  requestID+":"+regionID;
+
+                for(RegionLocation location: locations){
+                    LOG.debug("For request " + request + " found region " + location.getIp()+":"+location.getPort());
+                }
+
+            }*/
 			for (RegionLocation location : locations) {
 				if (location.getPlayerID() == playerID) {
 					//LOG.debug("Location PlayerID " + location.getPlayerID() + " - " + location.getIp() + ":" + location.getPort());
@@ -114,20 +128,28 @@ public class IORelay implements Relay {
 		return client;
 	}
 
-	public synchronized void sendBatchMessages(BatchShareMessage msg)
+	public void sendBatchMessages(BatchShareMessage msg)
 			throws IOException {
 		RequestIdentifier ident = new RequestIdentifier(msg.getRequestID()
 				.toByteArray(), msg.getRegionID().toByteArray());
-		getTargetClient(msg.getPlayerDest(), ident).sendBatchMessages(msg);
+        getTargetClient(msg.getPlayerDest(), ident).sendBatchMessages(msg);
 	}
 
-	public synchronized  void sendBatchMessages(CIntBatchShareMessage msg) throws IOException {
-
-        getTargetClient(msg.getPlayerDest(), msg.getRequestID()).sendBatchMessages(msg);
+	public void sendBatchMessages(CIntBatchShareMessage msg) throws IOException {
+       /*if(LOG.isDebugEnabled()) {
+		   RequestIdentifier ident = msg.getRequestID();
+		   String requestID = Arrays
+				   .toString(ident.getRequestID());
+		   String regionID = Arrays.toString(ident.getRegionID());
+		   String request =  requestID+":"+regionID;
+           LOG.debug(msg.getSourcePlayer() + " is going to send message to " + msg.getPlayerDest() + " which is located at " + client.getTargetAddress() + ":" + client.getTargetPort() + " for request " + request );
+        }*/
+        RelayClient client =  getTargetClient(msg.getPlayerDest(), msg.getRequestID());
+        client.sendBatchMessages(msg);
 
 	}
 
-	public synchronized void sendProtocolResults(ResultsMessage msg)
+	public void sendProtocolResults(ResultsMessage msg)
 			throws IOException {
 		RequestIdentifier ident = new RequestIdentifier(msg.getRequestID()
 				.toByteArray(), msg.getRegionID().toByteArray());
@@ -141,7 +163,7 @@ public class IORelay implements Relay {
         getTargetClient(msg.getPlayerDest(), ident).sendProtocolResults(msg);
     }
 
-    public synchronized void sendFilteredIndexes(FilterIndexMessage msg)
+    public void sendFilteredIndexes(FilterIndexMessage msg)
 			throws IOException {
 		RequestIdentifier ident = new RequestIdentifier(msg.getRequestID()
 				.toByteArray(), msg.getRegionID().toByteArray());
@@ -153,7 +175,7 @@ public class IORelay implements Relay {
 		discoveryService.registerRegion(requestIdentifier);
 	}
 
-	public void unregisterRequest(RequestIdentifier requestIdentifier) {
+	public synchronized void unregisterRequest(RequestIdentifier requestIdentifier) {
 		discoveryService.unregisterRegion(requestIdentifier);
 	}
 

@@ -253,6 +253,13 @@ public class ContextPlayer implements Player, SharemindPlayer {
     @Override
     public int[] getIntValues(Integer originPlayerId) {
 
+	    /*if(LOG.isDebugEnabled()){
+			String reqID = Arrays
+					.toString(requestID.getRequestID());
+			String regionID = Arrays.toString(requestID.getRegionID());
+			String request =  requestID+":"+regionID;
+		    LOG.debug(playerID + " is waiting for message from " + originPlayerId + " for request " + request);
+	    }*/
         /**
          * First check for messages already stored when reading another value.
          * Since values are not received in order, the player may read a value
@@ -268,6 +275,13 @@ public class ContextPlayer implements Player, SharemindPlayer {
                     .getReceivedBatchMessagesInt(requestID);
 
             while (messages.peek() == null) {
+				/*if(LOG.isDebugEnabled()) {
+					String reqID = Arrays
+							.toString(requestID.getRequestID());
+					String regionID = Arrays.toString(requestID.getRegionID());
+					String request =  reqID+":"+regionID;
+					LOG.debug(playerID + " is waiting for message on loop from " + originPlayerId + " for request " + request );
+				}*/
                 broker.waitNewBatchMessage(requestID);
             }
 

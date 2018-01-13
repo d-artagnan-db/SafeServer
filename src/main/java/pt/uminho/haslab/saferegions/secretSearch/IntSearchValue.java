@@ -67,7 +67,7 @@ public class IntSearchValue  extends SearchValue{
 			 * e.g: Values = [val1, val1, val1] cmpValues = [val2, val3, val4]
 			 * In this example val1 is compared to every other value.
 			 */
-			LOG.debug("Going to generate values");
+			//LOG.debug("Going to generate values");
 
             if (value.size() == 1 && cmpValues.size() > 1) {
                 // If there is only a single value replicate it

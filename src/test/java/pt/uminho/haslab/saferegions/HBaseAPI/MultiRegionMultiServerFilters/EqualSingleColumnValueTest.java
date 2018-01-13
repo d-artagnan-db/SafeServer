@@ -12,7 +12,7 @@ public class EqualSingleColumnValueTest extends EqualSingleColumnValueFilterTest
     }
 
     protected long getNumberOfRecords() {
-        return 800;
+        return 1000;
     }
 
     protected int getNumberOfRegionsServers(){

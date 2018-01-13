@@ -9,11 +9,13 @@ public class EqualSingleColumnValueTest extends EqualSingleColumnValueFilterTest
     }
 
     protected int getNumberOfRegions() {
-        return 2;
+        return 4;
     }
 
     protected long getNumberOfRecords() {
-        return 10;
+        return 1000;
     }
-
+    
+    public static void main(String[] args){
+    }
 }

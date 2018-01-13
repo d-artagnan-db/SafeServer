@@ -1,10 +1,13 @@
 package pt.uminho.haslab.saferegions.discovery;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.saferegions.comunication.RequestIdentifier;
 
 import java.util.List;
 
 public abstract class DiscoveryServiceAbs implements DiscoveryService {
+	private static final Log LOG = LogFactory.getLog(DiscoveryServiceAbs.class.getName());
 
 	protected final int playerID;
 	protected final int port;

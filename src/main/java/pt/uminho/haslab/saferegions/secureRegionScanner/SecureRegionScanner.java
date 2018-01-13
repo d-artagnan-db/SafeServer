@@ -14,8 +14,8 @@ import pt.uminho.haslab.saferegions.secretSearch.SharemindPlayer;
 import pt.uminho.haslab.smpc.interfaces.Player;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.*;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -42,21 +42,33 @@ public class SecureRegionScanner implements RegionScanner {
 	private final TableSchema schema;
 	private final SmpcConfiguration config;
 
-	private static BatchData cacheBatchData = null;
+	private final BigInteger regionIdent;
+
     private final Lock cacheDataLock = new ReentrantLock();
+    private static final Map<BigInteger, BatchData> mapBatchCachedData  = new HashMap<BigInteger, BatchData>();;
 
 
 
 
 	public SecureRegionScanner(RegionCoprocessorEnvironment env, Player player,
                                SmpcConfiguration config,
-                               byte[] scanStartRow, byte[] scanStopRow, TableSchema schema, Scan originalScan) throws IOException {
-		this.env = env;
+                               byte[] scanStartRow, byte[] scanStopRow, byte[] regionStartRow, byte[] regionStopRow, TableSchema schema, Scan originalScan) throws IOException {
+
+	    this.env = env;
 		this.player = player;
 		this.config = config;
 		batcher = new Batcher(config);
 
-		scan = new Scan(scanStartRow, scanStopRow);
+		//scan = new Scan(regionStartRow, regionStopRow);
+        scan = new Scan(scanStartRow, scanStopRow);
+		/*RowFilter scfS = new RowFilter(CompareFilter.CompareOp.GREATER_OR_EQUAL, new BinaryComparator(scanStartRow));
+        RowFilter scfK = new RowFilter(CompareFilter.CompareOp.GREATER_OR_EQUAL, new BinaryComparator(scanStopRow));
+        FilterList list = new FilterList(FilterList.Operator.MUST_PASS_ALL);
+        list.addFilter(scfS);
+        list.addFilter(scfK);
+
+        scan.setFilter(list);*/
+
 		scanner = env.getRegion().getScanner(scan);
 
 		resultsCache = new BatchCache();
@@ -66,6 +78,16 @@ public class SecureRegionScanner implements RegionScanner {
 
 		handler = new HandleSafeFilter(schema);
 		handler.processFilter(originalScan.getFilter());
+
+
+		if(regionStartRow.length == 0){
+		    this.regionIdent = BigInteger.ZERO;
+        }else{
+            this.regionIdent = new BigInteger(regionStartRow);
+
+        }
+
+
 	}
 
 	public HRegionInfo getRegionInfo() {
@@ -120,7 +142,8 @@ public class SecureRegionScanner implements RegionScanner {
             List<List<Cell>> fRows = new ArrayList<List<Cell>>();
 
 			do {
-			    if(config.isCachedData() && cacheBatchData != null){
+			    if(config.isCachedData() && mapBatchCachedData.containsKey(regionIdent)){
+			        BatchData cacheBatchData = mapBatchCachedData.get(regionIdent);
                     List<List<Cell>> batch = cacheBatchData.getRows();
                     fRows = this.handler.filterBatch(batch, cacheBatchData.getColumnValues(), cacheBatchData.getRowIDs() ,  (SharemindPlayer) player);
 
@@ -141,8 +164,8 @@ public class SecureRegionScanner implements RegionScanner {
                         if(config.isCachedData()){
                             cacheDataLock.lock();
 
-                            if(cacheBatchData == null){
-                                cacheBatchData = batchData;
+                            if(!mapBatchCachedData.containsKey(regionIdent)){
+                                mapBatchCachedData.put(regionIdent, batchData);
                             }
                             cacheDataLock.unlock();
 

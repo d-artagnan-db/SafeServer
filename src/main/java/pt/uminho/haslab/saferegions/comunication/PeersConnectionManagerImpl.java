@@ -30,10 +30,7 @@ public class PeersConnectionManagerImpl implements PeersConnectionManager {
 			RelayClient client = new RelayClient(playerBindPort, host, port);
 			try {
 				client.connectToTarget();
-			} catch (InterruptedException e) {
-				LOG.error(e);
-				throw new IllegalStateException(e);
-			} catch (IOException e) {
+			} catch (InterruptedException | IOException e) {
 				LOG.error(e);
 				throw new IllegalStateException(e);
 			}

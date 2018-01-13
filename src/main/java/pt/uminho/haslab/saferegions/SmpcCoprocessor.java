@@ -26,6 +26,7 @@ import pt.uminho.haslab.smpc.interfaces.Player;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -242,6 +243,9 @@ public class SmpcCoprocessor extends BaseRegionObserver {
 		Player player = getPlayer(ident);
 		byte[] startRow = op.getStartRow();
 		byte[] stopRow = op.getStopRow();
+		byte[] regionStartKey = env.getRegion().getStartKey();
+		byte[] regionEndKey = env.getRegion().getEndKey();
+
 
         if (LOG.isDebugEnabled()) {
             LOG.debug(player.getPlayerID() + " has scan with "
@@ -257,8 +261,9 @@ public class SmpcCoprocessor extends BaseRegionObserver {
             LOG.debug("Returning SecureRegionScanner");
         }
 
+
 		return new SecureRegionScanner(env, player, this.searchConf,
-                    startRow, stopRow, tSchema, op);
+                    startRow, stopRow, regionStartKey, regionEndKey, tSchema, op);
 	}
 
     private void validateOperationAttributes(OperationWithAttributes op) {
@@ -355,7 +360,6 @@ public class SmpcCoprocessor extends BaseRegionObserver {
         }
         if (scanType != null) {
             String table = env.getRegion().getTableDesc().getNameAsString();
-
 			switch (scanType) {
 				case ProtectedIdentifierGet:
 					throw new IllegalArgumentException(

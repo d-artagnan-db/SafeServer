@@ -8,6 +8,7 @@ import pt.uminho.haslab.protocommunication.Search.IntResultsMessage;
 import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
 import pt.uminho.haslab.saferegions.protocolresults.FilteredIndexes;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -93,6 +94,14 @@ public class SharemindMessageBroker implements MessageBroker {
     public void receiveBatchMessage(CIntBatchShareMessage message) {
         lock.lock();
         RequestIdentifier requestID = message.getRequestID();
+
+		/*if(LOG.isDebugEnabled()) {
+			String reqID = Arrays
+					.toString(requestID.getRequestID());
+			String regionID = Arrays.toString(requestID.getRegionID());
+			String request =  reqID+":"+regionID;
+			LOG.debug(message.getPlayerDest() + " received player from " + message.getSourcePlayer() + " for request " + request );
+		}*/
         try {
             protocolBatchMessagesLocks.lockOnRequest(requestID);
             lock.unlock();
