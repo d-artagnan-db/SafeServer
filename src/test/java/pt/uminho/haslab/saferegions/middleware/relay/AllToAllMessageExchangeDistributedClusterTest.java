@@ -5,7 +5,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import pt.uminho.haslab.protocommunication.Search;
 import pt.uminho.haslab.saferegions.comunication.*;
 import pt.uminho.haslab.saferegions.discovery.DiscoveryService;
 import pt.uminho.haslab.saferegions.discovery.FailedRegionDiscovery;
@@ -125,13 +124,19 @@ public class AllToAllMessageExchangeDistributedClusterTest
 			receivedMessages = new ArrayList<byte[]>();
 		}
 
+
 		public void receiveTestMessage(byte[] message) {
 			LOG.debug("ReceivedMessage");
 			receivedMessages.add(message);
 		}
 
+        @Override
+        public Queue<CLongBatchShareMessage> getReceivedBatchMessagesLong(RequestIdentifier requestId) {
+            return null;
+        }
+
         public String getServerBindingAddress() {
-			return serverBindingAddress;
+            return serverBindingAddress;
 		}
 
 		public int getServerBindingPort() {

@@ -115,4 +115,19 @@ public abstract class ConcurrentBatchTestPlayer extends Thread
 	public int[] getIntValues(Integer integer) {
 		return player.getIntValues(integer);
 	}
+
+    @Override
+    public void storeValues(Integer integer, Integer integer1, long[] ints) {
+        player.storeValues(integer, integer1, ints);
+    }
+
+    @Override
+    public void sendValueToPlayer(Integer integer, long[] longs) {
+        player.sendValueToPlayer(integer, longs);
+    }
+
+    @Override
+    public long[] getLongValues(Integer integer) {
+        return player.getLongValues(integer);
+    }
 }

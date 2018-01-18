@@ -3,11 +3,7 @@ package pt.uminho.haslab.saferegions.comunication;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import pt.uminho.haslab.protocommunication.Search;
-import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
-import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
-import pt.uminho.haslab.protocommunication.Search.IntResultsMessage;
-import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
+import pt.uminho.haslab.protocommunication.Search.*;
 
 import java.io.*;
 import java.net.Socket;
@@ -62,16 +58,22 @@ public class Client extends Thread {
 				break;
 			}
 			case 4 : {
-				//LOG.debug("Client received Int Batch Share Handler ");
 				new IntBatchShareHandler(message).handle();
 				break;
 			}
 			case 5 : {
-               // LOG.debug("Client received Int results handler ");
                 new IntResultsHandler(message).handle();
 				break;
 			}
-			// Message issued to close connection.
+            case 6: {
+                new LongBatchShareHandler(message).handle();
+                break;
+            }
+            case 7: {
+                new LongResultsHandler(message).handle();
+                break;
+            }
+            // Message issued to close connection.
 			case 99 : {
 				LOG.debug("Received message to close " + clientSocket.getPort());
 				toClose = true;
@@ -188,8 +190,28 @@ public class Client extends Thread {
 
 	}
 
+    private class LongResultsHandler extends MessageHandler {
 
-	private class FilterIndexHandler extends MessageHandler {
+        public LongResultsHandler(byte[] msg) {
+            super(msg);
+        }
+
+        @Override
+        public void handle() {
+            try {
+                LongResultsMessage message = LongResultsMessage.parseFrom(msg);
+                broker.receiveProtocolResults(message);
+            } catch (InvalidProtocolBufferException ex) {
+                LOG.error(ex);
+                throw new IllegalStateException(ex);
+            }
+
+        }
+
+    }
+
+
+    private class FilterIndexHandler extends MessageHandler {
 
 		public FilterIndexHandler(byte[] msg) {
 			super(msg);
@@ -240,6 +262,18 @@ public class Client extends Thread {
 	}
 
 
+    private class LongBatchShareHandler extends MessageHandler {
+
+        public LongBatchShareHandler(byte[] msg) {
+            super(msg);
+        }
+
+        @Override
+        public void handle() {
+            CLongBatchShareMessage message = CLongBatchShareMessage.parseFrom(msg);
+            broker.receiveBatchMessage(message);
+        }
+    }
 
 	private class TestMessageHandler extends MessageHandler {
 

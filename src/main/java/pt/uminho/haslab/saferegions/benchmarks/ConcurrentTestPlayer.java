@@ -9,7 +9,7 @@ import pt.uminho.haslab.saferegions.secretSearch.ContextPlayer;
 import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
 import pt.uminho.haslab.smpc.interfaces.Player;
 import pt.uminho.haslab.smpc.interfaces.Secret;
-import pt.uminho.haslab.smpc.sharemindImp.SharemindSecret;
+import pt.uminho.haslab.smpc.sharemindImp.BigInteger.SharemindSecret;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

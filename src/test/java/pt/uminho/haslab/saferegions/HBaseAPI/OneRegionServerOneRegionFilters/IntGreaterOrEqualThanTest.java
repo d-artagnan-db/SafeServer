@@ -6,11 +6,11 @@ import pt.uminho.haslab.smpc.helpers.RandomGenerator;
 
 import java.util.HashMap;
 
-public class IntEqualSingleColumnValueFilerTest extends AbsSingleColumnValueFilterTest {
+public class IntGreaterOrEqualThanTest extends AbsSingleColumnValueFilterTest {
 
-    public IntEqualSingleColumnValueFilerTest() throws Exception {
+    public IntGreaterOrEqualThanTest() throws Exception {
         super();
-        RandomGenerator.initLongBatch(100);
+        RandomGenerator.initIntBatch(100);
     }
 
 
@@ -29,10 +29,8 @@ public class IntEqualSingleColumnValueFilerTest extends AbsSingleColumnValueFilt
         return 100;
     }
 
-
     @Override
     CompareFilter.CompareOp getComparator() {
-        return CompareFilter.CompareOp.EQUAL;
+        return CompareFilter.CompareOp.GREATER_OR_EQUAL;
     }
-
 }

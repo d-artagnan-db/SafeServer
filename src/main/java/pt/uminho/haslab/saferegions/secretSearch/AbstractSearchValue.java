@@ -4,12 +4,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.saferegions.protocolresults.ResultsLengthMismatch;
 import pt.uminho.haslab.smpc.interfaces.Secret;
-import pt.uminho.haslab.smpc.sharemindImp.SharemindSecret;
+import pt.uminho.haslab.smpc.sharemindImp.BigInteger.SharemindSecret;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition.*;
 
 public abstract class AbstractSearchValue implements SearchCondition {
 

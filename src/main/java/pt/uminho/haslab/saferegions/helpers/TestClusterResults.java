@@ -1,7 +1,7 @@
 package pt.uminho.haslab.saferegions.helpers;
 
 import org.apache.hadoop.hbase.client.Result;
-import pt.uminho.haslab.smpc.sharemindImp.SharemindSharedSecret;
+import pt.uminho.haslab.smpc.sharemindImp.BigInteger.SharemindSharedSecret;
 import pt.uminho.haslab.testingutils.ClusterResults;
 
 import java.math.BigInteger;

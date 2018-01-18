@@ -1,12 +1,13 @@
 package pt.uminho.haslab.saferegions.secretSearch;
 
+import pt.uminho.haslab.saferegions.SmpcConfiguration;
 import pt.uminho.haslab.saferegions.protocolresults.FilteredIndexes;
 import pt.uminho.haslab.saferegions.protocolresults.PlayerResults;
 import pt.uminho.haslab.saferegions.protocolresults.ResultsIdentifiersMismatch;
 import pt.uminho.haslab.saferegions.protocolresults.ResultsLengthMismatch;
 import pt.uminho.haslab.smpc.exceptions.InvalidNumberOfBits;
 import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
-import pt.uminho.haslab.smpc.sharemindImp.SharemindSecretFunctions;
+import pt.uminho.haslab.smpc.sharemindImp.BigInteger.SharemindSecretFunctions;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -16,8 +17,8 @@ import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Conditio
 
 public class BigIntegerSearchValue extends SearchValue {
 
-    public BigIntegerSearchValue(int nBits, List<byte[]> value, Condition condition) {
-        super(nBits, value, condition);
+    public BigIntegerSearchValue(int nBits, List<byte[]> value, Condition condition, SmpcConfiguration config) {
+        super(nBits, value, condition, config);
     }
 
     public void evaluateCondition(List<byte[]> cmpValues, List<byte[]> rowIDs,

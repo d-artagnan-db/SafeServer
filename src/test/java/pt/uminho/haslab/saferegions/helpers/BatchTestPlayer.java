@@ -52,7 +52,12 @@ public class BatchTestPlayer implements SharemindPlayer {
 
 	}
 
-	public BigInteger getValue(Integer originPlayerId) {
+    @Override
+    public void storeValues(Integer integer, Integer integer1, long[] longs) {
+
+    }
+
+    public BigInteger getValue(Integer originPlayerId) {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
@@ -73,12 +78,22 @@ public class BatchTestPlayer implements SharemindPlayer {
 		player.sendValueToPlayer(integer, ints);
 	}
 
-	@Override
+    @Override
+    public void sendValueToPlayer(Integer integer, long[] longs) {
+
+    }
+
+    @Override
 	public int[] getIntValues(Integer integer) {
 		return player.getIntValues(integer);
 	}
 
-	public Map<Integer, List<List<byte[]>>> getMessagesSent() {
+    @Override
+    public long[] getLongValues(Integer integer) {
+        return new long[0];
+    }
+
+    public Map<Integer, List<List<byte[]>>> getMessagesSent() {
 		return messagesSent;
 	}
 
@@ -95,7 +110,12 @@ public class BatchTestPlayer implements SharemindPlayer {
 		player.sendIntProtocolResults(dest);
 	}
 
-	public List<List<byte[]>> getProtocolResults()
+    @Override
+    public void sendLongProtocolResults(long[] dest) {
+        player.sendLongProtocolResults(dest);
+    }
+
+    public List<List<byte[]>> getProtocolResults()
 			throws ResultsLengthMismatch {
 		return player.getProtocolResults();
 	}
@@ -105,7 +125,12 @@ public class BatchTestPlayer implements SharemindPlayer {
 		return player.getIntProtocolResults();
 	}
 
-	public void cleanValues() {
+    @Override
+    public List<List<Long>> getLongProtocolResults() throws ResultsLengthMismatch {
+        return player.getLongProtocolResults();
+    }
+
+    public void cleanValues() {
 		player.cleanValues();
 	}
 

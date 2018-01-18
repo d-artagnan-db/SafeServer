@@ -87,7 +87,12 @@ public class TestPlayer implements SharemindPlayer {
 		this.player.sendIntProtocolResults(dest);
 	}
 
-	public List<List<byte[]>> getProtocolResults()
+    @Override
+    public void sendLongProtocolResults(long[] dest) {
+        this.player.sendLongProtocolResults(dest);
+    }
+
+    public List<List<byte[]>> getProtocolResults()
 			throws ResultsLengthMismatch {
 		return player.getProtocolResults();
 	}
@@ -97,7 +102,12 @@ public class TestPlayer implements SharemindPlayer {
 		return player.getIntProtocolResults();
 	}
 
-	public void cleanValues() {
+    @Override
+    public List<List<Long>> getLongProtocolResults() throws ResultsLengthMismatch {
+        return player.getLongProtocolResults();
+    }
+
+    public void cleanValues() {
 		player.cleanValues();
 	}
 
@@ -131,7 +141,12 @@ public class TestPlayer implements SharemindPlayer {
 		player.storeValues(integer, integer1, ints);
 	}
 
-	public void sendValueToPlayer(Integer destPlayer, List<byte[]> values) {
+    @Override
+    public void storeValues(Integer integer, Integer integer1, long[] longs) {
+        player.storeValues(integer, integer1, longs);
+    }
+
+    public void sendValueToPlayer(Integer destPlayer, List<byte[]> values) {
 
 		if (!batchMessagesSent.containsKey(destPlayer)) {
 			batchMessagesSent.put(destPlayer, new ArrayList<List<byte[]>>());
@@ -159,9 +174,19 @@ public class TestPlayer implements SharemindPlayer {
 		player.sendValueToPlayer(integer, ints);
 	}
 
-	@Override
+    @Override
+    public void sendValueToPlayer(Integer integer, long[] longs) {
+        player.sendValueToPlayer(integer, longs);
+    }
+
+    @Override
 	public int[] getIntValues(Integer integer) {
 		return player.getIntValues(integer);
 	}
+
+    @Override
+    public long[] getLongValues(Integer integer) {
+        return player.getLongValues(integer);
+    }
 
 }

@@ -2,8 +2,8 @@ package pt.uminho.haslab.saferegions.protocolresults;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition;
-import pt.uminho.haslab.smpc.sharemindImp.Integer.IntSharemindDealer;
+import pt.uminho.haslab.saferegions.secretSearch.SearchCondition;
+import pt.uminho.haslab.smpc.sharemindImp.Long.LongSharemindDealer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,23 +11,21 @@ import java.util.List;
 import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition.Equal;
 import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition.GreaterOrEqualThan;
 
-public class IntPlayerResults {
+public class LongPlayerResults {
 
     private static final Log LOG = LogFactory.getLog(IntPlayerResults.class
             .getName());
-    private final Condition condition;
-    private final int nBits;
-    private final List<List<Integer>> results;
+    private final SearchCondition.Condition condition;
+    private final List<List<Long>> results;
 
     /**
      * We are assuming that the class is created correctly with 3 lists inside the results list. One for each player.
      **/
-    public IntPlayerResults(List<List<Integer>> results, Condition condition,
-                         int nBits) throws ResultsLengthMismatch {
+    public LongPlayerResults(List<List<Long>> results, SearchCondition.Condition condition,
+                             int nBits) throws ResultsLengthMismatch {
 
         this.condition = condition;
         this.results = results;
-        this.nBits = nBits;
     }
 
     /**
@@ -44,21 +42,18 @@ public class IntPlayerResults {
 
         for (int i = 0; i < results.get(0).size(); i++) {
 
-            Integer bFirstSecret = results.get(0).get(i);
-            Integer bSecondSecret = results.get(1).get(i);
-            Integer bThirdSecret = results.get(2).get(i);
+            Long bFirstSecret = results.get(0).get(i);
+            Long bSecondSecret = results.get(1).get(i);
+            Long bThirdSecret = results.get(2).get(i);
 
-            int[] secrets = new int[3];
+            long[] secrets = new long[3];
             secrets[0] = bFirstSecret;
             secrets[1] = bSecondSecret;
             secrets[2] = bThirdSecret;
-            IntSharemindDealer dealer = new IntSharemindDealer();
+            LongSharemindDealer dealer = new LongSharemindDealer();
 
-            //LOG.debug("index " + i  + " protocol results are  " + Arrays.toString(secrets));
-            LOG.debug("Condition is " + condition);
             if (condition == Equal) {
-                int result = dealer.unshareBit(secrets);
-                //LOG.debug("Index " + i + " had result " + result);
+                long result = dealer.unshareBit(secrets);
                 if (result == 1) {
                     resultIDS.add(Boolean.TRUE);
                 } else {
@@ -66,8 +61,8 @@ public class IntPlayerResults {
                 }
 
             } else if (condition == GreaterOrEqualThan) {
-                int result = dealer.unshare(secrets);
-                LOG.debug("Results are " + result);
+                long result = dealer.unshare(secrets);
+
                 if (result == 0) {
                     resultIDS.add(Boolean.TRUE);
                 } else {

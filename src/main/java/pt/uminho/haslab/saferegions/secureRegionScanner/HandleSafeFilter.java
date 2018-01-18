@@ -4,7 +4,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.filter.*;
+import pt.uminho.haslab.safemapper.DatabaseSchema;
 import pt.uminho.haslab.safemapper.TableSchema;
+import pt.uminho.haslab.saferegions.SmpcConfiguration;
 import pt.uminho.haslab.saferegions.secretSearch.*;
 import pt.uminho.haslab.saferegions.secureFilters.*;
 
@@ -13,7 +15,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static pt.uminho.haslab.safemapper.DatabaseSchema.CryptoType.ISMPC;
 import static pt.uminho.haslab.safemapper.DatabaseSchema.isProtectedColumn;
 
 public class HandleSafeFilter {
@@ -36,11 +37,14 @@ public class HandleSafeFilter {
 
     private SecureFilter secureFilter;
 
+    private SmpcConfiguration config;
 
-    public HandleSafeFilter(TableSchema schema) {
+
+    public HandleSafeFilter(TableSchema schema, SmpcConfiguration config) {
         this.schema = schema;
         safeFilters = new HashMap<Column, List<SearchCondition>>();
         foundInvalidRecord = false;
+        this.config = config;
     }
 
     public void processFilter(Filter inputFilter) {
@@ -183,16 +187,26 @@ public class HandleSafeFilter {
 
             int nBits = getColumnFormatSize(family, qualifier);
 
-            boolean isTypeInteger = schema.getCryptoTypeFromQualifier(sFamily, sQualifier) == ISMPC;
+            DatabaseSchema.CryptoType ctype = schema.getCryptoTypeFromQualifier(sFamily, sQualifier);
             SearchConditionFactory factory;
             String log;
 
-            if (isTypeInteger) {
-                log = "IntSearchConditionFactory";
-                factory = new IntSearchConditionFactory(cond, nBits, values);
-            } else {
-                log = "BigIntegerSearchConditionFactory";
-                factory = new BigIntegerSearchConditionFactory(cond, nBits, values);
+            switch (ctype) {
+
+                case ISMPC:
+                    log = "IntSearchConditionFactory";
+                    factory = new IntSearchConditionFactory(cond, nBits, values, config);
+                    break;
+                case LSMPC:
+                    log = "LongSearchConditionFactory";
+                    factory = new LongSearchConditionFactory(cond, nBits, values, config);
+                    break;
+                case SMPC:
+                    log = "BigIntegerSearchConditionFactory";
+                    factory = new BigIntegerSearchConditionFactory(cond, nBits, values, config);
+                    break;
+                default:
+                    throw new IllegalStateException("CType not recognized");
             }
 
             if (LOG.isDebugEnabled()) {

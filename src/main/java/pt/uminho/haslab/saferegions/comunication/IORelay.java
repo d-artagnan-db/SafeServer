@@ -2,15 +2,10 @@ package pt.uminho.haslab.saferegions.comunication;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
-import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
-import pt.uminho.haslab.protocommunication.Search.IntResultsMessage;
-import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
-
+import pt.uminho.haslab.protocommunication.Search.*;
 import pt.uminho.haslab.saferegions.discovery.*;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 public class IORelay implements Relay {
@@ -136,20 +131,18 @@ public class IORelay implements Relay {
 	}
 
 	public void sendBatchMessages(CIntBatchShareMessage msg) throws IOException {
-       /*if(LOG.isDebugEnabled()) {
-		   RequestIdentifier ident = msg.getRequestID();
-		   String requestID = Arrays
-				   .toString(ident.getRequestID());
-		   String regionID = Arrays.toString(ident.getRegionID());
-		   String request =  requestID+":"+regionID;
-           LOG.debug(msg.getSourcePlayer() + " is going to send message to " + msg.getPlayerDest() + " which is located at " + client.getTargetAddress() + ":" + client.getTargetPort() + " for request " + request );
-        }*/
         RelayClient client =  getTargetClient(msg.getPlayerDest(), msg.getRequestID());
         client.sendBatchMessages(msg);
 
 	}
 
-	public void sendProtocolResults(ResultsMessage msg)
+    @Override
+    public void sendBatchMessages(CLongBatchShareMessage msg) throws IOException {
+        RelayClient client = getTargetClient(msg.getPlayerDest(), msg.getRequestID());
+        client.sendBatchMessages(msg);
+    }
+
+    public void sendProtocolResults(ResultsMessage msg)
 			throws IOException {
 		RequestIdentifier ident = new RequestIdentifier(msg.getRequestID()
 				.toByteArray(), msg.getRegionID().toByteArray());
@@ -163,8 +156,15 @@ public class IORelay implements Relay {
         getTargetClient(msg.getPlayerDest(), ident).sendProtocolResults(msg);
     }
 
+    @Override
+    public void sendProtocolResults(LongResultsMessage msg) throws IOException {
+        RequestIdentifier ident = new RequestIdentifier(msg.getRequestID()
+                .toByteArray(), msg.getRegionID().toByteArray());
+        getTargetClient(msg.getPlayerDest(), ident).sendProtocolResults(msg);
+    }
+
     public void sendFilteredIndexes(FilterIndexMessage msg)
-			throws IOException {
+            throws IOException {
 		RequestIdentifier ident = new RequestIdentifier(msg.getRequestID()
 				.toByteArray(), msg.getRegionID().toByteArray());
 		getTargetClient(msg.getPlayerDest(), ident).sendFilteredIndexes(msg);

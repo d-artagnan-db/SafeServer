@@ -15,7 +15,10 @@ import pt.uminho.haslab.smpc.interfaces.Player;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -59,15 +62,7 @@ public class SecureRegionScanner implements RegionScanner {
 		this.config = config;
 		batcher = new Batcher(config);
 
-		//scan = new Scan(regionStartRow, regionStopRow);
         scan = new Scan(scanStartRow, scanStopRow);
-		/*RowFilter scfS = new RowFilter(CompareFilter.CompareOp.GREATER_OR_EQUAL, new BinaryComparator(scanStartRow));
-        RowFilter scfK = new RowFilter(CompareFilter.CompareOp.GREATER_OR_EQUAL, new BinaryComparator(scanStopRow));
-        FilterList list = new FilterList(FilterList.Operator.MUST_PASS_ALL);
-        list.addFilter(scfS);
-        list.addFilter(scfK);
-
-        scan.setFilter(list);*/
 
 		scanner = env.getRegion().getScanner(scan);
 
@@ -76,8 +71,8 @@ public class SecureRegionScanner implements RegionScanner {
 
         this.schema = schema;
 
-		handler = new HandleSafeFilter(schema);
-		handler.processFilter(originalScan.getFilter());
+        handler = new HandleSafeFilter(schema, config);
+        handler.processFilter(originalScan.getFilter());
 
 
 		if(regionStartRow.length == 0){

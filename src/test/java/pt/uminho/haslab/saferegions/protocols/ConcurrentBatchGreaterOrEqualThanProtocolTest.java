@@ -9,7 +9,7 @@ import pt.uminho.haslab.saferegions.helpers.ConcurrentBatchProtocolTest;
 import pt.uminho.haslab.saferegions.helpers.ConcurrentBatchTestPlayer;
 import pt.uminho.haslab.smpc.exceptions.InvalidNumberOfBits;
 import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
-import pt.uminho.haslab.smpc.sharemindImp.SharemindSecretFunctions;
+import pt.uminho.haslab.smpc.sharemindImp.BigInteger.SharemindSecretFunctions;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -66,6 +66,7 @@ public class ConcurrentBatchGreaterOrEqualThanProtocolTest
 				throw new IllegalStateException(invalidSecretValue);
 			}
 		}
-	}
+
+    }
 
 }

@@ -1,11 +1,12 @@
 package pt.uminho.haslab.saferegions.helpers;
 
-import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
+import pt.uminho.haslab.protocommunication.Search;
+import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
 import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
 import pt.uminho.haslab.protocommunication.Search.IntResultsMessage;
-import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
-
+import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
 import pt.uminho.haslab.saferegions.comunication.CIntBatchShareMessage;
+import pt.uminho.haslab.saferegions.comunication.CLongBatchShareMessage;
 import pt.uminho.haslab.saferegions.comunication.MessageBroker;
 import pt.uminho.haslab.saferegions.comunication.RequestIdentifier;
 
@@ -140,6 +141,37 @@ public abstract class TestMessageBroker implements MessageBroker {
 
     @Override
     public Queue<CIntBatchShareMessage> getReceivedBatchMessagesInt(RequestIdentifier requestId) {
+        throw new UnsupportedOperationException(
+                "Method not currently supported on testing framework");
+    }
+
+    @Override
+    public void receiveProtocolResults(Search.LongResultsMessage message) {
+        throw new UnsupportedOperationException(
+                "Method not currently supported on testing framework");
+    }
+
+    @Override
+    public Queue<Search.LongResultsMessage> getLongProtocolResults(RequestIdentifier requestID) {
+        throw new UnsupportedOperationException(
+                "Method not currently supported on testing framework");
+    }
+
+    @Override
+    public void longProtocolResultsRead(RequestIdentifier requestID) {
+        throw new UnsupportedOperationException(
+                "Method not currently supported on testing framework");
+
+    }
+
+    @Override
+    public void receiveBatchMessage(CLongBatchShareMessage message) {
+        throw new UnsupportedOperationException(
+                "Method not currently supported on testing framework");
+    }
+
+    @Override
+    public Queue<CLongBatchShareMessage> getReceivedBatchMessagesLong(RequestIdentifier requestId) {
         throw new UnsupportedOperationException(
                 "Method not currently supported on testing framework");
     }

@@ -1,9 +1,7 @@
 package pt.uminho.haslab.saferegions.comunication;
 
-import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
-import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
-import pt.uminho.haslab.protocommunication.Search.IntResultsMessage;
-import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
+import pt.uminho.haslab.protocommunication.Search;
+import pt.uminho.haslab.protocommunication.Search.*;
 
 import java.util.Queue;
 
@@ -13,7 +11,9 @@ public interface MessageBroker {
 
     void receiveProtocolResults(IntResultsMessage message);
 
-	void receiveFilterIndex(FilterIndexMessage message);
+    void receiveProtocolResults(LongResultsMessage message);
+
+    void receiveFilterIndex(FilterIndexMessage message);
 
 	void relayStarted();
 
@@ -23,7 +23,9 @@ public interface MessageBroker {
 
 	Queue<IntResultsMessage> getIntProtocolResults(RequestIdentifier requestID);
 
-	FilterIndexMessage getFilterIndexes(RequestIdentifier requestID);
+    Queue<Search.LongResultsMessage> getLongProtocolResults(RequestIdentifier requestID);
+
+    FilterIndexMessage getFilterIndexes(RequestIdentifier requestID);
 
 	void allResultsRead(RequestIdentifier requestID);
 
@@ -31,13 +33,18 @@ public interface MessageBroker {
 
     void intProtocolResultsRead(RequestIdentifier requestID);
 
-	void allIndexesMessagesRead(RequestIdentifier requestID);
+    void longProtocolResultsRead(RequestIdentifier requestID);
+
+
+    void allIndexesMessagesRead(RequestIdentifier requestID);
 
 	void indexMessageRead(RequestIdentifier requestID);
 
 	void receiveBatchMessage(CIntBatchShareMessage message);
 
-	void receiveBatchMessage(BatchShareMessage message);
+    void receiveBatchMessage(CLongBatchShareMessage message);
+
+    void receiveBatchMessage(BatchShareMessage message);
 
 	void receiveTestMessage(byte[] message);
 
@@ -47,10 +54,14 @@ public interface MessageBroker {
     Queue<CIntBatchShareMessage> getReceivedBatchMessagesInt(
             RequestIdentifier requestId);
 
+    Queue<CLongBatchShareMessage> getReceivedBatchMessagesLong(
+            RequestIdentifier requestId);
+
 	void waitNewBatchMessage(RequestIdentifier requestID)
 			throws InterruptedException;
 
 	void allBatchMessagesRead(RequestIdentifier requestID);
 
 	void readBatchMessages(RequestIdentifier requestID);
+
 }

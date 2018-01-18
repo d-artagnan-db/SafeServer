@@ -1,6 +1,5 @@
 package pt.uminho.haslab.saferegions.secretSearch;
 
-import org.apache.hadoop.hbase.client.ResultScanner;
 import pt.uminho.haslab.saferegions.protocolresults.FilteredIndexes;
 import pt.uminho.haslab.saferegions.protocolresults.ResultsLengthMismatch;
 import pt.uminho.haslab.smpc.interfaces.Player;
@@ -19,6 +18,8 @@ public interface SharemindPlayer extends Player {
 
     void sendIntProtocolResults(int[] dest);
 
+    void sendLongProtocolResults(long[] dest);
+
 
     /**
 	 * This function accepts the local results, retrieves the results from the
@@ -32,7 +33,9 @@ public interface SharemindPlayer extends Player {
 
     List<List<Integer>> getIntProtocolResults() throws ResultsLengthMismatch;
 
-	void cleanValues();
+    List<List<Long>> getLongProtocolResults() throws ResultsLengthMismatch;
+
+    void cleanValues();
 
 	void cleanResultsMatch();
 

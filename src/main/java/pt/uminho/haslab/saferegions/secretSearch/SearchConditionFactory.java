@@ -1,22 +1,24 @@
 package pt.uminho.haslab.saferegions.secretSearch;
 
+import pt.uminho.haslab.saferegions.SmpcConfiguration;
+
 import java.util.List;
 
 import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition.*;
-import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition.Equal;
-import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition.Not;
 
 public abstract class SearchConditionFactory {
 
     protected final SearchCondition.Condition op;
     protected final int nBits;
     protected final List<byte[]> value;
+    protected final SmpcConfiguration config;
 
-    public SearchConditionFactory(SearchCondition.Condition op, int nBits, List<byte[]> values){
+    public SearchConditionFactory(SearchCondition.Condition op, int nBits, List<byte[]> values, SmpcConfiguration config) {
 
         this.op = op;
         this.nBits = nBits;
         this.value = values;
+        this.config = config;
     }
 
     abstract SearchCondition  equalSearchValue();

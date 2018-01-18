@@ -1,5 +1,7 @@
 package pt.uminho.haslab.saferegions.secretSearch;
 
+import pt.uminho.haslab.saferegions.SmpcConfiguration;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,13 +18,16 @@ public abstract class SearchValue extends AbstractSearchValue {
 
 	protected  final List<Boolean> resultsList;
 
-	public SearchValue(int nBits, List<byte[]> value, Condition condition) {
-		super(condition);
+    protected final SmpcConfiguration config;
+
+    public SearchValue(int nBits, List<byte[]> value, Condition condition, SmpcConfiguration config) {
+        super(condition);
 		this.value = value;
 		this.nBits = nBits;
 		resultIndex = new HashMap<BigInteger, Boolean>();
 		resultsList = new ArrayList<Boolean>();
-	}
+        this.config = config;
+    }
 
 	public boolean getRowClassification(byte[] row) {
 		if (resultIndex.isEmpty()) {

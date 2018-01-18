@@ -15,6 +15,7 @@ import pt.uminho.haslab.safemapper.Qualifier;
 import pt.uminho.haslab.safemapper.TableSchema;
 import pt.uminho.haslab.saferegions.OperationAttributesIdentifiers;
 import pt.uminho.haslab.saferegions.SmpcConfiguration;
+import pt.uminho.haslab.smpc.helpers.RandomGenerator;
 import pt.uminho.haslab.testingutils.ClusterScanResult;
 import pt.uminho.haslab.testingutils.ValuesGenerator;
 
@@ -33,8 +34,6 @@ public abstract class AbstractClusterTest {
 
     protected static final Log LOG = LogFactory
             .getLog(AbstractClusterTest.class.getName());
-
-    private ByteBuffer byteBuffer;
 
     private Clusters clusters;
     protected SmpcConfiguration config;
@@ -62,7 +61,7 @@ public abstract class AbstractClusterTest {
         generatedValues = new HashMap<String, Map<String, List<byte[]>>>();
         qualifierColTypes = new HashMap<String, Map<String, ColType>>();
         rowIdentifiers = new ArrayList<byte[]>();
-        byteBuffer =  ByteBuffer.allocate(4);
+
     }
 
     private List<Put> generatePuts() {
@@ -88,7 +87,7 @@ public abstract class AbstractClusterTest {
 
                             boolean invalid = true;
                             do {
-                                int intVal = ValuesGenerator.randomInt();
+                                int intVal = RandomGenerator.nextInt();
                                 val = BigInteger.valueOf(intVal).toByteArray();
                                 if (val.length == 4) {
                                     /** Some integer values are small and have a byte array of length 3. Since HBase
@@ -103,10 +102,20 @@ public abstract class AbstractClusterTest {
                             } while (invalid);
                             break;
                         case INTEGER:
-                            byteBuffer.putInt((int) (Math.abs(ValuesGenerator.randomInt())%Math.pow(2, 31)));
+                            ByteBuffer byteBuffer = ByteBuffer.allocate(4);
+                            int value = RandomGenerator.nextInt();
+                            byteBuffer.putInt(value);
                             byteBuffer.flip();
                             val = byteBuffer.array();
                             byteBuffer.clear();
+                            break;
+                        case LONG:
+                            ByteBuffer lbyteBuffer = ByteBuffer.allocate(8);
+                            long lvalue = RandomGenerator.nextLong();
+                            lbyteBuffer.putLong(lvalue);
+                            lbyteBuffer.flip();
+                            val = lbyteBuffer.array();
+                            lbyteBuffer.clear();
                             break;
 
                     }
@@ -278,7 +287,7 @@ public abstract class AbstractClusterTest {
 
 
     public enum ColType {
-        STRING, INT, INTEGER
+        STRING, INT, INTEGER, LONG
     }
 
 

@@ -12,7 +12,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <smpc.version>1.2.0</smpc.version>
         <safemapper.version>1.0.0</safemapper.version>
-        <testingutilities.version>1.0.0</testingutilities.version>
+        <testingutilities.version>1.1.1</testingutilities.version>
         <protocommunication.version>1.1.0</protocommunication.version>
         <redis.version>2.9.0</redis.version>
         <relativePath>..</relativePath>

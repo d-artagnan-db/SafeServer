@@ -4,12 +4,7 @@ import com.google.protobuf.ByteString;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.protocommunication.Search;
-import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
-import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
-import pt.uminho.haslab.protocommunication.Search.IntResultsMessage;
-import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
-
-
+import pt.uminho.haslab.protocommunication.Search.*;
 import pt.uminho.haslab.saferegions.comunication.*;
 import pt.uminho.haslab.saferegions.protocolresults.FilteredIndexes;
 import pt.uminho.haslab.saferegions.protocolresults.ResultsLengthMismatch;
@@ -59,6 +54,8 @@ public class ContextPlayer implements Player, SharemindPlayer {
 
 	private final Map<Integer, Queue<int[]>> playerBatchMessagesInt;
 
+	private final Map<Integer, Queue<long[]>> playerBatchMessagesLong;
+
 	private final Search.BatchShareMessage.Builder bmBuilder;
 
 
@@ -76,8 +73,8 @@ public class ContextPlayer implements Player, SharemindPlayer {
 		this.broker = broker;
 
 		playerBatchMessages = new HashMap<Integer, Queue<List<byte[]>>>();
-
 		playerBatchMessagesInt = new HashMap<Integer, Queue<int[]>>();
+		playerBatchMessagesLong = new HashMap<Integer, Queue<long[]>>();
 
 		int[] players = getPlayerSources();
 
@@ -87,6 +84,9 @@ public class ContextPlayer implements Player, SharemindPlayer {
 
 		playerBatchMessagesInt.put(players[0], new LinkedList<int[]>());
 		playerBatchMessagesInt.put(players[1], new LinkedList<int[]>());
+
+		playerBatchMessagesLong.put(players[0], new LinkedList<long[]>());
+		playerBatchMessagesLong.put(players[1], new LinkedList<long[]>());
 
 		bmBuilder = BatchShareMessage.newBuilder();
 
@@ -167,7 +167,32 @@ public class ContextPlayer implements Player, SharemindPlayer {
         }
     }
 
-    private void sendFilteredIndexesToPlayer(int destPlayer,
+	@Override
+	public void sendLongProtocolResults(long[] dest) {
+
+		try {
+			List<Long> bsValues = new ArrayList<Long>();
+
+			for (long val : dest) {
+				bsValues.add(val);
+			}
+
+			LongResultsMessage msg = LongResultsMessage
+					.newBuilder()
+					.setPlayerSource(this.playerID)
+					.setRequestID(ByteString.copyFrom(requestID.getRequestID()))
+					.setRegionID(ByteString.copyFrom(requestID.getRegionID()))
+					.setPlayerDest(targetPlayerID).addAllValues(bsValues)
+					.build();
+
+			relay.sendProtocolResults(msg);
+		} catch (IOException ex) {
+			LOG.error(ex);
+			throw new IllegalStateException(ex);
+		}
+	}
+
+	private void sendFilteredIndexesToPlayer(int destPlayer,
 			List<ByteString> ids) throws IOException {
 		FilterIndexMessage msg = FilterIndexMessage.newBuilder()
 				.setPlayerSource(this.playerID)
@@ -253,19 +278,7 @@ public class ContextPlayer implements Player, SharemindPlayer {
     @Override
     public int[] getIntValues(Integer originPlayerId) {
 
-	    /*if(LOG.isDebugEnabled()){
-			String reqID = Arrays
-					.toString(requestID.getRequestID());
-			String regionID = Arrays.toString(requestID.getRegionID());
-			String request =  requestID+":"+regionID;
-		    LOG.debug(playerID + " is waiting for message from " + originPlayerId + " for request " + request);
-	    }*/
-        /**
-         * First check for messages already stored when reading another value.
-         * Since values are not received in order, the player may read a value
-         * from another player besides the one it is expecting from. When this
-         * happens it stores in playersMessages variable.
-         */
+
         if (!playerBatchMessagesInt.get(originPlayerId).isEmpty()) {
             return playerBatchMessagesInt.get(originPlayerId).poll();
         }
@@ -275,13 +288,7 @@ public class ContextPlayer implements Player, SharemindPlayer {
                     .getReceivedBatchMessagesInt(requestID);
 
             while (messages.peek() == null) {
-				/*if(LOG.isDebugEnabled()) {
-					String reqID = Arrays
-							.toString(requestID.getRequestID());
-					String regionID = Arrays.toString(requestID.getRegionID());
-					String request =  reqID+":"+regionID;
-					LOG.debug(playerID + " is waiting for message on loop from " + originPlayerId + " for request " + request );
-				}*/
+
                 broker.waitNewBatchMessage(requestID);
             }
 
@@ -304,20 +311,62 @@ public class ContextPlayer implements Player, SharemindPlayer {
         }
     }
 
+	@Override
+	public long[] getLongValues(Integer originPlayerId) {
+		if (!playerBatchMessagesLong.get(originPlayerId).isEmpty()) {
+			return playerBatchMessagesLong.get(originPlayerId).poll();
+		}
+
+		try {
+			Queue<CLongBatchShareMessage> messages = broker
+					.getReceivedBatchMessagesLong(requestID);
+
+			while (messages.peek() == null) {
+
+				broker.waitNewBatchMessage(requestID);
+			}
+
+			CLongBatchShareMessage shareMessage = messages.poll();
+			broker.readBatchMessages(requestID);
+
+
+			if (shareMessage.getSourcePlayer() != originPlayerId) {
+				playerBatchMessagesLong.get(shareMessage.getSourcePlayer()).add(
+						shareMessage.getValues());
+
+				return this.getLongValues(originPlayerId);
+			} else {
+				return shareMessage.getValues();
+			}
+
+		} catch (InterruptedException ex) {
+			LOG.error(ex);
+			throw new IllegalArgumentException(ex.getMessage());
+		}
+	}
+
 
 	@Override
 	public void sendValueToPlayer(Integer destPlayer, int[] ints) {
         try {
-
             CIntBatchShareMessage msg = new CIntBatchShareMessage(this.playerID, destPlayer, requestID, ints);
             relay.sendBatchMessages(msg);
-
         } catch (IOException ex) {
             LOG.error(ex);
             throw new IllegalStateException(ex);
         }
 	}
 
+	@Override
+	public void sendValueToPlayer(Integer destPlayer, long[] longs) {
+		try {
+			CLongBatchShareMessage msg = new CLongBatchShareMessage(this.playerID, destPlayer, requestID, longs);
+			relay.sendBatchMessages(msg);
+		} catch (IOException ex) {
+			LOG.error(ex);
+			throw new IllegalStateException(ex);
+		}
+	}
 
 
 	/**
@@ -353,6 +402,20 @@ public class ContextPlayer implements Player, SharemindPlayer {
 		List<List<Integer>> results = new ArrayList<List<Integer>>();
 
 		for (IntResultsMessage msg : messages) {
+			results.add(msg.getValuesList());
+		}
+		messages.clear();
+		broker.intProtocolResultsRead(requestID);
+
+		assert results.size() == 2;
+		return results;
+	}
+
+	public List<List<Long>> getLongProtocolResults() throws ResultsLengthMismatch {
+		Queue<LongResultsMessage> messages = broker.getLongProtocolResults(requestID);
+		List<List<Long>> results = new ArrayList<List<Long>>();
+
+		for (LongResultsMessage msg : messages) {
 			results.add(msg.getValuesList());
 		}
 		messages.clear();
@@ -434,8 +497,13 @@ public class ContextPlayer implements Player, SharemindPlayer {
 
 	@Override
 	public void storeValues(Integer integer, Integer integer1, int[] ints) {
-        throw new UnsupportedOperationException("Not supported yet.");
+		throw new UnsupportedOperationException("Not supported yet.");
 
+	}
+
+	@Override
+	public void storeValues(Integer integer, Integer integer1, long[] longs) {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	public void sendValueToPlayer(int playerId, BigInteger value) {

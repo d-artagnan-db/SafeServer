@@ -10,8 +10,8 @@ import pt.uminho.haslab.saferegions.comunication.RequestIdentifier;
 import pt.uminho.haslab.smpc.exceptions.InvalidNumberOfBits;
 import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
 import pt.uminho.haslab.smpc.interfaces.Dealer;
-import pt.uminho.haslab.smpc.sharemindImp.SharemindDealer;
-import pt.uminho.haslab.smpc.sharemindImp.SharemindSharedSecret;
+import pt.uminho.haslab.smpc.sharemindImp.BigInteger.SharemindDealer;
+import pt.uminho.haslab.smpc.sharemindImp.BigInteger.SharemindSharedSecret;
 import pt.uminho.haslab.testingutils.ValuesGenerator;
 
 import java.io.IOException;
@@ -22,7 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static junit.framework.TestCase.assertEquals;
+import static junit.framework.Assert.assertEquals;
+
 
 @RunWith(Parameterized.class)
 public abstract class ConcurrentBatchProtocolTest extends TestLinkedRegions {
