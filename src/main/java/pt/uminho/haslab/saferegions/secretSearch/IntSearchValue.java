@@ -96,13 +96,11 @@ public class IntSearchValue  extends SearchValue{
                 LOG.debug("Running protocol " + condition);
             }
 
-           // LOG.debug(player.getPlayerID()+ " protocol input values are  " + Arrays.toString(values) + " and stored values are "+ Arrays.toString(intCmpValues));
             if (condition == Equal) {
                 result = ssf.equal(values, intCmpValues, player);
             } else {
                 result = ssf.greaterOrEqualThan(intCmpValues, values, player);
             }
-            //LOG.debug(player.getPlayerID()+ " has result " + Arrays.toString(result));
 
             List<Integer> protoResults = new ArrayList<Integer>(result.length);
             for(int val: result){

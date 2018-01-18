@@ -100,15 +100,12 @@ public class LongSearchValue extends SearchValue {
                 LOG.debug("Running protocol " + condition + " with value " + values.length + " and cmpValues " + intCmpValues.length);
             }
 
-            LOG.debug(player.getPlayerID() + " protocol input values are  " + Arrays.toString(values) + " and stored values are " + Arrays.toString(intCmpValues));
             if (condition == Equal) {
                 result = ssf.equal(values, intCmpValues, player);
             } else {
                 result = ssf.greaterOrEqualThan(intCmpValues, values, player);
             }
 
-            LOG.debug(player.getPlayerID() + " protocol input values are  " + Arrays.toString(values) + " and stored values are " + Arrays.toString(intCmpValues));
-            LOG.debug(player.getPlayerID() + " has result " + Arrays.toString(result));
 
             List<Long> protoResults = new ArrayList<Long>(result.length);
             for (Long val : result) {
