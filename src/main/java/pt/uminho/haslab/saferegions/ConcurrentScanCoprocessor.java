@@ -93,9 +93,10 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
 
                 //init smpc cache of random BigIntegers
                 if (searchConf.getPreRandomSize() > 0) {
-                    LOG.debug("Generating batch of random bigIntegers " + searchConf.getPreRandomSize());
+                    LOG.debug("Generating batch of random integer " + searchConf.getPreRandomSize());
                     RandomGenerator.initBatch(searchConf.getPreRandomNBits(), searchConf.getPreRandomSize());
                     RandomGenerator.initIntBatch(searchConf.getPreRandomSize());
+                    RandomGenerator.initLongBatch(searchConf.getPreRandomSize());
                 }
 
                 // Wait some time before trying to connect with other region servers

@@ -22,7 +22,6 @@ public class IntGreaterOrEqualThanTest extends AbsSingleColumnValueFilterTest {
         this.qualifierColTypes.get("User").put("Name", ColType.STRING);
         this.qualifierColTypes.get("User").put("Surname", ColType.STRING);
         this.qualifierColTypes.get("User").put("Age", ColType.INTEGER);
-
     }
 
     protected long getNumberOfRecords() {
