@@ -47,7 +47,7 @@ public class SecureRegionScanner implements RegionScanner {
 
 	private final BigInteger regionIdent;
 
-    private final Lock cacheDataLock = new ReentrantLock();
+    private static final Lock cacheDataLock = new ReentrantLock();
     private static final Map<BigInteger, BatchData> mapBatchCachedData  = new HashMap<BigInteger, BatchData>();;
 
 

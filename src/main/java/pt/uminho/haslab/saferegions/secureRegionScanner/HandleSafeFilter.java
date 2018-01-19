@@ -68,7 +68,9 @@ public class HandleSafeFilter {
 
 
         // Get the protected column values and the row identifiers.
-        LOG.debug("SafeFilters keys " + safeFilters.size());
+        /*if(LOG.isDebugEnabled()){
+            LOG.debug("SafeFilters keys " + safeFilters.size());
+        }*/
         // Evaluate all of the SMPC protocols required for the filter.
         for (Column col : safeFilters.keySet()) {
             List<byte[]> values = columnValues.get(col);

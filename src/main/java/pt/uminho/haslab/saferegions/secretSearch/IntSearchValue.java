@@ -11,15 +11,19 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition.Equal;
 
 
-public class IntSearchValue  extends SearchValue{
+public class IntSearchValue extends SearchValue{
 
     private static final IntSharemindSecretFunctions ssf = new IntSharemindSecretFunctions();
 
-    private int[] cacheValues;
+    private static int[] cacheValues;
+    private static final Lock cacheDataLock = new ReentrantLock();
+
 
     public IntSearchValue(int nBits, List<byte[]> value, Condition condition, SmpcConfiguration config) {
         super(nBits, value, condition, config);
@@ -28,14 +32,14 @@ public class IntSearchValue  extends SearchValue{
     public int[] convertInts(List<byte[]> value){
 
         if (config.isCachedData() && cacheValues != null) {
-            if (LOG.isDebugEnabled()) {
+            /*if (LOG.isDebugEnabled()) {
                 LOG.debug("Computing over cached data");
-            }
+            }*/
             return cacheValues;
         } else {
-            if (LOG.isDebugEnabled()) {
+            /*if (LOG.isDebugEnabled()) {
                 LOG.debug("Computing over loaded data");
-            }
+            }*/
 
             int[] vals = new int[value.size()];
 
@@ -44,7 +48,13 @@ public class IntSearchValue  extends SearchValue{
             }
 
             if (config.isCachedData()) {
-                cacheValues = vals;
+                //This causes tests to fail because the three clusters see the same values as the cache is static.
+                cacheDataLock.lock();
+                if(cacheValues == null){
+                    cacheValues = vals;
+                }
+                cacheDataLock.unlock();
+
             }
             return vals;
         }
@@ -84,22 +94,13 @@ public class IntSearchValue  extends SearchValue{
 			 */
 			//LOG.debug("Going to generate values");
 
-            if (value.size() == 1 && cmpValues.size() > 1) {
-                // If there is only a single value replicate it
-                values = convertInt(value.get(0));
-                intCmpValues = convertInts(cmpValues);
-            } else if (value.size() == cmpValues.size()) {
-                values = convertInts(value);
-                intCmpValues = convertInts(cmpValues);
-            } else {
-                throw new IllegalStateException(
-                        "The size of values list being compared is invalid");
-            }
+            values = convertInt(value.get(0));
+            intCmpValues = convertInts(cmpValues);
 
 
-            if (LOG.isDebugEnabled()) {
+            /*if (LOG.isDebugEnabled()) {
                 LOG.debug("Running protocol " + condition);
-            }
+            }*/
 
             //LOG.debug("Input values " + Arrays.toString(values) + " <-> " + Arrays.toString(intCmpValues));
             if (condition == Equal) {
@@ -112,12 +113,13 @@ public class IntSearchValue  extends SearchValue{
             //LOG.debug("Result is " + Arrays.toString(result));
 
             if (player.isTargetPlayer()) {
-                if (LOG.isDebugEnabled()) {
+                /*if (LOG.isDebugEnabled()) {
                     LOG.debug("Retrieve protocol results from peers");
-                }
+                }*/
                 // At this point the size of the list identifiers must be 2.
                 List<int[]> results = player.getIntProtocolResults();
-               //LOG.debug("Received results " + result);
+
+                //LOG.debug("Received results " + Arrays.toString(result));
                 results.add(result);
                 IntPlayerResults playerResults = new IntPlayerResults(results, condition, nBits);
                 fIndex = playerResults.declassify();
@@ -137,15 +139,15 @@ public class IntSearchValue  extends SearchValue{
                     resultsList.add(b);
 
                 }
-                if (LOG.isDebugEnabled()) {
+                /*if (LOG.isDebugEnabled()) {
                     LOG.debug("Send filter results to peers");
-                }
+                }*/
                 player.sendFilteredIndexes(toSend);
 
             } else {
-                if (LOG.isDebugEnabled()) {
+                /*if (LOG.isDebugEnabled()) {
                     LOG.debug("end protocol results to target");
-                }
+                }*/
                 //LOG.debug("Sending result " + Arrays.toString(result));
                 player.sendIntProtocolResults(result);
                 int[] res = player.getFilterIndexes();

@@ -10,12 +10,15 @@ import pt.uminho.haslab.smpc.sharemindImp.Long.LongSharemindSecretFunctions;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition.Equal;
 
 public class LongSearchValue extends SearchValue {
 
-    private long[] cacheValues;
+    private static final Lock cacheDataLock = new ReentrantLock();
+    private static long[] cacheValues;
 
     public LongSearchValue(int nBits, List<byte[]> value, SearchCondition.Condition condition, SmpcConfiguration configuration) {
         super(nBits, value, condition, configuration);
@@ -24,15 +27,15 @@ public class LongSearchValue extends SearchValue {
 
     public long[] convertLongs(List<byte[]> value) {
         if (config.isCachedData() && cacheValues != null) {
-            if (LOG.isDebugEnabled()) {
+           /* if (LOG.isDebugEnabled()) {
                 LOG.debug("Computing over cached data");
-            }
+            }*/
             return cacheValues;
         } else {
 
-            if (LOG.isDebugEnabled()) {
+           /* if (LOG.isDebugEnabled()) {
                 LOG.debug("Computing over loaded data");
-            }
+            }*/
 
             long[] vals = new long[value.size()];
 
@@ -41,7 +44,11 @@ public class LongSearchValue extends SearchValue {
             }
 
             if (config.isCachedData()) {
-                cacheValues = vals;
+                cacheDataLock.lock();
+                if(cacheValues == null){
+                    cacheValues = vals;
+                }
+                cacheDataLock.unlock();
             }
 
             return vals;
@@ -85,7 +92,10 @@ public class LongSearchValue extends SearchValue {
 			 * In this example val1 is compared to every other value.
 			 */
 
-            if (value.size() == 1 && cmpValues.size() > 1) {
+            values = convertLong(value.get(0));
+            intCmpValues = convertLongs(cmpValues);
+
+            /*if (value.size() == 1 && cmpValues.size() > 1) {
                 // If there is only a single value replicate it
                 values = convertLong(value.get(0));
                 intCmpValues = convertLongs(cmpValues);
@@ -95,12 +105,12 @@ public class LongSearchValue extends SearchValue {
             } else {
                 throw new IllegalStateException(
                         "The size of values list being compared is invalid");
-            }
+            }*/
 
 
-            if (LOG.isDebugEnabled()) {
+            /*if (LOG.isDebugEnabled()) {
                 LOG.debug("Running protocol " + condition + " with value " + values.length + " and cmpValues " + intCmpValues.length);
-            }
+            }*/
 
             if (condition == Equal) {
                 result = ssf.equal(values, intCmpValues, player);
@@ -109,9 +119,9 @@ public class LongSearchValue extends SearchValue {
             }
 
             if (player.isTargetPlayer()) {
-                if (LOG.isDebugEnabled()) {
+                /*if (LOG.isDebugEnabled()) {
                     LOG.debug("Retrieve protocol results from peers");
-                }
+                }*/
                 // At this point the size of the list identifiers must be 2.
                 List<long[]> results = player.getLongProtocolResults();
                 results.add(result);
@@ -135,15 +145,15 @@ public class LongSearchValue extends SearchValue {
                     resultsList.add(b);
 
                 }
-                if (LOG.isDebugEnabled()) {
+                /*if (LOG.isDebugEnabled()) {
                     LOG.debug("Send filter results to peers");
-                }
+                }*/
                 player.sendFilteredIndexes(toSend);
 
             } else {
-                if (LOG.isDebugEnabled()) {
+                /*if (LOG.isDebugEnabled()) {
                     LOG.debug("end protocol results to target");
-                }
+                }*/
                 player.sendLongProtocolResults(result);
                 int[] res = player.getFilterIndexes();
 
