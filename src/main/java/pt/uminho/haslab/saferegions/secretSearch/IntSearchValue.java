@@ -1,7 +1,6 @@
 package pt.uminho.haslab.saferegions.secretSearch;
 
 import pt.uminho.haslab.saferegions.SmpcConfiguration;
-import pt.uminho.haslab.saferegions.protocolresults.FilteredIndexes;
 import pt.uminho.haslab.saferegions.protocolresults.IntPlayerResults;
 import pt.uminho.haslab.saferegions.protocolresults.ResultsIdentifiersMismatch;
 import pt.uminho.haslab.saferegions.protocolresults.ResultsLengthMismatch;
@@ -10,7 +9,7 @@ import pt.uminho.haslab.smpc.sharemindImp.Integer.IntSharemindSecretFunctions;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition.Equal;
@@ -52,13 +51,20 @@ public class IntSearchValue  extends SearchValue{
     }
 
 
-    public int[] duplicateInt(byte[] value, int nTimes){
+    /*public int[] duplicateInt(byte[] value, int nTimes){
         int[] vals = new int[nTimes];
         for(int i = 0; i < nTimes; i++){
             vals[i] = ByteBuffer.wrap(value).getInt();
         }
         return vals;
+    }*/
+
+    public int[] convertInt(byte[] value) {
+        int[] vals = new int[1];
+        vals[0] = ByteBuffer.wrap(value).getInt();
+        return vals;
     }
+
     public void evaluateCondition(List<byte[]> cmpValues, List<byte[]> rowIDs,
                                   SharemindPlayer player) {
 
@@ -80,7 +86,7 @@ public class IntSearchValue  extends SearchValue{
 
             if (value.size() == 1 && cmpValues.size() > 1) {
                 // If there is only a single value replicate it
-                values  = duplicateInt(value.get(0), cmpValues.size());
+                values = convertInt(value.get(0));
                 intCmpValues = convertInts(cmpValues);
             } else if (value.size() == cmpValues.size()) {
                 values = convertInts(value);
@@ -95,25 +101,24 @@ public class IntSearchValue  extends SearchValue{
                 LOG.debug("Running protocol " + condition);
             }
 
+            //LOG.debug("Input values " + Arrays.toString(values) + " <-> " + Arrays.toString(intCmpValues));
             if (condition == Equal) {
+                //LOG.debug("Input values " + values.length + " <-> " + intCmpValues.length);
                 result = ssf.equal(values, intCmpValues, player);
             } else {
                 result = ssf.greaterOrEqualThan(intCmpValues, values, player);
             }
 
-            List<Integer> protoResults = new ArrayList<Integer>(result.length);
-            for(int val: result){
-                protoResults.add(val);
-            }
+            //LOG.debug("Result is " + Arrays.toString(result));
 
             if (player.isTargetPlayer()) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Retrieve protocol results from peers");
                 }
                 // At this point the size of the list identifiers must be 2.
-                List<List<Integer>> results = player.getIntProtocolResults();
-
-                results.add(protoResults);
+                List<int[]> results = player.getIntProtocolResults();
+               //LOG.debug("Received results " + result);
+                results.add(result);
                 IntPlayerResults playerResults = new IntPlayerResults(results, condition, nBits);
                 fIndex = playerResults.declassify();
                 /**
@@ -121,12 +126,12 @@ public class IntSearchValue  extends SearchValue{
                  * the other players receives an empty list, it knows that no
                  * index was found.
                  */
-                List<byte[]> toSend = new ArrayList<byte[]>();
+                int[] toSend = new int[fIndex.size()];
 
                 for (int i = 0; i < fIndex.size(); i++) {
                     Boolean b = fIndex.get(i);
                     byte[] rowID = rowIDs.get(i);
-                    toSend.add(b.toString().getBytes());
+                    toSend[i] = b ? 1 : 0;
                     // Prepare the results to be send to the other players.
                     resultIndex.put(new BigInteger(rowID), b);
                     resultsList.add(b);
@@ -135,20 +140,20 @@ public class IntSearchValue  extends SearchValue{
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Send filter results to peers");
                 }
-                FilteredIndexes filtIndex = new FilteredIndexes(toSend);
-                player.sendFilteredIndexes(filtIndex);
+                player.sendFilteredIndexes(toSend);
 
             } else {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("end protocol results to target");
                 }
+                //LOG.debug("Sending result " + Arrays.toString(result));
                 player.sendIntProtocolResults(result);
-                List<byte[]> res = player.getFilterIndexes().getIndexes();
+                int[] res = player.getFilterIndexes();
 
-                for (int i = 0; i < res.size(); i++) {
-                    byte[] val = res.get(i);
+                for (int i = 0; i < res.length; i++) {
+                    int val = res[i];
                     byte[] rowID = rowIDs.get(i);
-                    Boolean decRes = Boolean.parseBoolean(new String(val));
+                    Boolean decRes = val == 1 ? Boolean.TRUE : Boolean.FALSE;
                     resultIndex.put(new BigInteger(rowID), decRes);
                     resultsList.add(decRes);
                 }

@@ -2,8 +2,8 @@ package pt.uminho.haslab.saferegions.comunication;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import pt.uminho.haslab.protocommunication.Search.*;
-import pt.uminho.haslab.saferegions.protocolresults.FilteredIndexes;
+import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
+import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
 
 import java.util.Map;
 import java.util.Queue;
@@ -37,12 +37,12 @@ public class SharemindMessageBroker implements MessageBroker {
 	// protocol results messages received
 	private final Map<RequestIdentifier, Queue<ResultsMessage>> protocolResults;
 
-	private final Map<RequestIdentifier, Queue<IntResultsMessage>> intProtocolResults;
+	private final Map<RequestIdentifier, Queue<CIntBatchShareMessage>> intProtocolResults;
 
-	private final Map<RequestIdentifier, Queue<LongResultsMessage>> longProtocolResults;
+	private final Map<RequestIdentifier, Queue<CLongBatchShareMessage>> longProtocolResults;
 
 
-	private final Map<RequestIdentifier, Queue<FilterIndexMessage>> filterIndex;
+	private final Map<RequestIdentifier, Queue<CIntBatchShareMessage>> filterIndex;
 
 
 	private final CountDownLatch relayStarted;
@@ -61,10 +61,10 @@ public class SharemindMessageBroker implements MessageBroker {
 		longBatchMessagesReceived = new ConcurrentHashMap<RequestIdentifier, Queue<CLongBatchShareMessage>>();
 
 		protocolResults = new ConcurrentHashMap<RequestIdentifier, Queue<ResultsMessage>>();
-		intProtocolResults = new ConcurrentHashMap<RequestIdentifier, Queue<IntResultsMessage>>();
-		longProtocolResults = new ConcurrentHashMap<RequestIdentifier, Queue<LongResultsMessage>>();
+		intProtocolResults = new ConcurrentHashMap<RequestIdentifier, Queue<CIntBatchShareMessage>>();
+		longProtocolResults = new ConcurrentHashMap<RequestIdentifier, Queue<CLongBatchShareMessage>>();
 
-		filterIndex = new ConcurrentHashMap<RequestIdentifier, Queue<FilterIndexMessage>>();
+		filterIndex = new ConcurrentHashMap<RequestIdentifier, Queue<CIntBatchShareMessage>>();
 
 	}
 
@@ -227,11 +227,9 @@ public class SharemindMessageBroker implements MessageBroker {
 	}
 
     @Override
-    public void receiveProtocolResults(IntResultsMessage message) {
-        lock.lock();
-        RequestIdentifier requestID = new RequestIdentifier(message
-                .getRequestID().toByteArray(), message.getRegionID()
-                .toByteArray());
+	public void receiveProtocolResults(CIntBatchShareMessage message) {
+		lock.lock();
+		RequestIdentifier requestID = message.getRequestID();
 
         try {
             protocolResultsLocks.lockOnRequest(requestID);
@@ -239,8 +237,8 @@ public class SharemindMessageBroker implements MessageBroker {
             if (intProtocolResults.containsKey(requestID)) {
                 intProtocolResults.get(requestID).add(message);
             } else {
-                Queue values = new ConcurrentLinkedQueue<IntResultsMessage>();
-                values.add(message);
+				Queue values = new ConcurrentLinkedQueue<CIntBatchShareMessage>();
+				values.add(message);
                 intProtocolResults.put(requestID, values);
             }
             protocolResultsLocks.signalToRead(requestID);
@@ -250,18 +248,16 @@ public class SharemindMessageBroker implements MessageBroker {
     }
 
 	@Override
-	public void receiveProtocolResults(LongResultsMessage message) {
+	public void receiveProtocolResults(CLongBatchShareMessage message) {
 		lock.lock();
-		RequestIdentifier requestID = new RequestIdentifier(message
-				.getRequestID().toByteArray(), message.getRegionID()
-				.toByteArray());
+		RequestIdentifier requestID = message.getRequestID();
 		try {
 			protocolResultsLocks.lockOnRequest(requestID);
 			lock.unlock();
 			if (longProtocolResults.containsKey(requestID)) {
 				longProtocolResults.get(requestID).add(message);
 			} else {
-				Queue values = new ConcurrentLinkedQueue<LongResultsMessage>();
+				Queue values = new ConcurrentLinkedQueue<CLongBatchShareMessage>();
 				values.add(message);
 				longProtocolResults.put(requestID, values);
 			}
@@ -271,12 +267,10 @@ public class SharemindMessageBroker implements MessageBroker {
 		}
 	}
 
-	public void receiveFilterIndex(FilterIndexMessage message) {
+	public void receiveFilterIndex(CIntBatchShareMessage message) {
 
 		lock.lock();
-		RequestIdentifier requestID = new RequestIdentifier(message
-				.getRequestID().toByteArray(), message.getRegionID()
-				.toByteArray());
+		RequestIdentifier requestID = message.getRequestID();
 
 		try {
 			filterIndexLocks.lockOnRequest(requestID);
@@ -284,7 +278,7 @@ public class SharemindMessageBroker implements MessageBroker {
 			if (filterIndex.containsKey(requestID)) {
 				filterIndex.get(requestID).add(message);
 			} else {
-				Queue values = new ConcurrentLinkedQueue<FilteredIndexes>();
+				Queue values = new ConcurrentLinkedQueue<CIntBatchShareMessage>();
 				values.add(message);
 				filterIndex.put(requestID, values);
 			}
@@ -319,8 +313,8 @@ public class SharemindMessageBroker implements MessageBroker {
 	}
 
 	@Override
-	public Queue<IntResultsMessage> getIntProtocolResults(RequestIdentifier requestID) {
-        lock.lock();
+	public Queue<CIntBatchShareMessage> getIntProtocolResults(RequestIdentifier requestID) {
+		lock.lock();
         try {
             protocolResultsLocks.lockOnRequest(requestID);
             lock.unlock();
@@ -342,7 +336,7 @@ public class SharemindMessageBroker implements MessageBroker {
 	}
 
 	@Override
-	public Queue<LongResultsMessage> getLongProtocolResults(RequestIdentifier requestID) {
+	public Queue<CLongBatchShareMessage> getLongProtocolResults(RequestIdentifier requestID) {
 		lock.lock();
 		try {
 			protocolResultsLocks.lockOnRequest(requestID);
@@ -364,7 +358,7 @@ public class SharemindMessageBroker implements MessageBroker {
 		}
 	}
 
-	public FilterIndexMessage getFilterIndexes(RequestIdentifier requestID) {
+	public CIntBatchShareMessage getFilterIndexes(RequestIdentifier requestID) {
 		lock.lock();
 
 		try {

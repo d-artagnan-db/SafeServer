@@ -1,7 +1,6 @@
 package pt.uminho.haslab.saferegions.secretSearch;
 
 import pt.uminho.haslab.saferegions.SmpcConfiguration;
-import pt.uminho.haslab.saferegions.protocolresults.FilteredIndexes;
 import pt.uminho.haslab.saferegions.protocolresults.PlayerResults;
 import pt.uminho.haslab.saferegions.protocolresults.ResultsIdentifiersMismatch;
 import pt.uminho.haslab.saferegions.protocolresults.ResultsLengthMismatch;
@@ -79,12 +78,12 @@ public class BigIntegerSearchValue extends SearchValue {
                  * the other players receives an empty list, it knows that no
                  * index was found.
                  */
-                List<byte[]> toSend = new ArrayList<byte[]>();
+                int[] toSend = new int[fIndex.size()];
 
                 for (int i = 0; i < fIndex.size(); i++) {
                     Boolean b = fIndex.get(i);
                     byte[] rowID = rowIDs.get(i);
-                    toSend.add(b.toString().getBytes());
+                    toSend[i] = b ? 1 : 0;
                     // Prepare the results to be send to the other players.
                     resultIndex.put(new BigInteger(rowID), b);
                     resultsList.add(b);
@@ -93,20 +92,19 @@ public class BigIntegerSearchValue extends SearchValue {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Send filter results to peers");
                 }
-                FilteredIndexes filtIndex = new FilteredIndexes(toSend);
-                player.sendFilteredIndexes(filtIndex);
+                player.sendFilteredIndexes(toSend);
 
             } else {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Send protocol results to target");
                 }
                 player.sendProtocolResults(result);
-                List<byte[]> res = player.getFilterIndexes().getIndexes();
+                int[] res = player.getFilterIndexes();
 
-                for (int i = 0; i < res.size(); i++) {
-                    byte[] val = res.get(i);
+                for (int i = 0; i < res.length; i++) {
+                    int val = res[i];
                     byte[] rowID = rowIDs.get(i);
-                    Boolean decRes = Boolean.parseBoolean(new String(val));
+                    Boolean decRes = val == 1 ? Boolean.TRUE : Boolean.FALSE;
                     resultIndex.put(new BigInteger(rowID), decRes);
                     resultsList.add(decRes);
                 }

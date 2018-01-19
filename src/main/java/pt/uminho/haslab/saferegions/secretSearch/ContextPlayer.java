@@ -4,9 +4,9 @@ import com.google.protobuf.ByteString;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.protocommunication.Search;
-import pt.uminho.haslab.protocommunication.Search.*;
+import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
+import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
 import pt.uminho.haslab.saferegions.comunication.*;
-import pt.uminho.haslab.saferegions.protocolresults.FilteredIndexes;
 import pt.uminho.haslab.saferegions.protocolresults.ResultsLengthMismatch;
 import pt.uminho.haslab.smpc.interfaces.Player;
 
@@ -146,20 +146,7 @@ public class ContextPlayer implements Player, SharemindPlayer {
     @Override
     public void sendIntProtocolResults(int[] dest) {
         try {
-            List<Integer> bsValues = new ArrayList<Integer>();
-
-            for (int val : dest) {
-                bsValues.add(val);
-            }
-
-            IntResultsMessage msg = IntResultsMessage
-                    .newBuilder()
-                    .setPlayerSource(this.playerID)
-                    .setRequestID(ByteString.copyFrom(requestID.getRequestID()))
-                    .setRegionID(ByteString.copyFrom(requestID.getRegionID()))
-                    .setPlayerDest(targetPlayerID).addAllValues(bsValues)
-                    .build();
-
+            CIntBatchShareMessage msg = new CIntBatchShareMessage(this.playerID, targetPlayerID, requestID, dest);
             relay.sendProtocolResults(msg);
         } catch (IOException ex) {
             LOG.error(ex);
@@ -168,24 +155,11 @@ public class ContextPlayer implements Player, SharemindPlayer {
     }
 
 	@Override
-	public void sendLongProtocolResults(long[] dest) {
+    public void sendLongProtocolResults(long[] results) {
 
 		try {
-			List<Long> bsValues = new ArrayList<Long>();
-
-			for (long val : dest) {
-				bsValues.add(val);
-			}
-
-			LongResultsMessage msg = LongResultsMessage
-					.newBuilder()
-					.setPlayerSource(this.playerID)
-					.setRequestID(ByteString.copyFrom(requestID.getRequestID()))
-					.setRegionID(ByteString.copyFrom(requestID.getRegionID()))
-					.setPlayerDest(targetPlayerID).addAllValues(bsValues)
-					.build();
-
-			relay.sendProtocolResults(msg);
+            CLongBatchShareMessage msg = new CLongBatchShareMessage(this.playerID, targetPlayerID, requestID, results);
+            relay.sendProtocolResults(msg);
 		} catch (IOException ex) {
 			LOG.error(ex);
 			throw new IllegalStateException(ex);
@@ -193,29 +167,20 @@ public class ContextPlayer implements Player, SharemindPlayer {
 	}
 
 	private void sendFilteredIndexesToPlayer(int destPlayer,
-			List<ByteString> ids) throws IOException {
-		FilterIndexMessage msg = FilterIndexMessage.newBuilder()
-				.setPlayerSource(this.playerID)
-				.setRequestID(ByteString.copyFrom(requestID.getRequestID()))
-				.setRegionID(ByteString.copyFrom(requestID.getRegionID()))
-				.setPlayerDest(destPlayer).addAllIndexes(ids).build();
-		relay.sendFilteredIndexes(msg);
+                                             int[] toSend) throws IOException {
+        CIntBatchShareMessage msg = new CIntBatchShareMessage(this.playerID, destPlayer, requestID, toSend);
+        relay.sendFilteredIndexes(msg);
 
 	}
 
-	public void sendFilteredIndexes(FilteredIndexes indexes) {
-		try {
-			List<ByteString> ids = new ArrayList<ByteString>();
-
-			for (byte[] val : indexes.getIndexes()) {
-				ids.add(ByteString.copyFrom(val));
-			}
+    public void sendFilteredIndexes(int[] indexes) {
+        try {
 
 			int[] otherPlayers = getPlayerSources();
 
 			for (int destPlayer : otherPlayers) {
-				sendFilteredIndexesToPlayer(destPlayer, ids);
-			}
+                sendFilteredIndexesToPlayer(destPlayer, indexes);
+            }
 
 		} catch (IOException ex) {
 			LOG.error(ex);
@@ -397,13 +362,13 @@ public class ContextPlayer implements Player, SharemindPlayer {
 	}
 
 	@Override
-	public List<List<Integer>> getIntProtocolResults() throws ResultsLengthMismatch {
-		Queue<IntResultsMessage> messages = broker.getIntProtocolResults(requestID);
-		List<List<Integer>> results = new ArrayList<List<Integer>>();
+    public List<int[]> getIntProtocolResults() throws ResultsLengthMismatch {
+        Queue<CIntBatchShareMessage> messages = broker.getIntProtocolResults(requestID);
+        List<int[]> results = new ArrayList<int[]>();
 
-		for (IntResultsMessage msg : messages) {
-			results.add(msg.getValuesList());
-		}
+        for (CIntBatchShareMessage msg : messages) {
+            results.add(msg.getValues());
+        }
 		messages.clear();
 		broker.intProtocolResultsRead(requestID);
 
@@ -411,31 +376,24 @@ public class ContextPlayer implements Player, SharemindPlayer {
 		return results;
 	}
 
-	public List<List<Long>> getLongProtocolResults() throws ResultsLengthMismatch {
-		Queue<LongResultsMessage> messages = broker.getLongProtocolResults(requestID);
-		List<List<Long>> results = new ArrayList<List<Long>>();
+    public List<long[]> getLongProtocolResults() throws ResultsLengthMismatch {
+        Queue<CLongBatchShareMessage> messages = broker.getLongProtocolResults(requestID);
+        List<long[]> results = new ArrayList<long[]>();
 
-		for (LongResultsMessage msg : messages) {
-			results.add(msg.getValuesList());
-		}
+        for (CLongBatchShareMessage msg : messages) {
+            results.add(msg.getValues());
+        }
 		messages.clear();
-		broker.intProtocolResultsRead(requestID);
+        broker.longProtocolResultsRead(requestID);
 
 		assert results.size() == 2;
 		return results;
 	}
 
-	public FilteredIndexes getFilterIndexes() {
-		FilterIndexMessage recMessage = broker.getFilterIndexes(requestID);
-		broker.indexMessageRead(requestID);
-
-		List<byte[]> indexes = new ArrayList<byte[]>();
-
-		for (ByteString bs : recMessage.getIndexesList()) {
-			indexes.add(bs.toByteArray());
-		}
-
-		return new FilteredIndexes(indexes);
+    public int[] getFilterIndexes() {
+        CIntBatchShareMessage recMessage = broker.getFilterIndexes(requestID);
+        broker.indexMessageRead(requestID);
+        return recMessage.getValues();
 
 	}
 

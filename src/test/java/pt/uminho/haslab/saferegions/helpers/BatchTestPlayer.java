@@ -5,7 +5,6 @@ import org.apache.commons.logging.LogFactory;
 import pt.uminho.haslab.saferegions.comunication.MessageBroker;
 import pt.uminho.haslab.saferegions.comunication.Relay;
 import pt.uminho.haslab.saferegions.comunication.RequestIdentifier;
-import pt.uminho.haslab.saferegions.protocolresults.FilteredIndexes;
 import pt.uminho.haslab.saferegions.protocolresults.ResultsLengthMismatch;
 import pt.uminho.haslab.saferegions.secretSearch.ContextPlayer;
 import pt.uminho.haslab.saferegions.secretSearch.SharemindPlayer;
@@ -121,12 +120,12 @@ public class BatchTestPlayer implements SharemindPlayer {
 	}
 
 	@Override
-	public List<List<Integer>> getIntProtocolResults() throws ResultsLengthMismatch {
-		return player.getIntProtocolResults();
+    public List<int[]> getIntProtocolResults() throws ResultsLengthMismatch {
+        return player.getIntProtocolResults();
 	}
 
     @Override
-    public List<List<Long>> getLongProtocolResults() throws ResultsLengthMismatch {
+    public List<long[]> getLongProtocolResults() throws ResultsLengthMismatch {
         return player.getLongProtocolResults();
     }
 
@@ -138,12 +137,12 @@ public class BatchTestPlayer implements SharemindPlayer {
 		player.cleanResultsMatch();
 	}
 
-	public void sendFilteredIndexes(FilteredIndexes indexes) {
-		player.sendFilteredIndexes(indexes);
+    public void sendFilteredIndexes(int[] indexes) {
+        player.sendFilteredIndexes(indexes);
 	}
 
-	public FilteredIndexes getFilterIndexes() {
-		return player.getFilterIndexes();
+    public int[] getFilterIndexes() {
+        return player.getFilterIndexes();
 	}
 
 	public boolean isTargetPlayer() {

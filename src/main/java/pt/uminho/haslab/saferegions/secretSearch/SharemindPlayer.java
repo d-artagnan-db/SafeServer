@@ -1,6 +1,5 @@
 package pt.uminho.haslab.saferegions.secretSearch;
 
-import pt.uminho.haslab.saferegions.protocolresults.FilteredIndexes;
 import pt.uminho.haslab.saferegions.protocolresults.ResultsLengthMismatch;
 import pt.uminho.haslab.smpc.interfaces.Player;
 
@@ -31,17 +30,17 @@ public interface SharemindPlayer extends Player {
 	 */
     List<List<byte[]>> getProtocolResults() throws ResultsLengthMismatch;
 
-    List<List<Integer>> getIntProtocolResults() throws ResultsLengthMismatch;
+    List<int[]> getIntProtocolResults() throws ResultsLengthMismatch;
 
-    List<List<Long>> getLongProtocolResults() throws ResultsLengthMismatch;
+    List<long[]> getLongProtocolResults() throws ResultsLengthMismatch;
 
     void cleanValues();
 
 	void cleanResultsMatch();
 
-	void sendFilteredIndexes(FilteredIndexes indexes);
+    void sendFilteredIndexes(int[] results);
 
-	FilteredIndexes getFilterIndexes();
+    int[] getFilterIndexes();
 
 	boolean isTargetPlayer();
 

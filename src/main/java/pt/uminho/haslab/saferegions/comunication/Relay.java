@@ -1,6 +1,7 @@
 package pt.uminho.haslab.saferegions.comunication;
 
-import pt.uminho.haslab.protocommunication.Search.*;
+import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
+import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
 
 import java.io.IOException;
 
@@ -15,9 +16,9 @@ public interface Relay {
 
     void sendProtocolResults(ResultsMessage msg) throws IOException;
 
-	void sendProtocolResults(IntResultsMessage msg) throws IOException;
+    void sendProtocolResults(CIntBatchShareMessage msg) throws IOException;
 
-    void sendProtocolResults(LongResultsMessage msg) throws IOException;
+    void sendProtocolResults(CLongBatchShareMessage msg) throws IOException;
 
 
     void stopRelay() throws IOException;
@@ -28,7 +29,7 @@ public interface Relay {
 
 	void forceStopRelay() throws IOException;
 
-	void sendFilteredIndexes(FilterIndexMessage msg) throws IOException;
+    void sendFilteredIndexes(CIntBatchShareMessage msg) throws IOException;
 
 	void registerRequest(RequestIdentifier requestIdentifier);
 

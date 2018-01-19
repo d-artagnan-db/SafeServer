@@ -33,6 +33,7 @@ import java.io.InterruptedIOException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -315,7 +316,7 @@ public class TestClusterTables extends ClusterTables {
                             byteBuffer.flip();
                             fList.add(new SingleColumnValueFilter(family, sQualifierMod, operator, byteBuffer.array()));
                         }
-                        //LOG.debug("Value to search " + iValue + " encoded in  integer secrets " + Arrays.toString(secrets));
+                        LOG.debug("Value to search " + iValue + " encoded in  integer secrets " + Arrays.toString(secrets));
                         break;
                     case LSMPC:
                         LongSharemindDealer lDealer = new LongSharemindDealer();
@@ -328,7 +329,7 @@ public class TestClusterTables extends ClusterTables {
                             byteBuffer.flip();
                             fList.add(new SingleColumnValueFilter(family, sQualifierMod, operator, byteBuffer.array()));
                         }
-                        //LOG.debug("Value to search " + lValue + " encoded in  long secrets " + Arrays.toString(lSecrets));
+                        LOG.debug("Value to search " + lValue + " encoded in  long secrets " + Arrays.toString(lSecrets));
                         break;
 
                 }

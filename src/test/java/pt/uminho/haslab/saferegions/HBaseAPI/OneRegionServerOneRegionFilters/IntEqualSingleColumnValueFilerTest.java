@@ -10,9 +10,8 @@ public class IntEqualSingleColumnValueFilerTest extends AbsSingleColumnValueFilt
 
     public IntEqualSingleColumnValueFilerTest() throws Exception {
         super();
-        RandomGenerator.initLongBatch(100);
+        RandomGenerator.initLongBatch(1);
     }
-
 
     protected void generateTableSchema() {
         String file = getClass().getResource("/int-protected-schema.xml").getFile();
@@ -26,13 +25,15 @@ public class IntEqualSingleColumnValueFilerTest extends AbsSingleColumnValueFilt
     }
 
     protected long getNumberOfRecords() {
-        return 100;
+        return 10000;
     }
-
 
     @Override
     CompareFilter.CompareOp getComparator() {
         return CompareFilter.CompareOp.EQUAL;
+    }
+
+    public static void main(String[] args) {
     }
 
 }

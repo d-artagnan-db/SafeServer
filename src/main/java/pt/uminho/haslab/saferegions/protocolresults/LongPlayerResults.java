@@ -16,12 +16,12 @@ public class LongPlayerResults {
     private static final Log LOG = LogFactory.getLog(IntPlayerResults.class
             .getName());
     private final SearchCondition.Condition condition;
-    private final List<List<Long>> results;
+    private final List<long[]> results;
 
     /**
      * We are assuming that the class is created correctly with 3 lists inside the results list. One for each player.
      **/
-    public LongPlayerResults(List<List<Long>> results, SearchCondition.Condition condition,
+    public LongPlayerResults(List<long[]> results, SearchCondition.Condition condition,
                              int nBits) throws ResultsLengthMismatch {
 
         this.condition = condition;
@@ -40,11 +40,11 @@ public class LongPlayerResults {
 
         List<Boolean> resultIDS = new ArrayList<Boolean>();
 
-        for (int i = 0; i < results.get(0).size(); i++) {
+        for (int i = 0; i < results.get(0).length; i++) {
 
-            Long bFirstSecret = results.get(0).get(i);
-            Long bSecondSecret = results.get(1).get(i);
-            Long bThirdSecret = results.get(2).get(i);
+            Long bFirstSecret = results.get(0)[i];
+            Long bSecondSecret = results.get(1)[i];
+            Long bThirdSecret = results.get(2)[i];
 
             long[] secrets = new long[3];
             secrets[0] = bFirstSecret;

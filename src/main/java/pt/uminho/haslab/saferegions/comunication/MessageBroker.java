@@ -1,7 +1,7 @@
 package pt.uminho.haslab.saferegions.comunication;
 
-import pt.uminho.haslab.protocommunication.Search;
-import pt.uminho.haslab.protocommunication.Search.*;
+import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
+import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
 
 import java.util.Queue;
 
@@ -9,11 +9,11 @@ public interface MessageBroker {
 
 	void receiveProtocolResults(ResultsMessage message);
 
-    void receiveProtocolResults(IntResultsMessage message);
+    void receiveProtocolResults(CIntBatchShareMessage message);
 
-    void receiveProtocolResults(LongResultsMessage message);
+    void receiveProtocolResults(CLongBatchShareMessage message);
 
-    void receiveFilterIndex(FilterIndexMessage message);
+    void receiveFilterIndex(CIntBatchShareMessage message);
 
 	void relayStarted();
 
@@ -21,11 +21,11 @@ public interface MessageBroker {
 
 	Queue<ResultsMessage> getProtocolResults(RequestIdentifier requestID);
 
-	Queue<IntResultsMessage> getIntProtocolResults(RequestIdentifier requestID);
+    Queue<CIntBatchShareMessage> getIntProtocolResults(RequestIdentifier requestID);
 
-    Queue<Search.LongResultsMessage> getLongProtocolResults(RequestIdentifier requestID);
+    Queue<CLongBatchShareMessage> getLongProtocolResults(RequestIdentifier requestID);
 
-    FilterIndexMessage getFilterIndexes(RequestIdentifier requestID);
+    CIntBatchShareMessage getFilterIndexes(RequestIdentifier requestID);
 
 	void allResultsRead(RequestIdentifier requestID);
 

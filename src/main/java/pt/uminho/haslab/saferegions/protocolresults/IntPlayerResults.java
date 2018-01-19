@@ -6,6 +6,7 @@ import pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition;
 import pt.uminho.haslab.smpc.sharemindImp.Integer.IntSharemindDealer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition.Equal;
@@ -17,13 +18,13 @@ public class IntPlayerResults {
             .getName());
     private final Condition condition;
     private final int nBits;
-    private final List<List<Integer>> results;
+    private final List<int[]> results;
 
     /**
      * We are assuming that the class is created correctly with 3 lists inside the results list. One for each player.
      **/
-    public IntPlayerResults(List<List<Integer>> results, Condition condition,
-                         int nBits) throws ResultsLengthMismatch {
+    public IntPlayerResults(List<int[]> results, Condition condition,
+                            int nBits) throws ResultsLengthMismatch {
 
         this.condition = condition;
         this.results = results;
@@ -42,11 +43,11 @@ public class IntPlayerResults {
 
         List<Boolean> resultIDS = new ArrayList<Boolean>();
 
-        for (int i = 0; i < results.get(0).size(); i++) {
+        for (int i = 0; i < results.get(0).length; i++) {
 
-            Integer bFirstSecret = results.get(0).get(i);
-            Integer bSecondSecret = results.get(1).get(i);
-            Integer bThirdSecret = results.get(2).get(i);
+            Integer bFirstSecret = results.get(0)[i];
+            Integer bSecondSecret = results.get(1)[i];
+            Integer bThirdSecret = results.get(2)[i];
 
             int[] secrets = new int[3];
             secrets[0] = bFirstSecret;
@@ -54,8 +55,8 @@ public class IntPlayerResults {
             secrets[2] = bThirdSecret;
             IntSharemindDealer dealer = new IntSharemindDealer();
 
-            //LOG.debug("index " + i  + " protocol results are  " + Arrays.toString(secrets));
-            LOG.debug("Condition is " + condition);
+            //LOG.debug("index " + i + " protocol results are  " + Arrays.toString(secrets));
+            //LOG.debug("Condition is " + condition);
             if (condition == Equal) {
                 int result = dealer.unshareBit(secrets);
                 //LOG.debug("Index " + i + " had result " + result);
@@ -67,7 +68,7 @@ public class IntPlayerResults {
 
             } else if (condition == GreaterOrEqualThan) {
                 int result = dealer.unshare(secrets);
-                LOG.debug("Results are " + result);
+                //LOG.debug("Results are " + result);
                 if (result == 0) {
                     resultIDS.add(Boolean.TRUE);
                 } else {

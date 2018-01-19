@@ -1,9 +1,6 @@
 package pt.uminho.haslab.saferegions.helpers;
 
-import pt.uminho.haslab.protocommunication.Search;
 import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
-import pt.uminho.haslab.protocommunication.Search.FilterIndexMessage;
-import pt.uminho.haslab.protocommunication.Search.IntResultsMessage;
 import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
 import pt.uminho.haslab.saferegions.comunication.CIntBatchShareMessage;
 import pt.uminho.haslab.saferegions.comunication.CLongBatchShareMessage;
@@ -29,8 +26,8 @@ public abstract class TestMessageBroker implements MessageBroker {
 				"Method not currently supported on testing framework");
 	}
 
-	public void receiveFilterIndex(FilterIndexMessage message) {
-		throw new UnsupportedOperationException(
+    public void receiveFilterIndex(CIntBatchShareMessage message) {
+        throw new UnsupportedOperationException(
 				"Method not currently supported on testing framework");
 	}
 
@@ -48,8 +45,8 @@ public abstract class TestMessageBroker implements MessageBroker {
 				"Method not currently supported on testing framework");
 	}
 
-	public FilterIndexMessage getFilterIndexes(
-			RequestIdentifier requestID) {
+    public CIntBatchShareMessage getFilterIndexes(
+            RequestIdentifier requestID) {
 		throw new UnsupportedOperationException(
 				"Method not currently supported on testing framework");
 	}
@@ -116,14 +113,14 @@ public abstract class TestMessageBroker implements MessageBroker {
 	}
 
 	@Override
-	public void receiveProtocolResults(IntResultsMessage message) {
-		throw new UnsupportedOperationException(
+    public void receiveProtocolResults(CIntBatchShareMessage message) {
+        throw new UnsupportedOperationException(
 				"Method not currently supported on testing framework");
 	}
 
 	@Override
-	public Queue<IntResultsMessage> getIntProtocolResults(RequestIdentifier requestID) {
-		throw new UnsupportedOperationException(
+    public Queue<CIntBatchShareMessage> getIntProtocolResults(RequestIdentifier requestID) {
+        throw new UnsupportedOperationException(
 				"Method not currently supported on testing framework");
 	}
 
@@ -146,13 +143,13 @@ public abstract class TestMessageBroker implements MessageBroker {
     }
 
     @Override
-    public void receiveProtocolResults(Search.LongResultsMessage message) {
+    public void receiveProtocolResults(CLongBatchShareMessage message) {
         throw new UnsupportedOperationException(
                 "Method not currently supported on testing framework");
     }
 
     @Override
-    public Queue<Search.LongResultsMessage> getLongProtocolResults(RequestIdentifier requestID) {
+    public Queue<CLongBatchShareMessage> getLongProtocolResults(RequestIdentifier requestID) {
         throw new UnsupportedOperationException(
                 "Method not currently supported on testing framework");
     }

@@ -2,7 +2,8 @@ package pt.uminho.haslab.saferegions.comunication;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import pt.uminho.haslab.protocommunication.Search.*;
+import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
+import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
 import pt.uminho.haslab.saferegions.discovery.*;
 
 import java.io.IOException;
@@ -150,25 +151,21 @@ public class IORelay implements Relay {
 	}
 
     @Override
-    public void sendProtocolResults(IntResultsMessage msg) throws IOException {
-        RequestIdentifier ident = new RequestIdentifier(msg.getRequestID()
-                .toByteArray(), msg.getRegionID().toByteArray());
+    public void sendProtocolResults(CIntBatchShareMessage msg) throws IOException {
+        RequestIdentifier ident = msg.getRequestID();
         getTargetClient(msg.getPlayerDest(), ident).sendProtocolResults(msg);
     }
 
     @Override
-    public void sendProtocolResults(LongResultsMessage msg) throws IOException {
-        RequestIdentifier ident = new RequestIdentifier(msg.getRequestID()
-                .toByteArray(), msg.getRegionID().toByteArray());
+    public void sendProtocolResults(CLongBatchShareMessage msg) throws IOException {
+        RequestIdentifier ident = msg.getRequestID();
         getTargetClient(msg.getPlayerDest(), ident).sendProtocolResults(msg);
     }
 
-    public void sendFilteredIndexes(FilterIndexMessage msg)
+    public void sendFilteredIndexes(CIntBatchShareMessage msg)
             throws IOException {
-		RequestIdentifier ident = new RequestIdentifier(msg.getRequestID()
-				.toByteArray(), msg.getRegionID().toByteArray());
-		getTargetClient(msg.getPlayerDest(), ident).sendFilteredIndexes(msg);
-
+        RequestIdentifier ident = msg.getRequestID();
+        getTargetClient(msg.getPlayerDest(), ident).sendFilteredIndexes(msg);
 	}
 
 	public void registerRequest(RequestIdentifier requestIdentifier) {

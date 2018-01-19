@@ -1,7 +1,6 @@
 package pt.uminho.haslab.saferegions.secretSearch;
 
 import pt.uminho.haslab.saferegions.SmpcConfiguration;
-import pt.uminho.haslab.saferegions.protocolresults.FilteredIndexes;
 import pt.uminho.haslab.saferegions.protocolresults.LongPlayerResults;
 import pt.uminho.haslab.saferegions.protocolresults.ResultsIdentifiersMismatch;
 import pt.uminho.haslab.saferegions.protocolresults.ResultsLengthMismatch;
@@ -10,8 +9,6 @@ import pt.uminho.haslab.smpc.sharemindImp.Long.LongSharemindSecretFunctions;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition.Equal;
@@ -52,12 +49,18 @@ public class LongSearchValue extends SearchValue {
     }
 
 
-    public long[] duplicateLongs(byte[] value, int nTimes) {
+    /*public long[] duplicateLongs(byte[] value, int nTimes) {
 
         long[] vals = new long[nTimes];
         for (int i = 0; i < nTimes; i++) {
             vals[i] = ByteBuffer.wrap(value).getLong();
         }
+        return vals;
+    }*/
+
+    public long[] convertLong(byte[] value) {
+        long[] vals = new long[1];
+        vals[0] = ByteBuffer.wrap(value).getLong();
         return vals;
     }
 
@@ -81,11 +84,10 @@ public class LongSearchValue extends SearchValue {
 			 * e.g: Values = [val1, val1, val1] cmpValues = [val2, val3, val4]
 			 * In this example val1 is compared to every other value.
 			 */
-            //LOG.debug("Going to generate values");
 
             if (value.size() == 1 && cmpValues.size() > 1) {
                 // If there is only a single value replicate it
-                values = duplicateLongs(value.get(0), cmpValues.size());
+                values = convertLong(value.get(0));
                 intCmpValues = convertLongs(cmpValues);
             } else if (value.size() == cmpValues.size()) {
                 values = convertLongs(value);
@@ -106,20 +108,14 @@ public class LongSearchValue extends SearchValue {
                 result = ssf.greaterOrEqualThan(intCmpValues, values, player);
             }
 
-
-            List<Long> protoResults = new ArrayList<Long>(result.length);
-            for (Long val : result) {
-                protoResults.add(val);
-            }
-
             if (player.isTargetPlayer()) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Retrieve protocol results from peers");
                 }
                 // At this point the size of the list identifiers must be 2.
-                List<List<Long>> results = player.getLongProtocolResults();
+                List<long[]> results = player.getLongProtocolResults();
+                results.add(result);
 
-                results.add(protoResults);
                 LongPlayerResults playerResults = new LongPlayerResults(results, condition, nBits);
                 fIndex = playerResults.declassify();
                 /**
@@ -127,12 +123,13 @@ public class LongSearchValue extends SearchValue {
                  * the other players receives an empty list, it knows that no
                  * index was found.
                  */
-                List<byte[]> toSend = new ArrayList<byte[]>();
+                int[] toSend = new int[fIndex.size()];
 
                 for (int i = 0; i < fIndex.size(); i++) {
                     Boolean b = fIndex.get(i);
                     byte[] rowID = rowIDs.get(i);
-                    toSend.add(b.toString().getBytes());
+                    toSend[i] = b ? 1 : 0;
+                    //toSend.add(b.toString().getBytes());
                     // Prepare the results to be send to the other players.
                     resultIndex.put(new BigInteger(rowID), b);
                     resultsList.add(b);
@@ -141,20 +138,19 @@ public class LongSearchValue extends SearchValue {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Send filter results to peers");
                 }
-                FilteredIndexes filtIndex = new FilteredIndexes(toSend);
-                player.sendFilteredIndexes(filtIndex);
+                player.sendFilteredIndexes(toSend);
 
             } else {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("end protocol results to target");
                 }
                 player.sendLongProtocolResults(result);
-                List<byte[]> res = player.getFilterIndexes().getIndexes();
+                int[] res = player.getFilterIndexes();
 
-                for (int i = 0; i < res.size(); i++) {
-                    byte[] val = res.get(i);
+                for (int i = 0; i < res.length; i++) {
+                    int val = res[i];
                     byte[] rowID = rowIDs.get(i);
-                    Boolean decRes = Boolean.parseBoolean(new String(val));
+                    Boolean decRes = val == 1 ? Boolean.TRUE : Boolean.FALSE;
                     resultIndex.put(new BigInteger(rowID), decRes);
                     resultsList.add(decRes);
                 }

@@ -3,7 +3,8 @@ package pt.uminho.haslab.saferegions.comunication;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import pt.uminho.haslab.protocommunication.Search.*;
+import pt.uminho.haslab.protocommunication.Search.BatchShareMessage;
+import pt.uminho.haslab.protocommunication.Search.ResultsMessage;
 
 import java.io.*;
 import java.net.Socket;
@@ -178,14 +179,8 @@ public class Client extends Thread {
 
 		@Override
 		public void handle() {
-			try {
-				IntResultsMessage message = IntResultsMessage.parseFrom(msg);
-				broker.receiveProtocolResults(message);
-			} catch (InvalidProtocolBufferException ex) {
-				LOG.error(ex);
-				throw new IllegalStateException(ex);
-			}
-
+            CIntBatchShareMessage message = CIntBatchShareMessage.parseFrom(msg);
+            broker.receiveProtocolResults(message);
 		}
 
 	}
@@ -198,14 +193,8 @@ public class Client extends Thread {
 
         @Override
         public void handle() {
-            try {
-                LongResultsMessage message = LongResultsMessage.parseFrom(msg);
-                broker.receiveProtocolResults(message);
-            } catch (InvalidProtocolBufferException ex) {
-                LOG.error(ex);
-                throw new IllegalStateException(ex);
-            }
-
+            CLongBatchShareMessage message = CLongBatchShareMessage.parseFrom(msg);
+            broker.receiveProtocolResults(message);
         }
 
     }
@@ -219,14 +208,9 @@ public class Client extends Thread {
 
 		@Override
 		public void handle() {
-			try {
-				FilterIndexMessage message = FilterIndexMessage.parseFrom(msg);
-				broker.receiveFilterIndex(message);
-			} catch (InvalidProtocolBufferException ex) {
-				LOG.error(ex);
-				throw new IllegalStateException(ex);
-			}
-		}
+            CIntBatchShareMessage message = CIntBatchShareMessage.parseFrom(msg);
+            broker.receiveFilterIndex(message);
+        }
 	}
 
 	private class BatchShareHandler extends MessageHandler {

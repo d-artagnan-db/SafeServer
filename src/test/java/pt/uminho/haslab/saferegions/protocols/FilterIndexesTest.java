@@ -108,8 +108,9 @@ public class FilterIndexesTest extends TestLinkedRegions {
 				int playerSource = playerSourceIDs.get(i);
 				BigInteger index = indexes.get(i);
 
-				if (playerID == playerSource) {
-					List<byte[]> indexesToSendBa = new ArrayList<byte[]>();
+                throw new IllegalStateException("Test not adjusted to changes");
+                /*if (playerID == playerSource) {
+                    List<byte[]> indexesToSendBa = new ArrayList<byte[]>();
 					indexesToSendBa.add(index.toByteArray());
 					FilteredIndexes indexToSend = new FilteredIndexes(
 							indexesToSendBa);
@@ -117,8 +118,8 @@ public class FilterIndexesTest extends TestLinkedRegions {
 				} else {
 					FilteredIndexes received = player.getFilterIndexes();
 					recIndexes.get(playerID).add(received);
-				}
-				player.cleanValues();
+				}*/
+                //player.cleanValues();
 
 			}
 		}
