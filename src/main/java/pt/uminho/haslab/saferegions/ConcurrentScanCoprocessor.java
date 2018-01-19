@@ -295,26 +295,6 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
         ((SharemindPlayer) player).setTargetPlayer(targetPlayer);
     }
 
-    private OperationAttributesIdentifiers.ScanType checkScanType(
-            OperationWithAttributes op) {
-
-        if (op
-                .getAttribute(OperationAttributesIdentifiers.ScanType.ProtectedColumnScan
-                        .name()) != null) {
-            return OperationAttributesIdentifiers.ScanType.ProtectedColumnScan;
-        } else if (op
-                .getAttribute(OperationAttributesIdentifiers.ScanType.ProtectedIdentifierGet
-                        .name()) != null) {
-            return OperationAttributesIdentifiers.ScanType.ProtectedIdentifierGet;
-        } else if (op
-                .getAttribute(OperationAttributesIdentifiers.ScanType.ProtectedIdentifierScan
-                        .name()) != null) {
-            return OperationAttributesIdentifiers.ScanType.ProtectedIdentifierScan;
-        } else {
-            return null;
-        }
-    }
-
     @Override
     public Service getService() {
         return this;
@@ -336,7 +316,7 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
             List<Cell>  row = new ArrayList<Cell>();
             Smpc.Results.Builder resBuilder = Smpc.Results.newBuilder();
 
-            boolean run = true;
+            boolean run;
             do{
                 run = scanner.next(row);
                 if(!row.isEmpty()){
@@ -346,11 +326,9 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
 
             } while(run);
 
-           // LOG.debug("Results size " + results.size() + " is empty");
             for(List<Cell> resRow : results){
                 Smpc.Row.Builder  rowBuilder  = Smpc.Row.newBuilder();
                 for(Cell cell: resRow){
-                    //LOG.debug("Generating cell");
                     Smpc.Cell.Builder cellBuilder = Smpc.Cell.newBuilder();
                     cellBuilder.setColumnFamily(ByteString.copyFrom(CellUtil.cloneFamily(cell)));
                     cellBuilder.setColumnQualifier(ByteString.copyFrom(CellUtil.cloneQualifier(cell)));

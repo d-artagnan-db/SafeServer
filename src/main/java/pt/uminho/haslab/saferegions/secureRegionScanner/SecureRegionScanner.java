@@ -140,21 +140,21 @@ public class SecureRegionScanner implements RegionScanner {
 			    if(config.isCachedData() && mapBatchCachedData.containsKey(regionIdent)){
 			        BatchData cacheBatchData = mapBatchCachedData.get(regionIdent);
                     List<List<Cell>> batch = cacheBatchData.getRows();
-                    fRows = this.handler.filterBatch(batch, cacheBatchData.getColumnValues(), cacheBatchData.getRowIDs() ,  (SharemindPlayer) player);
+                    fRows = this.handler.filterBatch(batch, cacheBatchData.getColumnValues(), cacheBatchData.getRowIDs(),  (SharemindPlayer) player);
 
                 }else{
                     List<List<Cell>> batch = loadBatch();
-                    LOG.debug("Batch loaded");
+                    //LOG.debug("Batch loaded");
                     if (!batch.isEmpty()) {
-                        LOG.debug("Going to filterBatch");
+                        //LOG.debug("Going to filterBatch");
                         // Only returns rows that satisfy the protocol
                         BatchData batchData = new BatchData(batch);
                         batchData.processDatasetValues();
-                        fRows = this.handler.filterBatch(batch, batchData.getColumnValues(), batchData.getRowIDs() ,  (SharemindPlayer) player);
+                        fRows = this.handler.filterBatch(batch, batchData.getColumnValues(), batchData.getRowIDs(),  (SharemindPlayer) player);
                         /**
                          *  If in this part of the code and cache data is requested than its one of the threads that
                          *  is doing the first load of data.
-                         *  There maybe more threads reaaing for the first time the data.
+                         *  There maybe more threads reading for the first time the data.
                          */
                         if(config.isCachedData()){
                             cacheDataLock.lock();

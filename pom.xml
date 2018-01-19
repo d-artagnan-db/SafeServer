@@ -91,5 +91,25 @@
             </resource>
         </resources>
     </build>
+    <distributionManagement>
+        <repository>
+            <id>central</id>
+            <name>artifactory-releases</name>
+            <url>http://dump.lsd.di.uminho.pt:8080/artifactory/libs-release</url>
+        </repository>
+    </distributionManagement>
+    <repositories>
+        <repository>
+        <id>central</id>
+        <url>http://dump.lsd.di.uminho.pt:8080/artifactory/libs-release</url>
+        <snapshots>
+            <enabled>false</enabled>
+        </snapshots>
+        <releases>
+            <enabled>true</enabled>
+        </releases>
+        </repository>
+    </repositories>
+
 </project>
 

@@ -18,6 +18,8 @@ import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Conditio
 
 public class IntSearchValue  extends SearchValue{
 
+    private static final IntSharemindSecretFunctions ssf = new IntSharemindSecretFunctions();
+
     private int[] cacheValues;
 
     public IntSearchValue(int nBits, List<byte[]> value, Condition condition, SmpcConfiguration config) {
@@ -63,9 +65,6 @@ public class IntSearchValue  extends SearchValue{
         List<Boolean> fIndex;
         try {
             int[] result;
-
-            IntSharemindSecretFunctions ssf = new IntSharemindSecretFunctions();
-
             int[] values;
             int[] intCmpValues;
 			/* *
