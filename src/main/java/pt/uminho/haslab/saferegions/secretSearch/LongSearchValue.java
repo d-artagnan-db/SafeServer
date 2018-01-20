@@ -9,7 +9,9 @@ import pt.uminho.haslab.smpc.sharemindImp.Long.LongSharemindSecretFunctions;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -18,19 +20,31 @@ import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Conditio
 public class LongSearchValue extends SearchValue {
 
     private static final Lock cacheDataLock = new ReentrantLock();
-    private static long[] cacheValues;
+    private static final Map<String,Map<BigInteger, long[]>> cacheValues = new HashMap<String, Map<BigInteger, long[]>>();
 
-    public LongSearchValue(int nBits, List<byte[]> value, SearchCondition.Condition condition, SmpcConfiguration configuration) {
+
+    private final String column;
+    private final BigInteger regionIdentifier;
+
+    public LongSearchValue(int nBits, List<byte[]> value, SearchCondition.Condition condition, SmpcConfiguration configuration, String column, BigInteger regionIdent) {
         super(nBits, value, condition, configuration);
+        this.column = column;
+        this.regionIdentifier = regionIdent;
     }
 
 
-    public long[] convertLongs(List<byte[]> value) {
-        if (config.isCachedData() && cacheValues != null) {
+    public long[] convertLongs(List<byte[]> value, SharemindPlayer player) {
+
+        ///Key should contain local player ID for local tests.
+        //String key = player.getPlayerID() + ":"  + column;
+
+        String key = column;
+
+        if (config.isCachedData() && cacheValues.containsKey(key) && cacheValues.get(key).containsKey(regionIdentifier)) {
            /* if (LOG.isDebugEnabled()) {
                 LOG.debug("Computing over cached data");
             }*/
-            return cacheValues;
+            return cacheValues.get(key).get(regionIdentifier);
         } else {
 
            /* if (LOG.isDebugEnabled()) {
@@ -44,11 +58,19 @@ public class LongSearchValue extends SearchValue {
             }
 
             if (config.isCachedData()) {
+                //This causes tests to fail because the three clusters see the same values as the cache is static.
                 cacheDataLock.lock();
-                if(cacheValues == null){
-                    cacheValues = vals;
+                if(!cacheValues.containsKey(key)){
+                    cacheValues.put(key, new HashMap<BigInteger, long[]>());
+                }
+
+                if(!cacheValues.get(key).containsKey(regionIdentifier)){
+                    //LOG.info("Storing cached values "+key + "::"+regionIdentifier + "vals " + Arrays.toString(vals));
+
+                    cacheValues.get(key).put(regionIdentifier, vals);
                 }
                 cacheDataLock.unlock();
+
             }
 
             return vals;
@@ -93,7 +115,7 @@ public class LongSearchValue extends SearchValue {
 			 */
 
             values = convertLong(value.get(0));
-            intCmpValues = convertLongs(cmpValues);
+            intCmpValues = convertLongs(cmpValues, player);
 
             /*if (value.size() == 1 && cmpValues.size() > 1) {
                 // If there is only a single value replicate it

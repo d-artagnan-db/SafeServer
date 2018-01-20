@@ -10,6 +10,7 @@ import pt.uminho.haslab.saferegions.SmpcConfiguration;
 import pt.uminho.haslab.saferegions.secretSearch.*;
 import pt.uminho.haslab.saferegions.secureFilters.*;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,12 +40,15 @@ public class HandleSafeFilter {
 
     private SmpcConfiguration config;
 
+    private BigInteger regionIdentifier;
 
-    public HandleSafeFilter(TableSchema schema, SmpcConfiguration config) {
+
+    public HandleSafeFilter(TableSchema schema, SmpcConfiguration config, BigInteger regionIdentifier) {
         this.schema = schema;
         safeFilters = new HashMap<Column, List<SearchCondition>>();
         foundInvalidRecord = false;
         this.config = config;
+        this.regionIdentifier = regionIdentifier;
     }
 
     public void processFilter(Filter inputFilter) {
@@ -197,11 +201,13 @@ public class HandleSafeFilter {
 
                 case ISMPC:
                     log = "IntSearchConditionFactory";
-                    factory = new IntSearchConditionFactory(cond, nBits, values, config);
+                    String column = sFamily +":"+sQualifier;
+                    factory = new IntSearchConditionFactory(cond, nBits, values, config, column, regionIdentifier);
                     break;
                 case LSMPC:
                     log = "LongSearchConditionFactory";
-                    factory = new LongSearchConditionFactory(cond, nBits, values, config);
+                    String lcolumn = sFamily +":"+sQualifier;
+                    factory = new LongSearchConditionFactory(cond, nBits, values, config, lcolumn, regionIdentifier);
                     break;
                 case SMPC:
                     log = "BigIntegerSearchConditionFactory";

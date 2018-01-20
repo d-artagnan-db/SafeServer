@@ -71,16 +71,17 @@ public class SecureRegionScanner implements RegionScanner {
 
         this.schema = schema;
 
-        handler = new HandleSafeFilter(schema, config);
-        handler.processFilter(originalScan.getFilter());
-
-
 		if(regionStartRow.length == 0){
 		    this.regionIdent = BigInteger.ZERO;
         }else{
             this.regionIdent = new BigInteger(regionStartRow);
 
         }
+
+        handler = new HandleSafeFilter(schema, config,  regionIdent);
+        handler.processFilter(originalScan.getFilter());
+
+        //LOG.info("Region identifier " + regionIdent);
 
 
 	}
@@ -139,6 +140,7 @@ public class SecureRegionScanner implements RegionScanner {
 			do {
 			    if(config.isCachedData() && mapBatchCachedData.containsKey(regionIdent)){
 			        BatchData cacheBatchData = mapBatchCachedData.get(regionIdent);
+			        LOG.info("Loading cached data "+ regionIdent);
                     List<List<Cell>> batch = cacheBatchData.getRows();
                     fRows = this.handler.filterBatch(batch, cacheBatchData.getColumnValues(), cacheBatchData.getRowIDs(),  (SharemindPlayer) player);
 
@@ -160,6 +162,7 @@ public class SecureRegionScanner implements RegionScanner {
                             cacheDataLock.lock();
 
                             if(!mapBatchCachedData.containsKey(regionIdent)){
+                                LOG.info("Caching region ident " + regionIdent);
                                 mapBatchCachedData.put(regionIdent, batchData);
                             }
                             cacheDataLock.unlock();

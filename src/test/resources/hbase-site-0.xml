@@ -118,6 +118,6 @@
     </property>
     <property>
         <name>smhbase.schema</name>
-        <value>/Users/roger/Documents/HASLab/safecloud-eu/saferegions/src/test/resources/int-protected-schema.xml</value>
+        <value>/Users/roger/Documents/HASLab/safecloud-eu/saferegions/src/test/resources/long-protected-schema.xml</value>
     </property>
 </configuration>

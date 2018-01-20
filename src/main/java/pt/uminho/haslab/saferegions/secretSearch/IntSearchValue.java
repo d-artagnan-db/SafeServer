@@ -10,7 +10,9 @@ import pt.uminho.haslab.smpc.sharemindImp.Integer.IntSharemindSecretFunctions;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -21,21 +23,29 @@ public class IntSearchValue extends SearchValue{
 
     private static final IntSharemindSecretFunctions ssf = new IntSharemindSecretFunctions();
 
-    private static int[] cacheValues;
+    private static final Map<String,Map<BigInteger, int[]>> cacheValues = new HashMap<String, Map<BigInteger, int[]>>();
     private static final Lock cacheDataLock = new ReentrantLock();
 
+    private final String column;
+    private final BigInteger regionIdentifier;
 
-    public IntSearchValue(int nBits, List<byte[]> value, Condition condition, SmpcConfiguration config) {
+    public IntSearchValue(int nBits, List<byte[]> value, Condition condition, SmpcConfiguration config, String column, BigInteger regionIdent) {
         super(nBits, value, condition, config);
+        this.column = column;
+        this.regionIdentifier = regionIdent;
     }
 
-    public int[] convertInts(List<byte[]> value){
+    public int[] convertInts(List<byte[]> value, SharemindPlayer player){
 
-        if (config.isCachedData() && cacheValues != null) {
+        ///Key should contain local player ID for local tests.
+        //String key = player.getPlayerID() + ":"  + column;
+        String key = column;
+        if (config.isCachedData() && cacheValues.containsKey(key) && cacheValues.get(key).containsKey(regionIdentifier)) {
             /*if (LOG.isDebugEnabled()) {
                 LOG.debug("Computing over cached data");
             }*/
-            return cacheValues;
+            //LOG.info("Geting cahced values " +  key + "::"+regionIdentifier + "::"  + Arrays.toString(cacheValues.get(key).get(regionIdentifier)));
+            return cacheValues.get(key).get(regionIdentifier);
         } else {
             /*if (LOG.isDebugEnabled()) {
                 LOG.debug("Computing over loaded data");
@@ -50,8 +60,14 @@ public class IntSearchValue extends SearchValue{
             if (config.isCachedData()) {
                 //This causes tests to fail because the three clusters see the same values as the cache is static.
                 cacheDataLock.lock();
-                if(cacheValues == null){
-                    cacheValues = vals;
+                if(!cacheValues.containsKey(key)){
+                    cacheValues.put(key, new HashMap<BigInteger, int[]>());
+                }
+
+                if(!cacheValues.get(key).containsKey(regionIdentifier)){
+                    //LOG.info("Storing cached values "+key + "::"+regionIdentifier + "vals " + Arrays.toString(vals));
+
+                    cacheValues.get(key).put(regionIdentifier, vals);
                 }
                 cacheDataLock.unlock();
 
@@ -95,7 +111,7 @@ public class IntSearchValue extends SearchValue{
 			//LOG.debug("Going to generate values");
 
             values = convertInt(value.get(0));
-            intCmpValues = convertInts(cmpValues);
+            intCmpValues = convertInts(cmpValues, player);
 
 
             /*if (LOG.isDebugEnabled()) {

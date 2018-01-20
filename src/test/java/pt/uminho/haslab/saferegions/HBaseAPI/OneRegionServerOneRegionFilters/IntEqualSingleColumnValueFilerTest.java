@@ -25,7 +25,7 @@ public class IntEqualSingleColumnValueFilerTest extends AbsSingleColumnValueFilt
     }
 
     protected long getNumberOfRecords() {
-        return 1;
+        return 100;
     }
 
     @Override

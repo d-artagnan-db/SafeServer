@@ -241,7 +241,7 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
 
 
         RequestIdentifier ident = getRequestIdentifier(op, env);
-        LOG.debug("Going to registerRequest");
+        //LOG.debug("Going to registerRequest");
         relay.registerRequest(ident);
         Player player = getPlayer(ident);
         byte[] startRow = op.getStartRow();
@@ -249,22 +249,22 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
         byte[] regionStartKey = env.getRegion().getStartKey();
         byte[] regionEndKey = env.getRegion().getEndKey();
 
-        if (LOG.isDebugEnabled()) {
+        /*if (LOG.isDebugEnabled()) {
             String requestID = Arrays
                     .toString(ident.getRequestID());
             String regionID = Arrays.toString(ident.getRegionID());
             LOG.debug(player.getPlayerID() + " has scan with "
                     + Arrays.toString(startRow) + ", " + Arrays.toString(stopRow)
                     + ", " + op.getFilter() + " and has identifier with identifier " + requestID+":"+regionID);
-        }
+        }*/
 
         checkTargetPlayer(player, op);
 
         TableSchema tSchema = schema.getTableSchema(tableName);
-        if (LOG.isDebugEnabled()) {
+        /*if (LOG.isDebugEnabled()) {
             LOG.debug("Is player targetPlayer " + ((ContextPlayer) player).isTargetPlayer());
             LOG.debug("Returning SecureRegionScanner");
-        }
+        }*/
         return new SecureRegionScanner(env, player, this.searchConf,
                 startRow, stopRow, regionStartKey, regionEndKey, tSchema, op);
     }
