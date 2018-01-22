@@ -20,13 +20,13 @@ import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Conditio
 public class LongSearchValue extends SearchValue {
 
     private static final Lock cacheDataLock = new ReentrantLock();
-    private static final Map<String,Map<BigInteger, long[]>> cacheValues = new HashMap<String, Map<BigInteger, long[]>>();
+    private static final Map<String,Map<String, long[]>> cacheValues = new HashMap<String, Map<String, long[]>>();
 
 
     private final String column;
-    private final BigInteger regionIdentifier;
+    private final String regionIdentifier;
 
-    public LongSearchValue(int nBits, List<byte[]> value, SearchCondition.Condition condition, SmpcConfiguration configuration, String column, BigInteger regionIdent) {
+    public LongSearchValue(int nBits, List<byte[]> value, SearchCondition.Condition condition, SmpcConfiguration configuration, String column, String regionIdent) {
         super(nBits, value, condition, configuration);
         this.column = column;
         this.regionIdentifier = regionIdent;
@@ -41,15 +41,8 @@ public class LongSearchValue extends SearchValue {
         String key = column;
 
         if (config.isCachedData() && cacheValues.containsKey(key) && cacheValues.get(key).containsKey(regionIdentifier)) {
-           /* if (LOG.isDebugEnabled()) {
-                LOG.debug("Computing over cached data");
-            }*/
             return cacheValues.get(key).get(regionIdentifier);
         } else {
-
-           /* if (LOG.isDebugEnabled()) {
-                LOG.debug("Computing over loaded data");
-            }*/
 
             long[] vals = new long[value.size()];
 
@@ -61,12 +54,10 @@ public class LongSearchValue extends SearchValue {
                 //This causes tests to fail because the three clusters see the same values as the cache is static.
                 cacheDataLock.lock();
                 if(!cacheValues.containsKey(key)){
-                    cacheValues.put(key, new HashMap<BigInteger, long[]>());
+                    cacheValues.put(key, new HashMap<String, long[]>());
                 }
 
                 if(!cacheValues.get(key).containsKey(regionIdentifier)){
-                    //LOG.info("Storing cached values "+key + "::"+regionIdentifier + "vals " + Arrays.toString(vals));
-
                     cacheValues.get(key).put(regionIdentifier, vals);
                 }
                 cacheDataLock.unlock();
@@ -76,16 +67,6 @@ public class LongSearchValue extends SearchValue {
             return vals;
         }
     }
-
-
-    /*public long[] duplicateLongs(byte[] value, int nTimes) {
-
-        long[] vals = new long[nTimes];
-        for (int i = 0; i < nTimes; i++) {
-            vals[i] = ByteBuffer.wrap(value).getLong();
-        }
-        return vals;
-    }*/
 
     public long[] convertLong(byte[] value) {
         long[] vals = new long[1];
@@ -117,22 +98,6 @@ public class LongSearchValue extends SearchValue {
             values = convertLong(value.get(0));
             intCmpValues = convertLongs(cmpValues, player);
 
-            /*if (value.size() == 1 && cmpValues.size() > 1) {
-                // If there is only a single value replicate it
-                values = convertLong(value.get(0));
-                intCmpValues = convertLongs(cmpValues);
-            } else if (value.size() == cmpValues.size()) {
-                values = convertLongs(value);
-                intCmpValues = convertLongs(cmpValues);
-            } else {
-                throw new IllegalStateException(
-                        "The size of values list being compared is invalid");
-            }*/
-
-
-            /*if (LOG.isDebugEnabled()) {
-                LOG.debug("Running protocol " + condition + " with value " + values.length + " and cmpValues " + intCmpValues.length);
-            }*/
 
             if (condition == Equal) {
                 result = ssf.equal(values, intCmpValues, player);
@@ -141,9 +106,7 @@ public class LongSearchValue extends SearchValue {
             }
 
             if (player.isTargetPlayer()) {
-                /*if (LOG.isDebugEnabled()) {
-                    LOG.debug("Retrieve protocol results from peers");
-                }*/
+
                 // At this point the size of the list identifiers must be 2.
                 List<long[]> results = player.getLongProtocolResults();
                 results.add(result);
@@ -161,21 +124,16 @@ public class LongSearchValue extends SearchValue {
                     Boolean b = fIndex.get(i);
                     byte[] rowID = rowIDs.get(i);
                     toSend[i] = b ? 1 : 0;
-                    //toSend.add(b.toString().getBytes());
                     // Prepare the results to be send to the other players.
-                    resultIndex.put(new BigInteger(rowID), b);
+                    resultIndex.put(new String(rowID), b);
                     resultsList.add(b);
 
                 }
-                /*if (LOG.isDebugEnabled()) {
-                    LOG.debug("Send filter results to peers");
-                }*/
+
                 player.sendFilteredIndexes(toSend);
 
             } else {
-                /*if (LOG.isDebugEnabled()) {
-                    LOG.debug("end protocol results to target");
-                }*/
+
                 player.sendLongProtocolResults(result);
                 int[] res = player.getFilterIndexes();
 
@@ -183,7 +141,7 @@ public class LongSearchValue extends SearchValue {
                     int val = res[i];
                     byte[] rowID = rowIDs.get(i);
                     Boolean decRes = val == 1 ? Boolean.TRUE : Boolean.FALSE;
-                    resultIndex.put(new BigInteger(rowID), decRes);
+                    resultIndex.put(new String(rowID), decRes);
                     resultsList.add(decRes);
                 }
             }

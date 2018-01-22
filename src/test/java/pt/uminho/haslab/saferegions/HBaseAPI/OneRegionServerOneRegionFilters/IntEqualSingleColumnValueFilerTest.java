@@ -21,7 +21,8 @@ public class IntEqualSingleColumnValueFilerTest extends AbsSingleColumnValueFilt
         this.qualifierColTypes.get("User").put("Name", ColType.STRING);
         this.qualifierColTypes.get("User").put("Surname", ColType.STRING);
         this.qualifierColTypes.get("User").put("Age", ColType.INTEGER);
-
+        this.qualifierColTypes.get("User").put("Cost", ColType.INTEGER);
+        this.qualifierColTypes.get("User").put("Stuff", ColType.LONG);
     }
 
     protected long getNumberOfRecords() {
@@ -33,7 +34,5 @@ public class IntEqualSingleColumnValueFilerTest extends AbsSingleColumnValueFilt
         return CompareFilter.CompareOp.EQUAL;
     }
 
-    public static void main(String[] args) {
-    }
 
 }

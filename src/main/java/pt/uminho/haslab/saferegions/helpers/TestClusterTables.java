@@ -425,6 +425,7 @@ public class TestClusterTables extends ClusterTables {
                         .setStopRow(ByteString.copyFrom(scan.getStopRow()))
                         .setFilter(ByteString.copyFrom(scan.getFilter().toByteArray()))
                         .setTargetPlayer(targetPlayer)
+                        .setFilterType(scan.getFilter().getClass().getName())
                         .setRequestID(ByteString.copyFrom(requestID)).build();
 
                 concurrentScanService.scan(controller, message, rpcCallback);

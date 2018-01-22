@@ -54,9 +54,6 @@ public class BigIntegerSearchValue extends SearchValue {
             }
 
 
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Running protocol " + condition);
-            }
             if (condition == Equal) {
                 result = ssf.equal(values, cmpValues, player);
             } else {
@@ -64,9 +61,7 @@ public class BigIntegerSearchValue extends SearchValue {
             }
 
             if (player.isTargetPlayer()) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Retrieve protocol results from peers");
-                }
+
                 // At this point the size of the list identifiers must be 2.
                 List<List<byte[]>> results = player.getProtocolResults();
 
@@ -85,19 +80,15 @@ public class BigIntegerSearchValue extends SearchValue {
                     byte[] rowID = rowIDs.get(i);
                     toSend[i] = b ? 1 : 0;
                     // Prepare the results to be send to the other players.
-                    resultIndex.put(new BigInteger(rowID), b);
+                    resultIndex.put(new String(rowID), b);
                     resultsList.add(b);
 
                 }
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Send filter results to peers");
-                }
+
                 player.sendFilteredIndexes(toSend);
 
             } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Send protocol results to target");
-                }
+
                 player.sendProtocolResults(result);
                 int[] res = player.getFilterIndexes();
 
@@ -105,7 +96,7 @@ public class BigIntegerSearchValue extends SearchValue {
                     int val = res[i];
                     byte[] rowID = rowIDs.get(i);
                     Boolean decRes = val == 1 ? Boolean.TRUE : Boolean.FALSE;
-                    resultIndex.put(new BigInteger(rowID), decRes);
+                    resultIndex.put(new String(rowID), decRes);
                     resultsList.add(decRes);
                 }
             }

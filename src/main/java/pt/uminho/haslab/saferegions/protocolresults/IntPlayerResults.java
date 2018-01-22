@@ -55,11 +55,8 @@ public class IntPlayerResults {
             secrets[2] = bThirdSecret;
             IntSharemindDealer dealer = new IntSharemindDealer();
 
-            LOG.debug("index " + i + " protocol results are  " + Arrays.toString(secrets));
-            LOG.debug("Condition is " + condition);
             if (condition == Equal) {
                 int result = dealer.unshareBit(secrets);
-                LOG.debug("Index " + i + " had result " + result);
                 if (result == 1) {
                     resultIDS.add(Boolean.TRUE);
                 } else {

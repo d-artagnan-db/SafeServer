@@ -14,7 +14,6 @@ import pt.uminho.haslab.saferegions.secretSearch.SharemindPlayer;
 import pt.uminho.haslab.smpc.interfaces.Player;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,110 +24,99 @@ import java.util.concurrent.locks.ReentrantLock;
 import static pt.uminho.haslab.safemapper.DatabaseSchema.isProtectedColumn;
 
 public class SecureRegionScanner implements RegionScanner {
-	static final Log LOG = LogFactory.getLog(SecureRegionScanner.class
-			.getName());
-
-
-	private final RegionCoprocessorEnvironment env;
-
-	private final Player player;
-
-	private final HandleSafeFilter handler;
-	private final Scan scan;
-
-	private final RegionScanner scanner;
-	private final BatchCache resultsCache;
-	private final Batcher batcher;
-
-	private boolean hasMore;
-
-	private final TableSchema schema;
-	private final SmpcConfiguration config;
-
-	private final BigInteger regionIdent;
-
+    static final Log LOG = LogFactory.getLog(SecureRegionScanner.class
+            .getName());
     private static final Lock cacheDataLock = new ReentrantLock();
-    private static final Map<BigInteger, BatchData> mapBatchCachedData  = new HashMap<BigInteger, BatchData>();;
+    private static final Map<String, BatchData> mapBatchCachedData = new HashMap<String, BatchData>();
+    private final RegionCoprocessorEnvironment env;
+    private final Player player;
+    private final HandleSafeFilter handler;
+    private final Scan scan;
+    private final RegionScanner scanner;
+    private final BatchCache resultsCache;
+    private final Batcher batcher;
+    private final TableSchema schema;
+    private final SmpcConfiguration config;
+    private final String regionIdent;
+    private boolean hasMore;
+    ;
 
 
-
-
-	public SecureRegionScanner(RegionCoprocessorEnvironment env, Player player,
+    public SecureRegionScanner(RegionCoprocessorEnvironment env, Player player,
                                SmpcConfiguration config,
                                byte[] scanStartRow, byte[] scanStopRow, byte[] regionStartRow, byte[] regionStopRow, TableSchema schema, Scan originalScan) throws IOException {
 
-	    this.env = env;
-		this.player = player;
-		this.config = config;
-		batcher = new Batcher(config);
+        this.env = env;
+        this.player = player;
+        this.config = config;
+        batcher = new Batcher(config);
 
         scan = new Scan(scanStartRow, scanStopRow);
 
-		scanner = env.getRegion().getScanner(scan);
+        scanner = env.getRegion().getScanner(scan);
 
-		resultsCache = new BatchCache();
-		hasMore = false;
+        resultsCache = new BatchCache();
+        hasMore = false;
 
         this.schema = schema;
 
-		if(regionStartRow.length == 0){
-		    this.regionIdent = BigInteger.ZERO;
-        }else{
-            this.regionIdent = new BigInteger(regionStartRow);
+
+        if (regionStartRow.length == 0) {
+            this.regionIdent = "0";
+        } else {
+            this.regionIdent = new String(regionStartRow);
 
         }
+        LOG.info("Region identifier " + regionIdent);
 
-        handler = new HandleSafeFilter(schema, config,  regionIdent);
+        handler = new HandleSafeFilter(schema, config, regionIdent);
         handler.processFilter(originalScan.getFilter());
 
-        //LOG.info("Region identifier " + regionIdent);
 
+    }
 
-	}
+    public HRegionInfo getRegionInfo() {
 
-	public HRegionInfo getRegionInfo() {
-
-	    if(LOG.isDebugEnabled()){
-	        LOG.debug("getRegionInfo");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("getRegionInfo");
         }
         return env.getRegion().getRegionInfo();
-	}
+    }
 
-	public boolean isFilterDone() throws IOException {
-	    if (LOG.isDebugEnabled()){
-	        LOG.debug("IsFilterDone issued");
-	    }
+    public boolean isFilterDone() throws IOException {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("IsFilterDone issued");
+        }
         return handler.isStopOnInvalidRecord() && handler.isStopOnInvalidRecord();
     }
 
 
-	private List<List<Cell>> loadBatch() throws IOException {
-		int batchSize = batcher.batchSize();
-		List<List<Cell>> localCells = new ArrayList<List<Cell>>();
-		int counter = 0;
-		do {
-			List<Cell> localResults = new ArrayList<Cell>();
+    private List<List<Cell>> loadBatch() throws IOException {
+        int batchSize = batcher.batchSize();
+        List<List<Cell>> localCells = new ArrayList<List<Cell>>();
+        int counter = 0;
+        do {
+            List<Cell> localResults = new ArrayList<Cell>();
 
-			hasMore = scanner.next(localResults);
+            hasMore = scanner.next(localResults);
 
-			// Return case when there are no records in the table;
-			if (!hasMore && localResults.isEmpty()) {
-				return localCells;
-			}
+            // Return case when there are no records in the table;
+            if (!hasMore && localResults.isEmpty()) {
+                return localCells;
+            }
+            localCells.add(localResults);
+            counter += 1;
+        } while (counter < batchSize && hasMore);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("loaded batch size of " + counter + " but was asked to load at most " + batchSize);
+        }
 
-			localCells.add(localResults);
-			counter += 1;
-		} while (counter < batchSize && hasMore);
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("loaded batch size of " + counter + " but was asked to load at most " + batchSize);
-		}
+        return localCells;
+    }
 
-		return localCells;
-	}
+    public boolean next(List<Cell> results) throws IOException {
 
-	public boolean next(List<Cell> results) throws IOException {
-
-	    if(LOG.isDebugEnabled()) {
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Next in SecureRegionScanner was issued ");
         }
 
@@ -137,43 +125,39 @@ public class SecureRegionScanner implements RegionScanner {
         if (run) {
             List<List<Cell>> fRows = new ArrayList<List<Cell>>();
 
-			do {
-			    if(config.isCachedData() && mapBatchCachedData.containsKey(regionIdent)){
-			        BatchData cacheBatchData = mapBatchCachedData.get(regionIdent);
-			        LOG.info("Loading cached data "+ regionIdent);
+            do {
+                if (config.isCachedData() && mapBatchCachedData.containsKey(regionIdent)) {
+                    BatchData cacheBatchData = mapBatchCachedData.get(regionIdent);
                     List<List<Cell>> batch = cacheBatchData.getRows();
-                    fRows = this.handler.filterBatch(batch, cacheBatchData.getColumnValues(), cacheBatchData.getRowIDs(),  (SharemindPlayer) player);
+                    fRows = this.handler.filterBatch(batch, cacheBatchData.getColumnValues(), cacheBatchData.getRowIDs(), (SharemindPlayer) player);
 
-                }else{
+                } else {
                     List<List<Cell>> batch = loadBatch();
-                    //LOG.debug("Batch loaded");
                     if (!batch.isEmpty()) {
-                        //LOG.debug("Going to filterBatch");
                         // Only returns rows that satisfy the protocol
                         BatchData batchData = new BatchData(batch);
                         batchData.processDatasetValues();
-                        fRows = this.handler.filterBatch(batch, batchData.getColumnValues(), batchData.getRowIDs(),  (SharemindPlayer) player);
+                        fRows = this.handler.filterBatch(batch, batchData.getColumnValues(), batchData.getRowIDs(), (SharemindPlayer) player);
                         /**
                          *  If in this part of the code and cache data is requested than its one of the threads that
                          *  is doing the first load of data.
                          *  There maybe more threads reading for the first time the data.
                          */
-                        if(config.isCachedData()){
+                        if (config.isCachedData()) {
                             cacheDataLock.lock();
 
-                            if(!mapBatchCachedData.containsKey(regionIdent)){
-                                LOG.info("Caching region ident " + regionIdent);
+                            if (!mapBatchCachedData.containsKey(regionIdent)) {
                                 mapBatchCachedData.put(regionIdent, batchData);
                             }
                             cacheDataLock.unlock();
 
                         }
-				    }
-				}
-			} while (hasMore && fRows.isEmpty());
+                    }
+                }
+            } while (hasMore && fRows.isEmpty());
 
-			resultsCache.addListCells(fRows);
-		}
+            resultsCache.addListCells(fRows);
+        }
 
         /**
          * After loading a batch, filtering the dataset and storing it on a cache, there are four possible scenarios.
@@ -207,27 +191,27 @@ public class SecureRegionScanner implements RegionScanner {
          * */
 
         if (!hasMore && resultsCache.isBatchEmpty()) {
-			results.addAll(new ArrayList<Cell>());
-			return false;
+            results.addAll(new ArrayList<Cell>());
+            return false;
         } else if (!hasMore && !resultsCache.isBatchEmpty()) {
             results.addAll(resultsCache.getNext());
-			return !resultsCache.isBatchEmpty();
+            return !resultsCache.isBatchEmpty();
         } else if (hasMore && resultsCache.isBatchEmpty()) {
             results.addAll(new ArrayList<Cell>());
-			return !(handler.isStopOnInvalidRecord() && handler.foundInvalidRecord());
+            return !(handler.isStopOnInvalidRecord() && handler.foundInvalidRecord());
         } else if (hasMore && !resultsCache.isBatchEmpty()) {
             results.addAll(resultsCache.getNext());
-			return true;
+            return true;
         } else {
             throw new IllegalStateException("Case not handled");
         }
     }
 
     public void close() throws IOException {
-	    LOG.debug("Close issued");
-		((SharemindPlayer) player).cleanValues();
-		scanner.close();
-	}
+        LOG.debug("Close issued");
+        ((SharemindPlayer) player).cleanValues();
+        scanner.close();
+    }
 
     public boolean next(List<Cell> result, int limit) throws IOException {
         LOG.error("Next with limit was issued");
@@ -235,83 +219,81 @@ public class SecureRegionScanner implements RegionScanner {
     }
 
     public boolean reseek(byte[] row) throws IOException {
-		LOG.error("reseek was issued");
-		throw new UnsupportedOperationException("Not supported yet.");
+        LOG.error("reseek was issued");
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public long getMaxResultSize()
-    {
-        if(LOG.isDebugEnabled()){
+    public long getMaxResultSize() {
+        if (LOG.isDebugEnabled()) {
             LOG.debug("getMaxResultSize issued");
         }
-	    return scanner.getMaxResultSize();
-	}
+        return scanner.getMaxResultSize();
+    }
 
     public long getMvccReadPoint() {
-	    if(LOG.isDebugEnabled()){
+        if (LOG.isDebugEnabled()) {
             LOG.debug("getMvccReadPoint issued");
-	    }
-	    return scanner.getMvccReadPoint();
+        }
+        return scanner.getMvccReadPoint();
     }
 
     public boolean nextRaw(List<Cell> result) throws IOException {
-	    if(LOG.isDebugEnabled()){
-	        LOG.debug("NextRaw issued");
-	    }
-		return this.next(result);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("NextRaw issued");
+        }
+        return this.next(result);
     }
 
     public boolean nextRaw(List<Cell> result, int limit) throws IOException {
-	    if(LOG.isDebugEnabled()){
-		    LOG.error("Next raw with limit was issued");
-	    }
-		throw new UnsupportedOperationException("Not supported yet.");
+        if (LOG.isDebugEnabled()) {
+            LOG.error("Next raw with limit was issued");
+        }
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 
-    private class BatchData{
+    private class BatchData {
         private final Map<Column, List<byte[]>> columnValues;
         private final List<byte[]> rowIDs;
         private final List<List<Cell>> rows;
 
-        public BatchData(List<List<Cell>> rows){
+        public BatchData(List<List<Cell>> rows) {
             this.rows = rows;
-            this.columnValues  = new HashMap<Column, List<byte[]>>();
+            this.columnValues = new HashMap<Column, List<byte[]>>();
             this.rowIDs = new ArrayList<byte[]>();
 
         }
 
         public void processDatasetValues() {
 
-                // Process rows and store the values of the protected columns in a Map.
-                for (List<Cell> row : rows) {
+            // Process rows and store the values of the protected columns in a Map.
+            for (List<Cell> row : rows) {
 
-                    for (Cell cell : row) {
-                        byte[] cellCF = CellUtil.cloneFamily(cell);
-                        byte[] cellCQ = CellUtil.cloneQualifier(cell);
-                        byte[] rowID = CellUtil.cloneRow(cell);
-                        byte[] cellVal = CellUtil.cloneValue(cell);
+                byte[] rowID = CellUtil.cloneRow(row.get(0));
 
-                        if (isProtectedColumn(schema, cellCF, cellCQ)) {
-                            Column col = new Column(cellCF, cellCQ);
+                for (Cell cell : row) {
+                    byte[] cellCF = CellUtil.cloneFamily(cell);
+                    byte[] cellCQ = CellUtil.cloneQualifier(cell);
+                    byte[] cellVal = CellUtil.cloneValue(cell);
 
-                            if (!columnValues.containsKey(col)) {
-                                columnValues.put(col, new ArrayList<byte[]>());
-                            }
-                            columnValues.get(col).add(cellVal);
-                            rowIDs.add(rowID);
+                    if (isProtectedColumn(schema, cellCF, cellCQ)) {
+                        Column col = new Column(cellCF, cellCQ);
 
+                        if (!columnValues.containsKey(col)) {
+                            columnValues.put(col, new ArrayList<byte[]>());
                         }
+                        columnValues.get(col).add(cellVal);
                     }
                 }
+                rowIDs.add(rowID);
             }
-
-        public Map<Column, List<byte[]>> getColumnValues(){
-	        return this.columnValues;
-
         }
 
-        public List<byte[]> getRowIDs(){
+        public Map<Column, List<byte[]>> getColumnValues() {
+            return this.columnValues;
+        }
+
+        public List<byte[]> getRowIDs() {
             return this.rowIDs;
         }
 

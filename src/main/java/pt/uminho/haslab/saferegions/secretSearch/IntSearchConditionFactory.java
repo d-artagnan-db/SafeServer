@@ -12,8 +12,8 @@ import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Conditio
 public class IntSearchConditionFactory extends SearchConditionFactory{
 
     private final String column;
-    private final BigInteger regionIdentifier;
-    public IntSearchConditionFactory(SearchCondition.Condition op, int nBits, List<byte[]> values, SmpcConfiguration config, String column, BigInteger regionIdentifier) {
+    private final String regionIdentifier;
+    public IntSearchConditionFactory(SearchCondition.Condition op, int nBits, List<byte[]> values, SmpcConfiguration config, String column, String regionIdentifier) {
         super(op, nBits, values, config);
         this.column = column;
         this.regionIdentifier = regionIdentifier;

@@ -40,10 +40,10 @@ public class HandleSafeFilter {
 
     private SmpcConfiguration config;
 
-    private BigInteger regionIdentifier;
+    private String regionIdentifier;
 
 
-    public HandleSafeFilter(TableSchema schema, SmpcConfiguration config, BigInteger regionIdentifier) {
+    public HandleSafeFilter(TableSchema schema, SmpcConfiguration config, String regionIdentifier) {
         this.schema = schema;
         safeFilters = new HashMap<Column, List<SearchCondition>>();
         foundInvalidRecord = false;
@@ -72,17 +72,12 @@ public class HandleSafeFilter {
 
 
         // Get the protected column values and the row identifiers.
-        /*if(LOG.isDebugEnabled()){
-            LOG.debug("SafeFilters keys " + safeFilters.size());
-        }*/
         // Evaluate all of the SMPC protocols required for the filter.
         for (Column col : safeFilters.keySet()) {
             List<byte[]> values = columnValues.get(col);
-            //LOG.debug("SafeFilter conditions size is " + safeFilters.get(col).size());
             for (SearchCondition safeFilter : safeFilters.get(col)) {
-                // LOG.debug("Going to evaluate searchCondition " + safeFilter.getCondition());
+                 LOG.debug(player.getPlayerID()+" Going to evaluate searchCondition " + safeFilter.getCondition() + " for column " + col + " for values " + values.size() + " for region " + regionIdentifier);
                 safeFilter.evaluateCondition(values, rowIDs, player);
-                // LOG.debug("Condition evaluated");
             }
 
         }

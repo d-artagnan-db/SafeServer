@@ -26,7 +26,15 @@
                 <qualifier>
                     <name>Age</name>
                     <cryptotechnique>ISMPC</cryptotechnique>
-                    <colformatsize>31</colformatsize>
+                </qualifier>
+                <qualifier>
+                    <name>Cost</name>
+                    <cryptotechnique>SMPC</cryptotechnique>
+                    <colformatsize>72</colformatsize>
+                </qualifier>
+                <qualifier>
+                    <name>Stuff</name>
+                    <cryptotechnique>LSMPC</cryptotechnique>
                 </qualifier>
             </family>
         </columns>

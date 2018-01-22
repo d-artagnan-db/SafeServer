@@ -46,4 +46,11 @@ public class Column {
 		return Arrays.equals(this.cq, other.cq);
 	}
 
+	@Override
+	public String toString() {
+		return "Column{" +
+				"cf=" + new String(cf)+
+				", cq=" + new String(cq) +
+				'}';
+	}
 }

@@ -35,6 +35,8 @@ import pt.uminho.haslab.smpc.interfaces.Player;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.Semaphore;
 
@@ -300,6 +302,18 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
         return this;
     }
 
+    private Filter parseFilter(byte[] filter, String filterClassName){
+        try {
+            Class filterClass = Class.forName(filterClassName);
+            Method m = filterClass.getDeclaredMethod("parseFrom",  byte[].class);
+            Filter result = (Filter) m.invoke(null, filter);
+            return result;
+
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            LOG.debug(e);
+            throw new IllegalStateException(e);
+        }
+    }
     @Override
     public void scan(RpcController rpcController, Smpc.ScanMessage scanMessage, RpcCallback<Smpc.Results> rpcCallback) {
 
@@ -307,7 +321,8 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
             Scan scan = new Scan(scanMessage.getStartRow().toByteArray(), scanMessage.getStopRow().toByteArray());
             scan.setAttribute(OperationAttributesIdentifiers.RequestIdentifier,  scanMessage.getRequestID().toByteArray());
             scan.setAttribute(OperationAttributesIdentifiers.TargetPlayer, (""+scanMessage.getTargetPlayer()).getBytes());
-            Filter f = SingleColumnValueFilter.parseFrom(scanMessage.getFilter().toByteArray());
+            Filter f = parseFilter(scanMessage.getFilter().toByteArray(), scanMessage.getFilterType());
+            //Filter f = SingleColumnValueFilter.parseFrom(scanMessage.getFilter().toByteArray());
             scan.setFilter(f);
             String table = env.getRegion().getTableDesc().getNameAsString();
             RegionScanner scanner = secretScanSearchWithFilter(scan, env, table);
@@ -344,7 +359,7 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
             }
             rpcCallback.run(resBuilder.build());
 
-        } catch (IOException | DeserializationException e) {
+        } catch (IOException e) {
             LOG.debug(e);
             throw new IllegalStateException(e);
         }

@@ -1,14 +1,19 @@
 package pt.uminho.haslab.saferegions.secureFilters;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import pt.uminho.haslab.saferegions.secretSearch.SearchCondition;
 import pt.uminho.haslab.saferegions.secureRegionScanner.Column;
+import pt.uminho.haslab.saferegions.secureRegionScanner.HandleSafeFilter;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class SearchConditionFilter implements SecureFilter {
+    private static final Log LOG = LogFactory.getLog(SearchConditionFilter.class
+            .getName());
 	protected SearchCondition condition;
 	protected Column col;
 

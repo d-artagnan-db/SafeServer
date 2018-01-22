@@ -14,7 +14,7 @@ public abstract class SearchValue extends AbstractSearchValue {
 
 	protected final int nBits;
 
-	protected final Map<BigInteger, Boolean> resultIndex;
+	protected final Map<String, Boolean> resultIndex;
 
 	protected  final List<Boolean> resultsList;
 
@@ -24,7 +24,7 @@ public abstract class SearchValue extends AbstractSearchValue {
         super(condition);
 		this.value = value;
 		this.nBits = nBits;
-		resultIndex = new HashMap<BigInteger, Boolean>();
+		resultIndex = new HashMap<String, Boolean>();
 		resultsList = new ArrayList<Boolean>();
         this.config = config;
     }
@@ -34,7 +34,8 @@ public abstract class SearchValue extends AbstractSearchValue {
 			throw new IllegalStateException(
 					"The method evaluateCondition must be evaluated before using this method");
 		}
-		return resultIndex.get(new BigInteger(row));
+
+		return resultIndex.get(new String(row));
 	}
 
 	public void clearSearchIndexes() {
