@@ -67,7 +67,6 @@ public class SecureRegionScanner implements RegionScanner {
             this.regionIdent = new String(regionStartRow);
 
         }
-        LOG.info("Region identifier " + regionIdent);
 
         handler = new HandleSafeFilter(schema, config, regionIdent);
         handler.processFilter(originalScan.getFilter());

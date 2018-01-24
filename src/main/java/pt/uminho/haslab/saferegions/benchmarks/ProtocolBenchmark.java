@@ -1,10 +1,13 @@
 package pt.uminho.haslab.saferegions.benchmarks;
 
 import pt.uminho.haslab.saferegions.secretSearch.SearchCondition;
+import pt.uminho.haslab.smpc.helpers.RandomGenerator;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition.Equal;
@@ -24,7 +27,44 @@ public class ProtocolBenchmark {
         throw new IllegalStateException("Input condition is not supported");
     }
 
-    private static List<List<byte[]>> generateSecrets(int nBits, int nOperations, int nElemsPerBatch) {
+
+    private static List<List<byte[]>> generateIntSecrets(int nOperations, int nElemsPerBatch){
+        List<List<byte[]>> result = new ArrayList<List<byte[]>>();
+        ByteBuffer buffer = ByteBuffer.allocate(4);
+        for (int i = 0; i < nOperations; i++) {
+            List<byte[]> values = new ArrayList<byte[]>();
+            for (int j = 0; j < nElemsPerBatch; j++) {
+                buffer.putInt(RandomGenerator.nextInt());
+                buffer.flip();
+                values.add(buffer.array());
+                buffer.clear();
+            }
+            result.add(values);
+        }
+
+        return result;
+    }
+
+
+    private static  List<List<byte[]>> generateLongSecrets(int nOperations, int nElemsPerBatch){
+        List<List<byte[]>> result = new ArrayList<List<byte[]>>();
+        ByteBuffer buffer = ByteBuffer.allocate(8);
+        for (int i = 0; i < nOperations; i++) {
+            List<byte[]> values = new ArrayList<byte[]>();
+            for (int j = 0; j < nElemsPerBatch; j++) {
+                buffer.putLong(RandomGenerator.nextLong());
+                buffer.flip();
+                values.add(buffer.array());
+                buffer.clear();
+            }
+            result.add(values);
+        }
+
+        return result;
+    }
+
+
+    private static List<List<byte[]>> generateBigIntegerSecrets(int nBits, int nOperations, int nElemsPerBatch) {
 
         List<List<byte[]>> result = new ArrayList<List<byte[]>>();
 
@@ -35,17 +75,37 @@ public class ProtocolBenchmark {
             }
             result.add(values);
         }
+        return result;
+    }
+
+    private static List<List<byte[]>> generateSecrets(int nBits, int nOperations, int nElemsPerBatch) {
+        List<List<byte[]>> result;
+        switch(nBits){
+            case 32:
+                result = generateIntSecrets(nOperations, nElemsPerBatch);
+                break;
+            case 64:
+                result = generateLongSecrets(nOperations, nElemsPerBatch);
+                break;
+            default:
+                result = generateBigIntegerSecrets(nBits, nOperations, nElemsPerBatch);
+        }
 
         return result;
     }
 
-    public static void main(String[] args) throws IOException,
+
+
+
+        public static void main(String[] args) throws IOException,
 			InterruptedException {
 
         String protocol = args[0];
         int nBits = Integer.parseInt(args[1]);
         int nOperaions = Integer.parseInt(args[2]);
         int nElemesPerBatch = Integer.parseInt(args[3]);
+        int randomNumbers = Integer.parseInt(args[4]);
+
         System.out.println("Evaluating protocol " + protocol + " with values on a field of size " + nBits);
         System.out.println("Testing " + nOperaions + " operations with batch size of " + nElemesPerBatch);
         SearchCondition.Condition cond = getCondition(protocol);
@@ -53,11 +113,29 @@ public class ProtocolBenchmark {
         List<List<byte[]>> firstValues = generateSecrets(nBits, nOperaions, nElemesPerBatch);
         List<List<byte[]>> secondValues = generateSecrets(nBits, nOperaions, nElemesPerBatch);
 
+
+        if(randomNumbers > 0){
+            RandomGenerator.initIntBatch(randomNumbers);
+            RandomGenerator.initLongBatch(randomNumbers);
+            RandomGenerator.initBatch(nBits, randomNumbers);
+        }
+
         List<RegionServer> servers = new ArrayList<RegionServer>();
         for (int i = 0; i < 3; i++) {
-            RegionServer server = new RegionServerSim(i, cond, nBits, firstValues, secondValues);
+            RegionServer server;
+            switch(nBits){
+                case 32:
+                    server = new IntRegionServerSim(i, cond, nBits, firstValues, secondValues);
+                    break;
+                case 64:
+                    server = new LongRegionServerSim(i, cond, nBits, firstValues, secondValues);
+                    break;
+                default:
+                    server = new BigIntegerRegionServerSim(i, cond, nBits, firstValues, secondValues);
+            }
             servers.add(server);
-		}
+
+        }
 
 		secondValues.clear();
 		long start = System.nanoTime();

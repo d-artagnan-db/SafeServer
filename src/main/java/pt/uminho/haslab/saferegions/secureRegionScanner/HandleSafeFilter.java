@@ -76,7 +76,6 @@ public class HandleSafeFilter {
         for (Column col : safeFilters.keySet()) {
             List<byte[]> values = columnValues.get(col);
             for (SearchCondition safeFilter : safeFilters.get(col)) {
-                 LOG.debug(player.getPlayerID()+" Going to evaluate searchCondition " + safeFilter.getCondition() + " for column " + col + " for values " + values.size() + " for region " + regionIdentifier);
                 safeFilter.evaluateCondition(values, rowIDs, player);
             }
 

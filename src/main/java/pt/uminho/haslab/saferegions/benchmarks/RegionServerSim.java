@@ -13,19 +13,19 @@ import java.util.List;
 /***
  * Simulator of a region server used to benchmark the SMPC protocols
  */
-public class RegionServerSim extends TestRegionServer {
+public abstract class RegionServerSim extends TestRegionServer {
 
-    private final Condition cond;
-    private final int nBits;
+    protected final Condition cond;
+    protected final int nBits;
 
-    private final List<List<byte[]>> firstInputs;
-    private final  List<List<byte[]>> secondInputs;
-    private final List<byte[]> ids;
+    protected final List<List<byte[]>> firstInputs;
+    protected final  List<List<byte[]>> secondInputs;
+    protected final List<byte[]> ids;
 
 
-    private final List<TestPlayer> players;
-    private final List<SearchCondition> searchConditions;
-    private final List<Long> latency;
+    protected final List<TestPlayer> players;
+    protected final List<SearchCondition> searchConditions;
+    protected final List<Long> latency;
 
     public RegionServerSim(int playerID, Condition condition, int nBits, List<List<byte[]>> firstInputs, List<List<byte[]>> secondInputs) throws IOException {
 
@@ -63,11 +63,8 @@ public class RegionServerSim extends TestRegionServer {
         }
     }
 
-    private SearchCondition getSearchCondition(
-            List<byte[]> secTwo) {
-
-        return new BigIntegerSearchConditionFactory(cond, nBits + 1, secTwo, searchConf).conditionTransformer();
-    }
+    protected abstract SearchCondition getSearchCondition(
+            List<byte[]> secTwo);
 
     public List<Long> getLatency(){
         return this.latency;
@@ -75,6 +72,9 @@ public class RegionServerSim extends TestRegionServer {
 
 	@Override
 	public void doComputation() {
+        /** SearchConditions are being removed from the SearchConditions filter so the space used for protocol
+         *  results can be freed by the JVM. The process was quickly using all of the JVM heap space.
+         */
         while(!searchConditions.isEmpty()) {
             if(playerID == 0){
                 long start = System.nanoTime();
