@@ -1,5 +1,7 @@
 package pt.uminho.haslab.saferegions.helpers;
 
+import redis.clients.jedis.Jedis;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -38,5 +40,10 @@ public class RedisUtils {
             System.out.println("Sleep exception in initializeRedisContainer");
             throw new IllegalStateException(e);
         }
+    }
+
+    public static void flushAll(String hostname) {
+        Jedis jedis = new Jedis(hostname);
+        jedis.flushDB();
     }
 }

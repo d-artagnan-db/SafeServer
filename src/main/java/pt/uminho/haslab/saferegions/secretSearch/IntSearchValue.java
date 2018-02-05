@@ -33,7 +33,7 @@ public class IntSearchValue extends SearchValue{
         this.regionIdentifier = regionIdent;
     }
 
-    public int[] convertInts(List<byte[]> value, SharemindPlayer player){
+    public int[] convertInts(List<byte[]> value) {
 
         ///Key should contain local player ID for local tests.
         //String key = player.getPlayerID() + ":"  + column;
@@ -55,7 +55,6 @@ public class IntSearchValue extends SearchValue{
                 }
 
                 if(!cacheValues.get(key).containsKey(regionIdentifier)){
-
                     cacheValues.get(key).put(regionIdentifier, vals);
                 }
                 cacheDataLock.unlock();
@@ -90,7 +89,7 @@ public class IntSearchValue extends SearchValue{
 			 */
 
             values = convertInt(value.get(0));
-            intCmpValues = convertInts(cmpValues, player);
+            intCmpValues = convertInts(cmpValues);
 
 
             if (condition == Equal) {
@@ -99,6 +98,9 @@ public class IntSearchValue extends SearchValue{
                 result = ssf.greaterOrEqualThan(intCmpValues, values, player);
             }
 
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(cmpValues.size() + " input result size is " + result.length);
+            }
 
             if (player.isTargetPlayer()) {
                 // At this point the size of the list identifiers must be 2.

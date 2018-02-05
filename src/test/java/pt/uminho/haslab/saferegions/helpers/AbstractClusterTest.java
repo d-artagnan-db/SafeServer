@@ -104,7 +104,7 @@ public abstract class AbstractClusterTest {
                         case INTEGER:
                             ByteBuffer byteBuffer = ByteBuffer.allocate(4);
                             int value = RandomGenerator.nextInt();
-                            //LOG.debug("Generated input value " + value);
+                            LOG.debug("Generated input value " + value);
                             byteBuffer.putInt(value);
                             byteBuffer.flip();
                             val = byteBuffer.array();

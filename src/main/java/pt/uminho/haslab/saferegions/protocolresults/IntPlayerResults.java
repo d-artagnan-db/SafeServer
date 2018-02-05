@@ -6,19 +6,20 @@ import pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition;
 import pt.uminho.haslab.smpc.sharemindImp.Integer.IntSharemindDealer;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition.Equal;
 import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition.GreaterOrEqualThan;
 
 public class IntPlayerResults {
+    private static IntSharemindDealer dealer = new IntSharemindDealer();
 
     private static final Log LOG = LogFactory.getLog(IntPlayerResults.class
             .getName());
     private final Condition condition;
     private final int nBits;
     private final List<int[]> results;
+
 
     /**
      * We are assuming that the class is created correctly with 3 lists inside the results list. One for each player.
@@ -42,7 +43,6 @@ public class IntPlayerResults {
     public List<Boolean> declassify() throws ResultsIdentifiersMismatch {
 
         List<Boolean> resultIDS = new ArrayList<Boolean>();
-
         for (int i = 0; i < results.get(0).length; i++) {
 
             Integer bFirstSecret = results.get(0)[i];
@@ -53,7 +53,6 @@ public class IntPlayerResults {
             secrets[0] = bFirstSecret;
             secrets[1] = bSecondSecret;
             secrets[2] = bThirdSecret;
-            IntSharemindDealer dealer = new IntSharemindDealer();
 
             if (condition == Equal) {
                 int result = dealer.unshareBit(secrets);
@@ -65,7 +64,6 @@ public class IntPlayerResults {
 
             } else if (condition == GreaterOrEqualThan) {
                 int result = dealer.unshare(secrets);
-                //LOG.debug("Results are " + result);
                 if (result == 0) {
                     resultIDS.add(Boolean.TRUE);
                 } else {

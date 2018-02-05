@@ -22,10 +22,12 @@ public class IntGreaterOrEqualThanTest extends AbsSingleColumnValueFilterTest {
         this.qualifierColTypes.get("User").put("Name", ColType.STRING);
         this.qualifierColTypes.get("User").put("Surname", ColType.STRING);
         this.qualifierColTypes.get("User").put("Age", ColType.INTEGER);
+        this.qualifierColTypes.get("User").put("Cost", ColType.INTEGER);
+        this.qualifierColTypes.get("User").put("Stuff", ColType.LONG);
     }
 
     protected long getNumberOfRecords() {
-        return 100;
+        return 10;
     }
 
     @Override

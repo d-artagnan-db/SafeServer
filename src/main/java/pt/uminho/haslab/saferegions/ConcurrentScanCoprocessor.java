@@ -15,7 +15,6 @@ import org.apache.hadoop.hbase.client.OperationWithAttributes;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.coprocessor.CoprocessorService;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
-import org.apache.hadoop.hbase.exceptions.DeserializationException;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.regionserver.RegionScanner;
@@ -37,6 +36,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.Semaphore;
 
@@ -130,6 +130,8 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
             available.release();
 
         }
+        LOG.info("Coprocessor started successfullyS "
+                + env.getRegion().getRegionNameAsString());
     }
 
     private void initOutFiles() throws IOException {
@@ -263,10 +265,11 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
         checkTargetPlayer(player, op);
 
         TableSchema tSchema = schema.getTableSchema(tableName);
+
         /*if (LOG.isDebugEnabled()) {
             LOG.debug("Is player targetPlayer " + ((ContextPlayer) player).isTargetPlayer());
-            LOG.debug("Returning SecureRegionScanner");
         }*/
+
         return new SecureRegionScanner(env, player, this.searchConf,
                 startRow, stopRow, regionStartKey, regionEndKey, tSchema, op);
     }
@@ -316,14 +319,18 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
     }
     @Override
     public void scan(RpcController rpcController, Smpc.ScanMessage scanMessage, RpcCallback<Smpc.Results> rpcCallback) {
-
         try {
             Scan scan = new Scan(scanMessage.getStartRow().toByteArray(), scanMessage.getStopRow().toByteArray());
             scan.setAttribute(OperationAttributesIdentifiers.RequestIdentifier,  scanMessage.getRequestID().toByteArray());
             scan.setAttribute(OperationAttributesIdentifiers.TargetPlayer, (""+scanMessage.getTargetPlayer()).getBytes());
             Filter f = parseFilter(scanMessage.getFilter().toByteArray(), scanMessage.getFilterType());
-            //Filter f = SingleColumnValueFilter.parseFrom(scanMessage.getFilter().toByteArray());
             scan.setFilter(f);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Received Request for region " + new String(scanMessage.getStartRow().toByteArray()) + " <-> " + new String(scanMessage.getStopRow().toByteArray()) + " and filter " + f);
+                if (f instanceof SingleColumnValueFilter) {
+                    LOG.debug("Filer value is " + ByteBuffer.wrap(((SingleColumnValueFilter) f).getComparator().getValue()).getInt());
+                }
+            }
             String table = env.getRegion().getTableDesc().getNameAsString();
             RegionScanner scanner = secretScanSearchWithFilter(scan, env, table);
 
@@ -340,7 +347,9 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
                 row = new ArrayList<Cell>();
 
             } while(run);
-
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Result after processing data has size " + results.size());
+            }
             for(List<Cell> resRow : results){
                 Smpc.Row.Builder  rowBuilder  = Smpc.Row.newBuilder();
                 for(Cell cell: resRow){

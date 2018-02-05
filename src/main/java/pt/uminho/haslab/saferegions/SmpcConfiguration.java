@@ -8,7 +8,6 @@ import pt.uminho.haslab.saferegions.comunication.IORelay;
 import pt.uminho.haslab.saferegions.comunication.MessageBroker;
 import pt.uminho.haslab.saferegions.comunication.Relay;
 import pt.uminho.haslab.saferegions.discovery.DiscoveryServiceConfiguration;
-import pt.uminho.haslab.saferegions.helpers.FilePaths;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -128,4 +127,7 @@ public class SmpcConfiguration {
 
 	public boolean isCachedData(){ return this.cachedData;}
 
+	public String getDiscoveryServiceLocation() {
+		return discoveryServiceLocation;
+	}
 }

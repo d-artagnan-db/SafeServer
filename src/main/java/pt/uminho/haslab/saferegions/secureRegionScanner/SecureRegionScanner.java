@@ -52,7 +52,6 @@ public class SecureRegionScanner implements RegionScanner {
         batcher = new Batcher(config);
 
         scan = new Scan(scanStartRow, scanStopRow);
-
         scanner = env.getRegion().getScanner(scan);
 
         resultsCache = new BatchCache();
@@ -98,7 +97,6 @@ public class SecureRegionScanner implements RegionScanner {
             List<Cell> localResults = new ArrayList<Cell>();
 
             hasMore = scanner.next(localResults);
-
             // Return case when there are no records in the table;
             if (!hasMore && localResults.isEmpty()) {
                 return localCells;
@@ -115,12 +113,11 @@ public class SecureRegionScanner implements RegionScanner {
 
     public boolean next(List<Cell> results) throws IOException {
 
-        if (LOG.isDebugEnabled()) {
+        /*if (LOG.isDebugEnabled()) {
             LOG.debug("Next in SecureRegionScanner was issued ");
-        }
+        }*/
 
         boolean run = resultsCache.isBatchEmpty() && !(handler.isStopOnInvalidRecord() && handler.foundInvalidRecord());
-
         if (run) {
             List<List<Cell>> fRows = new ArrayList<List<Cell>>();
 

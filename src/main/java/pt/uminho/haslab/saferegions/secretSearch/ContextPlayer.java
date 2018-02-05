@@ -315,6 +315,7 @@ public class ContextPlayer implements Player, SharemindPlayer {
 	public void sendValueToPlayer(Integer destPlayer, int[] ints) {
         try {
             CIntBatchShareMessage msg = new CIntBatchShareMessage(this.playerID, destPlayer, requestID, ints);
+            ;
             relay.sendBatchMessages(msg);
         } catch (IOException ex) {
             LOG.error(ex);

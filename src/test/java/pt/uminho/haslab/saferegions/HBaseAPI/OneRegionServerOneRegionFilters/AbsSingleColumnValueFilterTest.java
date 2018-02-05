@@ -30,7 +30,6 @@ public abstract class AbsSingleColumnValueFilterTest extends AbstractClusterTest
         List<byte[]> values = this.generatedValues.get(cf).get(cqOrig);
 
         int indexChosen = randomGenerator.nextInt(values.size());
-
         chosenVal = values.get(indexChosen);
 
         return new SingleColumnValueFilter(cf.getBytes(), cq.getBytes(), getComparator(), chosenVal);

@@ -14,4 +14,8 @@ public class IntEqualSingleColumnValueTest extends IntEqualSingleColumnValueFile
     protected long getNumberOfRecords() {
         return 1000;
     }
+
+    protected int getNumberOfRegionsServers() {
+        return 2;
+    }
 }

@@ -8,9 +8,11 @@ import pt.uminho.haslab.saferegions.comunication.MessageBroker;
 import pt.uminho.haslab.saferegions.comunication.Relay;
 import pt.uminho.haslab.saferegions.comunication.SharemindMessageBroker;
 import pt.uminho.haslab.saferegions.helpers.FilePaths;
+import pt.uminho.haslab.saferegions.helpers.RedisUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 public abstract class TestRegionServer extends Thread implements RegionServer {
 
@@ -40,16 +42,24 @@ public abstract class TestRegionServer extends Thread implements RegionServer {
          * a file name.
          *
          * */
-		conf.addResource(new File(FilePaths.getPath(resource)).toURI().toURL());
+		System.out.println("Going to get resource " + resource);
+
+		URL f = new File(FilePaths.getPath(resource)).toURI().toURL();
+		//System.out.println("Going to get url " +f);
+		conf.addResource(f);
 		conf.reloadConfiguration();
 		searchConf = new SmpcConfiguration(conf);
-
+		if (playerID == 0) {
+			RedisUtils.flushAll(searchConf.getDiscoveryServiceLocation());
+		}
 		broker = new SharemindMessageBroker();
 
 		relay = searchConf.createRelay(broker);
 
 		this.playerID = playerID;
 		runStatus = true;
+
+
 
 	}
 

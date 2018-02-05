@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition.Equal;
@@ -110,7 +109,7 @@ public class ProtocolBenchmark {
         System.out.println("Testing " + nOperaions + " operations with batch size of " + nElemesPerBatch);
         SearchCondition.Condition cond = getCondition(protocol);
 
-        List<List<byte[]>> firstValues = generateSecrets(nBits, nOperaions, nElemesPerBatch);
+        List<List<byte[]>> firstValues = generateSecrets(nBits, nOperaions, 1);
         List<List<byte[]>> secondValues = generateSecrets(nBits, nOperaions, nElemesPerBatch);
 
 
@@ -125,12 +124,15 @@ public class ProtocolBenchmark {
             RegionServer server;
             switch(nBits){
                 case 32:
+                    System.out.println("IntRegionServerSim");
                     server = new IntRegionServerSim(i, cond, nBits, firstValues, secondValues);
                     break;
                 case 64:
+                    System.out.println("LongRegionServerSim");
                     server = new LongRegionServerSim(i, cond, nBits, firstValues, secondValues);
                     break;
                 default:
+                    System.out.println("BigIntegerRegionServerSim");
                     server = new BigIntegerRegionServerSim(i, cond, nBits, firstValues, secondValues);
             }
             servers.add(server);

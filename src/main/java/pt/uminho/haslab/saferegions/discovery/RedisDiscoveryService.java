@@ -61,7 +61,7 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
         private String getKey(RequestIdentifier requestIdentifier) {
             String requestID = Arrays
                     .toString(requestIdentifier.getRequestID());
-            String regionID = Arrays.toString(requestIdentifier.getRegionID());
+            String regionID = new String(requestIdentifier.getRegionID());
             return requestID + ":" + regionID;
         }
 
@@ -72,6 +72,8 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
             String regionID = Arrays.toString(requestIdentifier.getRegionID());
             if (!(fixedRegions && regionsCache.containsKey(regionID))) {
                 try {
+                    //LOG.debug("Pushing key "+ key + " -> "+ locationMessage);
+
                     jedis.lpush(key, locationMessage);
                 } catch (Exception ex) {
                     LOG.error(ex.getMessage());
@@ -95,11 +97,7 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
              */
             List<RegionLocation> regionResult = new ArrayList<RegionLocation>();
 
-            if (results.size() != 3) {
-                String msg = "Illegal results input size: " + results.size();
-                LOG.error(msg);
-                throw new FailedRegionDiscovery(msg);
-            }
+
 
             for (String result : results) {
                 String[] subs = result.split(":");
@@ -109,9 +107,15 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
                             Integer.parseInt(subs[0]), subs[1],
                             Integer.parseInt(subs[2]));
                     regionResult.add(rl);
+                    //LOG.debug("regions " + Integer.parseInt(subs[0]) + " <-> " + subs[1] + " <-> "+subs[2]);
                 }
             }
 
+            if (results.size() != 3) {
+                String msg = "Illegal results input size: " + results.size();
+                LOG.error(msg);
+                throw new FailedRegionDiscovery(msg);
+            }
             regionsCache.put(regionID, regionResult);
             return regionResult;
         }
@@ -134,6 +138,10 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
             synchronized (this) {
                 if (fixedRegions && !regionsCache.containsKey(regionID)) {
                     while (run) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("getting key " + key);
+                        }
+
                         clients = jedis.lrange(key, 0, -1);
 
                         if (clients.size() >= 3) {
@@ -141,6 +149,9 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
                         } else if (nAttempts >= retries) {
                             run = false;
                         } else {
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Searching for key " + sleepTimeInc);
+                            }
                             try {
                                 Thread.sleep(sleepTimeInc);
                                 nAttempts += 1;

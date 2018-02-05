@@ -2,7 +2,6 @@ package pt.uminho.haslab.saferegions.secretSearch;
 
 import pt.uminho.haslab.saferegions.SmpcConfiguration;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +39,8 @@ public abstract class SearchValue extends AbstractSearchValue {
 
 	public void clearSearchIndexes() {
 		resultIndex.clear();
-	}
+        resultsList.clear();
+    }
 
 	public List<Boolean> getClassificationList() {
 		return resultsList;
