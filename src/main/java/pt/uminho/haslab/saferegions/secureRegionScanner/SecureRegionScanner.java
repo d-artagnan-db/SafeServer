@@ -10,6 +10,7 @@ import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.regionserver.RegionScanner;
 import pt.uminho.haslab.safemapper.TableSchema;
 import pt.uminho.haslab.saferegions.SmpcConfiguration;
+import pt.uminho.haslab.saferegions.secretSearch.ContextPlayer;
 import pt.uminho.haslab.saferegions.secretSearch.SharemindPlayer;
 import pt.uminho.haslab.smpc.interfaces.Player;
 
@@ -51,7 +52,12 @@ public class SecureRegionScanner implements RegionScanner {
         this.config = config;
         batcher = new Batcher(config);
 
-        scan = new Scan(scanStartRow, scanStopRow);
+        if(config.isCachedData()){
+            scan = new Scan();
+        }else{
+            scan = new Scan(scanStartRow, scanStopRow);
+        }
+
         scanner = env.getRegion().getScanner(scan);
 
         resultsCache = new BatchCache();
@@ -123,6 +129,9 @@ public class SecureRegionScanner implements RegionScanner {
 
             do {
                 if (config.isCachedData() && mapBatchCachedData.containsKey(regionIdent)) {
+                    if(LOG.isDebugEnabled()){
+                        LOG.debug("Accessing region values on cache ident " + regionIdent);
+                    }
                     BatchData cacheBatchData = mapBatchCachedData.get(regionIdent);
                     List<List<Cell>> batch = cacheBatchData.getRows();
                     fRows = this.handler.filterBatch(batch, cacheBatchData.getColumnValues(), cacheBatchData.getRowIDs(), (SharemindPlayer) player);
@@ -143,6 +152,9 @@ public class SecureRegionScanner implements RegionScanner {
                             cacheDataLock.lock();
 
                             if (!mapBatchCachedData.containsKey(regionIdent)) {
+                                if(LOG.isDebugEnabled()){
+                                    LOG.debug("Caching region values for ident " + regionIdent);
+                                }
                                 mapBatchCachedData.put(regionIdent, batchData);
                             }
                             cacheDataLock.unlock();
@@ -205,7 +217,7 @@ public class SecureRegionScanner implements RegionScanner {
 
     public void close() throws IOException {
         LOG.debug("Close issued");
-        ((SharemindPlayer) player).cleanValues();
+        ((ContextPlayer) player).cleanValues();
         scanner.close();
     }
 

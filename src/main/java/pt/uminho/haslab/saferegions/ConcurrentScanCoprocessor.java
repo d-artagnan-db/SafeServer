@@ -4,6 +4,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.RpcCallback;
 import com.google.protobuf.RpcController;
 import com.google.protobuf.Service;
+import org.apache.commons.el.GreaterThanOrEqualsOperator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -15,9 +16,9 @@ import org.apache.hadoop.hbase.client.OperationWithAttributes;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.coprocessor.CoprocessorService;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
-import org.apache.hadoop.hbase.filter.Filter;
-import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
+import org.apache.hadoop.hbase.filter.*;
 import org.apache.hadoop.hbase.regionserver.RegionScanner;
+import org.apache.hadoop.hbase.util.Bytes;
 import pt.uminho.haslab.protocommunication.Smpc;
 import pt.uminho.haslab.safemapper.DatabaseSchema;
 import pt.uminho.haslab.safemapper.TableSchema;
@@ -317,6 +318,10 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
             throw new IllegalStateException(e);
         }
     }
+
+
+
+
     @Override
     public void scan(RpcController rpcController, Smpc.ScanMessage scanMessage, RpcCallback<Smpc.Results> rpcCallback) {
         try {
@@ -324,29 +329,46 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
             scan.setAttribute(OperationAttributesIdentifiers.RequestIdentifier,  scanMessage.getRequestID().toByteArray());
             scan.setAttribute(OperationAttributesIdentifiers.TargetPlayer, (""+scanMessage.getTargetPlayer()).getBytes());
             Filter f = parseFilter(scanMessage.getFilter().toByteArray(), scanMessage.getFilterType());
-            scan.setFilter(f);
+            if(searchConf.isCachedData()){
+                FilterList flist = new FilterList(FilterList.Operator.MUST_PASS_ALL);
+                RowFilter startFilter = new RowFilter(CompareFilter.CompareOp.GREATER_OR_EQUAL, new BinaryComparator(scanMessage.getStartRow().toByteArray()));
+                RowFilter stopFilter = new RowFilter(CompareFilter.CompareOp.LESS, new BinaryComparator(scanMessage.getStopRow().toByteArray()));
+                flist.addFilter(startFilter);
+                flist.addFilter(stopFilter);
+                flist.addFilter(f);
+                scan.setFilter(flist);
+            }else{
+                scan.setFilter(f);
+            }
+
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Received Request for region " + new String(scanMessage.getStartRow().toByteArray()) + " <-> " + new String(scanMessage.getStopRow().toByteArray()) + " and filter " + f);
+                LOG.debug("Received Request on startRow " + new String(scanMessage.getStartRow().toByteArray()) + " stop row " + new String(scanMessage.getStopRow().toByteArray()) + " and filter " + f);
                 if (f instanceof SingleColumnValueFilter) {
                     LOG.debug("Filer value is " + ByteBuffer.wrap(((SingleColumnValueFilter) f).getComparator().getValue()).getInt());
                 }
             }
+
+            List<List<Cell>> results = new ArrayList<List<Cell>>();
+            Smpc.Results.Builder resBuilder = Smpc.Results.newBuilder();
+
+
+            LOG.debug("Scan Message Valid for region");
             String table = env.getRegion().getTableDesc().getNameAsString();
             RegionScanner scanner = secretScanSearchWithFilter(scan, env, table);
 
-            List<List<Cell>> results = new ArrayList<List<Cell>>();
-            List<Cell>  row = new ArrayList<Cell>();
-            Smpc.Results.Builder resBuilder = Smpc.Results.newBuilder();
+            List<Cell> row = new ArrayList<Cell>();
+
 
             boolean run;
-            do{
+            do {
                 run = scanner.next(row);
-                if(!row.isEmpty()){
+                if (!row.isEmpty()) {
                     results.add(row);
                 }
                 row = new ArrayList<Cell>();
 
-            } while(run);
+            } while (run);
+            scanner.close();
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Result after processing data has size " + results.size());
             }

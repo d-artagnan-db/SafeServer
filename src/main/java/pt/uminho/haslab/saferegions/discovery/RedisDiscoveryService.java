@@ -73,7 +73,6 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
             if (!(fixedRegions && regionsCache.containsKey(regionID))) {
                 try {
                     //LOG.debug("Pushing key "+ key + " -> "+ locationMessage);
-
                     jedis.lpush(key, locationMessage);
                 } catch (Exception ex) {
                     LOG.error(ex.getMessage());
@@ -116,57 +115,60 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
                 LOG.error(msg);
                 throw new FailedRegionDiscovery(msg);
             }
-            regionsCache.put(regionID, regionResult);
+            if(fixedRegions & !regionsCache.containsValue(regionID)){
+                synchronized (this){
+                    if(!regionsCache.containsValue(regionID)){
+                        regionsCache.put(regionID, regionResult);
+                    }
+                }
+            }
             return regionResult;
+        }
+
+        private synchronized  List<String> requestClients(String key, int start, int end){
+            boolean run = true;
+            List<String> clients = new ArrayList<String>();
+            int sleepTimeInc = sleepTime;
+            int nAttempts = 0;
+            while (run) {
+
+                clients = jedis.lrange(key, 0, -1);
+                if(LOG.isErrorEnabled()){
+                    LOG.debug("Retrieving clients on iteration " + nAttempts + " with sleepTime " + sleepTimeInc +" and client size " + clients.size());
+                }
+                if (clients.size() >= 3) {
+                    run = false;
+                } else if (nAttempts >= retries) {
+                    run = false;
+                } else {
+                    try {
+                        Thread.sleep(sleepTimeInc);
+                        nAttempts += 1;
+                        sleepTimeInc += incTime;
+                    } catch (InterruptedException ex) {
+                        LOG.error(ex);
+                        throw new IllegalStateException(ex);
+
+                    }
+                }
+            }
+            return clients;
         }
 
         public List<RegionLocation> getPeersLocation(
                 RequestIdentifier requestIdentifier)
                 throws FailedRegionDiscovery {
-            boolean run = true;
-            List<String> clients = new ArrayList<String>();
             String key = getKey(requestIdentifier);
             //LOG.debug("Getting peer location for request " + key);
-            int sleepTimeInc = sleepTime;
-            int nAttempts = 0;
+
             String regionID = Arrays
                     .toString(requestIdentifier.getRegionID());
             if (fixedRegions && regionsCache.containsKey(regionID)) {
                 //  LOG.debug("Retrieved region location from cache for request " + key);
                 return regionsCache.get(regionID);
-            }
-            synchronized (this) {
-                if (fixedRegions && !regionsCache.containsKey(regionID)) {
-                    while (run) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("getting key " + key);
-                        }
-
-                        clients = jedis.lrange(key, 0, -1);
-
-                        if (clients.size() >= 3) {
-                            run = false;
-                        } else if (nAttempts >= retries) {
-                            run = false;
-                        } else {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Searching for key " + sleepTimeInc);
-                            }
-                            try {
-                                Thread.sleep(sleepTimeInc);
-                                nAttempts += 1;
-                                sleepTimeInc += incTime;
-                            } catch (InterruptedException ex) {
-                                LOG.error(ex);
-                                throw new IllegalStateException(ex);
-
-                            }
-                        }
-                    }
-                    return parseJedisResult(regionID, clients);
-                } else {
-                    return regionsCache.get(regionID);
-                }
+            }else {
+                List<String> clients = requestClients(key, 0, -1);
+                return parseJedisResult(regionID, clients);
             }
         }
 
