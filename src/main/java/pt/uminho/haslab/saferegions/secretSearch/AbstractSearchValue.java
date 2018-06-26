@@ -12,33 +12,32 @@ import java.util.List;
 
 public abstract class AbstractSearchValue implements SearchCondition {
 
-	static final Log LOG = LogFactory.getLog(AbstractSearchValue.class
-			.getName());
+    static final Log LOG = LogFactory.getLog(AbstractSearchValue.class
+            .getName());
 
-	protected final Condition condition;
+    protected final Condition condition;
 
-	public AbstractSearchValue(Condition condition) {
-		this.condition = condition;
-	}
+    public AbstractSearchValue(Condition condition) {
+        this.condition = condition;
+    }
 
 
+    public Condition getCompare() {
+        return condition;
+    }
 
-	public Condition getCompare() {
-		return condition;
-	}
+    protected List<byte[]> createSearchResults(Secret secret)
+            throws ResultsLengthMismatch {
+        List<byte[]> secrets = new ArrayList<byte[]>();
 
-	protected List<byte[]> createSearchResults(Secret secret)
-			throws ResultsLengthMismatch {
-		List<byte[]> secrets = new ArrayList<byte[]>();
+        secrets.add(((SharemindSecret) secret).getValue().toByteArray());
 
-		secrets.add(((SharemindSecret) secret).getValue().toByteArray());
+        return secrets;
 
-		return secrets;
+    }
 
-	}
-
-	public Condition getCondition() {
-		return condition;
-	}
+    public Condition getCondition() {
+        return condition;
+    }
 
 }

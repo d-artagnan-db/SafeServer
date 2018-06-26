@@ -8,6 +8,7 @@ public class CLongBatchShareMessage {
     private final int playerDest;
     private final RequestIdentifier requestID;
     private final long[] values;
+
     public CLongBatchShareMessage(int sourcePlayer, int playerDest, RequestIdentifier requestID, long[] values) {
         this.sourcePlayer = sourcePlayer;
         this.playerDest = playerDest;

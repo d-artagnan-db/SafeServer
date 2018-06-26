@@ -8,23 +8,23 @@ import java.util.Scanner;
 
 public class ProfileCluster {
 
-	public static void main(String[] args) throws Exception {
-		List<String> resources = new ArrayList<String>();
+    public static void main(String[] args) throws Exception {
+        List<String> resources = new ArrayList<String>();
 
-		for (int i = 0; i < 3; i++) {
-			resources.add("hbase-site-" + i + ".xml");
+        for (int i = 0; i < 3; i++) {
+            resources.add("hbase-site-" + i + ".xml");
 
-		}
+        }
 
-		ShareCluster clusters = new ShareCluster(resources, 1);
-		Thread.sleep(30000);
+        ShareCluster clusters = new ShareCluster(resources, 1);
+        Thread.sleep(30000);
 
-		Scanner reader = new Scanner(System.in); // Reading from System.in
-		System.out.println("Enter a number: ");
-		int n = reader.nextInt();
+        Scanner reader = new Scanner(System.in); // Reading from System.in
+        System.out.println("Enter a number: ");
+        int n = reader.nextInt();
 
-		clusters.tearDown();
+        clusters.tearDown();
 
-	}
+    }
 
 }

@@ -17,11 +17,11 @@ import java.util.concurrent.locks.ReentrantLock;
 import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition.Equal;
 
 
-public class IntSearchValue extends SearchValue{
+public class IntSearchValue extends SearchValue {
 
     private static final IntSharemindSecretFunctions ssf = new IntSharemindSecretFunctions();
 
-    private static final Map<String,Map<String, int[]>> cacheValues = new HashMap<String, Map<String, int[]>>();
+    private static final Map<String, Map<String, int[]>> cacheValues = new HashMap<String, Map<String, int[]>>();
     private static final Lock cacheDataLock = new ReentrantLock();
 
     private final String column;
@@ -50,11 +50,11 @@ public class IntSearchValue extends SearchValue{
             if (config.isCachedData()) {
                 //This causes unit tests to fail because the three clusters see the same values as the cache is static.
                 cacheDataLock.lock();
-                if(!cacheValues.containsKey(key)){
+                if (!cacheValues.containsKey(key)) {
                     cacheValues.put(key, new HashMap<String, int[]>());
                 }
 
-                if(!cacheValues.get(key).containsKey(regionIdentifier)){
+                if (!cacheValues.get(key).containsKey(regionIdentifier)) {
                     cacheValues.get(key).put(regionIdentifier, vals);
                 }
                 cacheDataLock.unlock();
@@ -78,15 +78,15 @@ public class IntSearchValue extends SearchValue{
             int[] result;
             int[] values;
             int[] intCmpValues;
-			/* *
-			 * Batch protocol comparison protocols require that the array of
-			 * values being compared have the same size. As the value to be
-			 * compared is always the same, it is created a list with the same
-			 * size as the values being compared.
-			 *
-			 * e.g: Values = [val1, val1, val1] cmpValues = [val2, val3, val4]
-			 * In this example val1 is compared to every other value.
-			 */
+            /* *
+             * Batch protocol comparison protocols require that the array of
+             * values being compared have the same size. As the value to be
+             * compared is always the same, it is created a list with the same
+             * size as the values being compared.
+             *
+             * e.g: Values = [val1, val1, val1] cmpValues = [val2, val3, val4]
+             * In this example val1 is compared to every other value.
+             */
 
             values = convertInt(value.get(0));
             intCmpValues = convertInts(cmpValues);

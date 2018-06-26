@@ -9,13 +9,13 @@ import java.util.List;
 
 public class SecureIdentifierFilter extends SecureSimpleValueFilter {
 
-	public SecureIdentifierFilter(SearchCondition.Condition cond,
-			ByteArrayComparable comparator) {
-		super(cond, comparator);
-	}
+    public SecureIdentifierFilter(SearchCondition.Condition cond,
+                                  ByteArrayComparable comparator) {
+        super(cond, comparator);
+    }
 
-	public boolean filterRow(List<Cell> row) {
-		byte[] identifier = CellUtil.cloneRow(row.get(0));
-		return compareValue(identifier);
-	}
+    public boolean filterRow(List<Cell> row) {
+        byte[] identifier = CellUtil.cloneRow(row.get(0));
+        return compareValue(identifier);
+    }
 }

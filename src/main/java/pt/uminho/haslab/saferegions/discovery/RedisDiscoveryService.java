@@ -97,7 +97,6 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
             List<RegionLocation> regionResult = new ArrayList<RegionLocation>();
 
 
-
             for (String result : results) {
                 String[] subs = result.split(":");
 
@@ -115,9 +114,9 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
                 LOG.error(msg);
                 throw new FailedRegionDiscovery(msg);
             }
-            if(fixedRegions & !regionsCache.containsValue(regionID)){
-                synchronized (this){
-                    if(!regionsCache.containsValue(regionID)){
+            if (fixedRegions & !regionsCache.containsValue(regionID)) {
+                synchronized (this) {
+                    if (!regionsCache.containsValue(regionID)) {
                         regionsCache.put(regionID, regionResult);
                     }
                 }
@@ -125,7 +124,7 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
             return regionResult;
         }
 
-        private synchronized  List<String> requestClients(String key, int start, int end){
+        private synchronized List<String> requestClients(String key, int start, int end) {
             boolean run = true;
             List<String> clients = new ArrayList<String>();
             int sleepTimeInc = sleepTime;
@@ -133,8 +132,8 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
             while (run) {
 
                 clients = jedis.lrange(key, 0, -1);
-                if(LOG.isErrorEnabled()){
-                    LOG.debug("Retrieving clients on iteration " + nAttempts + " with sleepTime " + sleepTimeInc +" and client size " + clients.size());
+                if (LOG.isErrorEnabled()) {
+                    LOG.debug("Retrieving clients on iteration " + nAttempts + " with sleepTime " + sleepTimeInc + " and client size " + clients.size());
                 }
                 if (clients.size() >= 3) {
                     run = false;
@@ -166,7 +165,7 @@ public class RedisDiscoveryService extends DiscoveryServiceAbs {
             if (fixedRegions && regionsCache.containsKey(regionID)) {
                 //  LOG.debug("Retrieved region location from cache for request " + key);
                 return regionsCache.get(regionID);
-            }else {
+            } else {
                 List<String> clients = requestClients(key, 0, -1);
                 return parseJedisResult(regionID, clients);
             }

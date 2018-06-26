@@ -27,7 +27,7 @@ public class ProtocolBenchmark {
     }
 
 
-    private static List<List<byte[]>> generateIntSecrets(int nOperations, int nElemsPerBatch){
+    private static List<List<byte[]>> generateIntSecrets(int nOperations, int nElemsPerBatch) {
         List<List<byte[]>> result = new ArrayList<List<byte[]>>();
         ByteBuffer buffer = ByteBuffer.allocate(4);
         for (int i = 0; i < nOperations; i++) {
@@ -45,7 +45,7 @@ public class ProtocolBenchmark {
     }
 
 
-    private static  List<List<byte[]>> generateLongSecrets(int nOperations, int nElemsPerBatch){
+    private static List<List<byte[]>> generateLongSecrets(int nOperations, int nElemsPerBatch) {
         List<List<byte[]>> result = new ArrayList<List<byte[]>>();
         ByteBuffer buffer = ByteBuffer.allocate(8);
         for (int i = 0; i < nOperations; i++) {
@@ -79,7 +79,7 @@ public class ProtocolBenchmark {
 
     private static List<List<byte[]>> generateSecrets(int nBits, int nOperations, int nElemsPerBatch) {
         List<List<byte[]>> result;
-        switch(nBits){
+        switch (nBits) {
             case 32:
                 result = generateIntSecrets(nOperations, nElemsPerBatch);
                 break;
@@ -94,10 +94,8 @@ public class ProtocolBenchmark {
     }
 
 
-
-
-        public static void main(String[] args) throws IOException,
-			InterruptedException {
+    public static void main(String[] args) throws IOException,
+            InterruptedException {
 
         String protocol = args[0];
         int nBits = Integer.parseInt(args[1]);
@@ -113,7 +111,7 @@ public class ProtocolBenchmark {
         List<List<byte[]>> secondValues = generateSecrets(nBits, nOperaions, nElemesPerBatch);
 
 
-        if(randomNumbers > 0){
+        if (randomNumbers > 0) {
             RandomGenerator.initIntBatch(randomNumbers);
             RandomGenerator.initLongBatch(randomNumbers);
             RandomGenerator.initBatch(nBits, randomNumbers);
@@ -122,7 +120,7 @@ public class ProtocolBenchmark {
         List<RegionServer> servers = new ArrayList<RegionServer>();
         for (int i = 0; i < 3; i++) {
             RegionServer server;
-            switch(nBits){
+            switch (nBits) {
                 case 32:
                     System.out.println("IntRegionServerSim");
                     server = new IntRegionServerSim(i, cond, nBits, firstValues, secondValues);
@@ -139,18 +137,18 @@ public class ProtocolBenchmark {
 
         }
 
-		secondValues.clear();
-		long start = System.nanoTime();
-		for (RegionServer server : servers) {
-			server.startRegionServer();
-		}
-		for (RegionServer server : servers) {
-			server.stopRegionServer();
-		}
+        secondValues.clear();
+        long start = System.nanoTime();
+        for (RegionServer server : servers) {
+            server.startRegionServer();
+        }
+        for (RegionServer server : servers) {
+            server.stopRegionServer();
+        }
 
         List<Long> latencies = ((RegionServerSim) servers.get(0)).getLatency();
-		for(Long lat:latencies){
-		    System.out.println(lat);
+        for (Long lat : latencies) {
+            System.out.println(lat);
         }
 
         long end = System.nanoTime();
@@ -159,5 +157,5 @@ public class ProtocolBenchmark {
         System.out.println("Execution time was " + duration + " milliseconds");
 
 
-	}
+    }
 }

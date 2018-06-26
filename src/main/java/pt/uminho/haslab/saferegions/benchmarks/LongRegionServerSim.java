@@ -6,7 +6,7 @@ import pt.uminho.haslab.saferegions.secretSearch.SearchCondition;
 import java.io.IOException;
 import java.util.List;
 
-public class LongRegionServerSim extends RegionServerSim{
+public class LongRegionServerSim extends RegionServerSim {
     public LongRegionServerSim(int playerID, SearchCondition.Condition condition, int nBits, List<List<byte[]>> firstInputs, List<List<byte[]>> secondInputs) throws IOException {
         super(playerID, condition, nBits, firstInputs, secondInputs);
     }

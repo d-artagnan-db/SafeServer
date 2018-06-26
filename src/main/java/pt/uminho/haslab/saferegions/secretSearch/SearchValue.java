@@ -9,42 +9,42 @@ import java.util.Map;
 
 public abstract class SearchValue extends AbstractSearchValue {
 
-	protected final List<byte[]> value;
+    protected final List<byte[]> value;
 
-	protected final int nBits;
+    protected final int nBits;
 
-	protected final Map<String, Boolean> resultIndex;
+    protected final Map<String, Boolean> resultIndex;
 
-	protected  final List<Boolean> resultsList;
+    protected final List<Boolean> resultsList;
 
     protected final SmpcConfiguration config;
 
     public SearchValue(int nBits, List<byte[]> value, Condition condition, SmpcConfiguration config) {
         super(condition);
-		this.value = value;
-		this.nBits = nBits;
-		resultIndex = new HashMap<String, Boolean>();
-		resultsList = new ArrayList<Boolean>();
+        this.value = value;
+        this.nBits = nBits;
+        resultIndex = new HashMap<String, Boolean>();
+        resultsList = new ArrayList<Boolean>();
         this.config = config;
     }
 
-	public boolean getRowClassification(byte[] row) {
-		if (resultIndex.isEmpty()) {
-			throw new IllegalStateException(
-					"The method evaluateCondition must be evaluated before using this method");
-		}
+    public boolean getRowClassification(byte[] row) {
+        if (resultIndex.isEmpty()) {
+            throw new IllegalStateException(
+                    "The method evaluateCondition must be evaluated before using this method");
+        }
 
-		return resultIndex.get(new String(row));
-	}
+        return resultIndex.get(new String(row));
+    }
 
-	public void clearSearchIndexes() {
-		resultIndex.clear();
+    public void clearSearchIndexes() {
+        resultIndex.clear();
         resultsList.clear();
     }
 
-	public List<Boolean> getClassificationList() {
-		return resultsList;
-	}
+    public List<Boolean> getClassificationList() {
+        return resultsList;
+    }
 
 
 }

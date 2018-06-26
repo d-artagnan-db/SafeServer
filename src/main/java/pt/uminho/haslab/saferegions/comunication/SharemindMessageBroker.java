@@ -15,83 +15,83 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class SharemindMessageBroker implements MessageBroker {
 
-	private static final Log LOG = LogFactory
-			.getLog(SharemindMessageBroker.class.getName());
+    private static final Log LOG = LogFactory
+            .getLog(SharemindMessageBroker.class.getName());
 
-	private final Lock lock;
+    private final Lock lock;
 
-	// Locks for protocol results
-	private final RequestsLocks protocolResultsLocks;
+    // Locks for protocol results
+    private final RequestsLocks protocolResultsLocks;
 
-	private final RequestsLocks filterIndexLocks;
+    private final RequestsLocks filterIndexLocks;
 
-	private final RequestsLocks protocolBatchMessagesLocks;
+    private final RequestsLocks protocolBatchMessagesLocks;
 
-	private final Map<RequestIdentifier, Queue<BatchShareMessage>> batchMessagesReceived;
+    private final Map<RequestIdentifier, Queue<BatchShareMessage>> batchMessagesReceived;
 
-	private final Map<RequestIdentifier, Queue<CIntBatchShareMessage>> intBatchMessagesReceived;
+    private final Map<RequestIdentifier, Queue<CIntBatchShareMessage>> intBatchMessagesReceived;
 
-	private final Map<RequestIdentifier, Queue<CLongBatchShareMessage>> longBatchMessagesReceived;
-
-
-	// protocol results messages received
-	private final Map<RequestIdentifier, Queue<ResultsMessage>> protocolResults;
-
-	private final Map<RequestIdentifier, Queue<CIntBatchShareMessage>> intProtocolResults;
-
-	private final Map<RequestIdentifier, Queue<CLongBatchShareMessage>> longProtocolResults;
+    private final Map<RequestIdentifier, Queue<CLongBatchShareMessage>> longBatchMessagesReceived;
 
 
-	private final Map<RequestIdentifier, Queue<CIntBatchShareMessage>> filterIndex;
+    // protocol results messages received
+    private final Map<RequestIdentifier, Queue<ResultsMessage>> protocolResults;
+
+    private final Map<RequestIdentifier, Queue<CIntBatchShareMessage>> intProtocolResults;
+
+    private final Map<RequestIdentifier, Queue<CLongBatchShareMessage>> longProtocolResults;
 
 
-	private final CountDownLatch relayStarted;
-
-	public SharemindMessageBroker() {
-		protocolResultsLocks = new RequestsLocks();
-		filterIndexLocks = new RequestsLocks();
-		protocolBatchMessagesLocks = new RequestsLocks();
-
-		relayStarted = new CountDownLatch(1);
-		lock = new ReentrantLock();
+    private final Map<RequestIdentifier, Queue<CIntBatchShareMessage>> filterIndex;
 
 
-		batchMessagesReceived = new ConcurrentHashMap<RequestIdentifier, Queue<BatchShareMessage>>();
-		intBatchMessagesReceived = new ConcurrentHashMap<RequestIdentifier, Queue<CIntBatchShareMessage>>();
-		longBatchMessagesReceived = new ConcurrentHashMap<RequestIdentifier, Queue<CLongBatchShareMessage>>();
+    private final CountDownLatch relayStarted;
 
-		protocolResults = new ConcurrentHashMap<RequestIdentifier, Queue<ResultsMessage>>();
-		intProtocolResults = new ConcurrentHashMap<RequestIdentifier, Queue<CIntBatchShareMessage>>();
-		longProtocolResults = new ConcurrentHashMap<RequestIdentifier, Queue<CLongBatchShareMessage>>();
+    public SharemindMessageBroker() {
+        protocolResultsLocks = new RequestsLocks();
+        filterIndexLocks = new RequestsLocks();
+        protocolBatchMessagesLocks = new RequestsLocks();
 
-		filterIndex = new ConcurrentHashMap<RequestIdentifier, Queue<CIntBatchShareMessage>>();
+        relayStarted = new CountDownLatch(1);
+        lock = new ReentrantLock();
 
-	}
 
-	public void receiveBatchMessage(BatchShareMessage message) {
-		lock.lock();
-		RequestIdentifier requestID = new RequestIdentifier(message
-				.getRequestID().toByteArray(), message.getRegionID()
-				.toByteArray());
+        batchMessagesReceived = new ConcurrentHashMap<RequestIdentifier, Queue<BatchShareMessage>>();
+        intBatchMessagesReceived = new ConcurrentHashMap<RequestIdentifier, Queue<CIntBatchShareMessage>>();
+        longBatchMessagesReceived = new ConcurrentHashMap<RequestIdentifier, Queue<CLongBatchShareMessage>>();
 
-		try {
-			protocolBatchMessagesLocks.lockOnRequest(requestID);
-			lock.unlock();
+        protocolResults = new ConcurrentHashMap<RequestIdentifier, Queue<ResultsMessage>>();
+        intProtocolResults = new ConcurrentHashMap<RequestIdentifier, Queue<CIntBatchShareMessage>>();
+        longProtocolResults = new ConcurrentHashMap<RequestIdentifier, Queue<CLongBatchShareMessage>>();
 
-			if (batchMessagesReceived.containsKey(requestID)) {
-				batchMessagesReceived.get(requestID).add(message);
-			} else {
-				Queue values = new ConcurrentLinkedQueue<BatchShareMessage>();
-				values.add(message);
-				batchMessagesReceived.put(requestID, values);
-			}
+        filterIndex = new ConcurrentHashMap<RequestIdentifier, Queue<CIntBatchShareMessage>>();
 
-			protocolBatchMessagesLocks.signalToRead(requestID);
+    }
 
-		} finally {
-			protocolBatchMessagesLocks.unlockOnRequest(requestID);
-		}
-	}
+    public void receiveBatchMessage(BatchShareMessage message) {
+        lock.lock();
+        RequestIdentifier requestID = new RequestIdentifier(message
+                .getRequestID().toByteArray(), message.getRegionID()
+                .toByteArray());
+
+        try {
+            protocolBatchMessagesLocks.lockOnRequest(requestID);
+            lock.unlock();
+
+            if (batchMessagesReceived.containsKey(requestID)) {
+                batchMessagesReceived.get(requestID).add(message);
+            } else {
+                Queue values = new ConcurrentLinkedQueue<BatchShareMessage>();
+                values.add(message);
+                batchMessagesReceived.put(requestID, values);
+            }
+
+            protocolBatchMessagesLocks.signalToRead(requestID);
+
+        } finally {
+            protocolBatchMessagesLocks.unlockOnRequest(requestID);
+        }
+    }
 
     public void receiveBatchMessage(CIntBatchShareMessage message) {
         lock.lock();
@@ -116,31 +116,31 @@ public class SharemindMessageBroker implements MessageBroker {
         }
     }
 
-	@Override
-	public void receiveBatchMessage(CLongBatchShareMessage message) {
-		lock.lock();
-		RequestIdentifier requestID = message.getRequestID();
+    @Override
+    public void receiveBatchMessage(CLongBatchShareMessage message) {
+        lock.lock();
+        RequestIdentifier requestID = message.getRequestID();
 
-		try {
-			protocolBatchMessagesLocks.lockOnRequest(requestID);
-			lock.unlock();
+        try {
+            protocolBatchMessagesLocks.lockOnRequest(requestID);
+            lock.unlock();
 
-			if (longBatchMessagesReceived.containsKey(requestID)) {
-				longBatchMessagesReceived.get(requestID).add(message);
-			} else {
-				Queue values = new ConcurrentLinkedQueue<CLongBatchShareMessage>();
-				values.add(message);
-				longBatchMessagesReceived.put(requestID, values);
-			}
+            if (longBatchMessagesReceived.containsKey(requestID)) {
+                longBatchMessagesReceived.get(requestID).add(message);
+            } else {
+                Queue values = new ConcurrentLinkedQueue<CLongBatchShareMessage>();
+                values.add(message);
+                longBatchMessagesReceived.put(requestID, values);
+            }
 
-			protocolBatchMessagesLocks.signalToRead(requestID);
+            protocolBatchMessagesLocks.signalToRead(requestID);
 
-		} finally {
-			protocolBatchMessagesLocks.unlockOnRequest(requestID);
-		}
-	}
+        } finally {
+            protocolBatchMessagesLocks.unlockOnRequest(requestID);
+        }
+    }
 
-	public Queue<BatchShareMessage> getReceivedBatchMessages(
+    public Queue<BatchShareMessage> getReceivedBatchMessages(
             RequestIdentifier requestId) {
         lock.lock();
 
@@ -161,7 +161,6 @@ public class SharemindMessageBroker implements MessageBroker {
             throw new IllegalArgumentException(ex.getMessage());
         }
     }
-
 
 
     public Queue<CIntBatchShareMessage> getReceivedBatchMessagesInt(
@@ -186,50 +185,50 @@ public class SharemindMessageBroker implements MessageBroker {
         }
     }
 
-	@Override
-	public Queue<CLongBatchShareMessage> getReceivedBatchMessagesLong(RequestIdentifier requestId) {
-		lock.lock();
-		try {
-			protocolBatchMessagesLocks.lockOnRequest(requestId);
-			lock.unlock();
-			// While there aren't messages for this request wait.
-			while (!longBatchMessagesReceived.containsKey(requestId)) {
-				protocolBatchMessagesLocks.awaitForWrite(requestId);
-			}
-			return longBatchMessagesReceived.get(requestId);
-		} catch (InterruptedException ex) {
-			LOG.error(ex);
-			throw new IllegalArgumentException(ex.getMessage());
-		}
-	}
+    @Override
+    public Queue<CLongBatchShareMessage> getReceivedBatchMessagesLong(RequestIdentifier requestId) {
+        lock.lock();
+        try {
+            protocolBatchMessagesLocks.lockOnRequest(requestId);
+            lock.unlock();
+            // While there aren't messages for this request wait.
+            while (!longBatchMessagesReceived.containsKey(requestId)) {
+                protocolBatchMessagesLocks.awaitForWrite(requestId);
+            }
+            return longBatchMessagesReceived.get(requestId);
+        } catch (InterruptedException ex) {
+            LOG.error(ex);
+            throw new IllegalArgumentException(ex.getMessage());
+        }
+    }
 
 
-	public void receiveProtocolResults(ResultsMessage message) {
-		lock.lock();
-		RequestIdentifier requestID = new RequestIdentifier(message
-				.getRequestID().toByteArray(), message.getRegionID()
-				.toByteArray());
+    public void receiveProtocolResults(ResultsMessage message) {
+        lock.lock();
+        RequestIdentifier requestID = new RequestIdentifier(message
+                .getRequestID().toByteArray(), message.getRegionID()
+                .toByteArray());
 
-		try {
-			protocolResultsLocks.lockOnRequest(requestID);
-			lock.unlock();
-			if (protocolResults.containsKey(requestID)) {
-				protocolResults.get(requestID).add(message);
-			} else {
-				Queue values = new ConcurrentLinkedQueue<ResultsMessage>();
-				values.add(message);
-				protocolResults.put(requestID, values);
-			}
-			protocolResultsLocks.signalToRead(requestID);
-		} finally {
-			protocolResultsLocks.unlockOnRequest(requestID);
-		}
-	}
+        try {
+            protocolResultsLocks.lockOnRequest(requestID);
+            lock.unlock();
+            if (protocolResults.containsKey(requestID)) {
+                protocolResults.get(requestID).add(message);
+            } else {
+                Queue values = new ConcurrentLinkedQueue<ResultsMessage>();
+                values.add(message);
+                protocolResults.put(requestID, values);
+            }
+            protocolResultsLocks.signalToRead(requestID);
+        } finally {
+            protocolResultsLocks.unlockOnRequest(requestID);
+        }
+    }
 
     @Override
-	public void receiveProtocolResults(CIntBatchShareMessage message) {
-		lock.lock();
-		RequestIdentifier requestID = message.getRequestID();
+    public void receiveProtocolResults(CIntBatchShareMessage message) {
+        lock.lock();
+        RequestIdentifier requestID = message.getRequestID();
 
         try {
             protocolResultsLocks.lockOnRequest(requestID);
@@ -237,8 +236,8 @@ public class SharemindMessageBroker implements MessageBroker {
             if (intProtocolResults.containsKey(requestID)) {
                 intProtocolResults.get(requestID).add(message);
             } else {
-				Queue values = new ConcurrentLinkedQueue<CIntBatchShareMessage>();
-				values.add(message);
+                Queue values = new ConcurrentLinkedQueue<CIntBatchShareMessage>();
+                values.add(message);
                 intProtocolResults.put(requestID, values);
             }
             protocolResultsLocks.signalToRead(requestID);
@@ -247,74 +246,74 @@ public class SharemindMessageBroker implements MessageBroker {
         }
     }
 
-	@Override
-	public void receiveProtocolResults(CLongBatchShareMessage message) {
-		lock.lock();
-		RequestIdentifier requestID = message.getRequestID();
-		try {
-			protocolResultsLocks.lockOnRequest(requestID);
-			lock.unlock();
-			if (longProtocolResults.containsKey(requestID)) {
-				longProtocolResults.get(requestID).add(message);
-			} else {
-				Queue values = new ConcurrentLinkedQueue<CLongBatchShareMessage>();
-				values.add(message);
-				longProtocolResults.put(requestID, values);
-			}
-			protocolResultsLocks.signalToRead(requestID);
-		} finally {
-			protocolResultsLocks.unlockOnRequest(requestID);
-		}
-	}
+    @Override
+    public void receiveProtocolResults(CLongBatchShareMessage message) {
+        lock.lock();
+        RequestIdentifier requestID = message.getRequestID();
+        try {
+            protocolResultsLocks.lockOnRequest(requestID);
+            lock.unlock();
+            if (longProtocolResults.containsKey(requestID)) {
+                longProtocolResults.get(requestID).add(message);
+            } else {
+                Queue values = new ConcurrentLinkedQueue<CLongBatchShareMessage>();
+                values.add(message);
+                longProtocolResults.put(requestID, values);
+            }
+            protocolResultsLocks.signalToRead(requestID);
+        } finally {
+            protocolResultsLocks.unlockOnRequest(requestID);
+        }
+    }
 
-	public void receiveFilterIndex(CIntBatchShareMessage message) {
+    public void receiveFilterIndex(CIntBatchShareMessage message) {
 
-		lock.lock();
-		RequestIdentifier requestID = message.getRequestID();
+        lock.lock();
+        RequestIdentifier requestID = message.getRequestID();
 
-		try {
-			filterIndexLocks.lockOnRequest(requestID);
-			lock.unlock();
-			if (filterIndex.containsKey(requestID)) {
-				filterIndex.get(requestID).add(message);
-			} else {
-				Queue values = new ConcurrentLinkedQueue<CIntBatchShareMessage>();
-				values.add(message);
-				filterIndex.put(requestID, values);
-			}
-			filterIndexLocks.signalToRead(requestID);
+        try {
+            filterIndexLocks.lockOnRequest(requestID);
+            lock.unlock();
+            if (filterIndex.containsKey(requestID)) {
+                filterIndex.get(requestID).add(message);
+            } else {
+                Queue values = new ConcurrentLinkedQueue<CIntBatchShareMessage>();
+                values.add(message);
+                filterIndex.put(requestID, values);
+            }
+            filterIndexLocks.signalToRead(requestID);
 
-		} finally {
-			filterIndexLocks.unlockOnRequest(requestID);
-		}
+        } finally {
+            filterIndexLocks.unlockOnRequest(requestID);
+        }
 
-	}
+    }
 
-	public Queue<ResultsMessage> getProtocolResults(RequestIdentifier requestID) {
-		lock.lock();
-		try {
-			protocolResultsLocks.lockOnRequest(requestID);
-			lock.unlock();
-			/**
-			 * Wait while protocol results do not arrive. Only two results
-			 * should arrive, one from each of the remaining players.
-			 */
-			while (!(protocolResults.containsKey(requestID))
-					|| protocolResults.get(requestID).size() < 2) {
-				protocolResultsLocks.awaitForWrite(requestID);
-			}
+    public Queue<ResultsMessage> getProtocolResults(RequestIdentifier requestID) {
+        lock.lock();
+        try {
+            protocolResultsLocks.lockOnRequest(requestID);
+            lock.unlock();
+            /**
+             * Wait while protocol results do not arrive. Only two results
+             * should arrive, one from each of the remaining players.
+             */
+            while (!(protocolResults.containsKey(requestID))
+                    || protocolResults.get(requestID).size() < 2) {
+                protocolResultsLocks.awaitForWrite(requestID);
+            }
 
             return protocolResults.get(requestID);
 
-		} catch (InterruptedException ex) {
-			LOG.error(ex);
-			throw new IllegalArgumentException(ex.getMessage());
-		}
-	}
+        } catch (InterruptedException ex) {
+            LOG.error(ex);
+            throw new IllegalArgumentException(ex.getMessage());
+        }
+    }
 
-	@Override
-	public Queue<CIntBatchShareMessage> getIntProtocolResults(RequestIdentifier requestID) {
-		lock.lock();
+    @Override
+    public Queue<CIntBatchShareMessage> getIntProtocolResults(RequestIdentifier requestID) {
+        lock.lock();
         try {
             protocolResultsLocks.lockOnRequest(requestID);
             lock.unlock();
@@ -333,123 +332,123 @@ public class SharemindMessageBroker implements MessageBroker {
             LOG.error(ex);
             throw new IllegalArgumentException(ex.getMessage());
         }
-	}
+    }
 
-	@Override
-	public Queue<CLongBatchShareMessage> getLongProtocolResults(RequestIdentifier requestID) {
-		lock.lock();
-		try {
-			protocolResultsLocks.lockOnRequest(requestID);
-			lock.unlock();
-			/**
-			 * Wait while protocol results do not arrive. Only two results
-			 * should arrive, one from each of the remaining players.
-			 */
-			while (!(longProtocolResults.containsKey(requestID))
-					|| longProtocolResults.get(requestID).size() < 2) {
-				protocolResultsLocks.awaitForWrite(requestID);
-			}
+    @Override
+    public Queue<CLongBatchShareMessage> getLongProtocolResults(RequestIdentifier requestID) {
+        lock.lock();
+        try {
+            protocolResultsLocks.lockOnRequest(requestID);
+            lock.unlock();
+            /**
+             * Wait while protocol results do not arrive. Only two results
+             * should arrive, one from each of the remaining players.
+             */
+            while (!(longProtocolResults.containsKey(requestID))
+                    || longProtocolResults.get(requestID).size() < 2) {
+                protocolResultsLocks.awaitForWrite(requestID);
+            }
 
-			return longProtocolResults.get(requestID);
+            return longProtocolResults.get(requestID);
 
-		} catch (InterruptedException ex) {
-			LOG.error(ex);
-			throw new IllegalArgumentException(ex.getMessage());
-		}
-	}
+        } catch (InterruptedException ex) {
+            LOG.error(ex);
+            throw new IllegalArgumentException(ex.getMessage());
+        }
+    }
 
-	public CIntBatchShareMessage getFilterIndexes(RequestIdentifier requestID) {
-		lock.lock();
+    public CIntBatchShareMessage getFilterIndexes(RequestIdentifier requestID) {
+        lock.lock();
 
-		try {
-			filterIndexLocks.lockOnRequest(requestID);
-			lock.unlock();
+        try {
+            filterIndexLocks.lockOnRequest(requestID);
+            lock.unlock();
 
-			// While there aren't messages for this request wait.
-			while (!filterIndex.containsKey(requestID)
-					|| filterIndex.get(requestID).size() == 0) {
-				filterIndexLocks.awaitForWrite(requestID);
-			}
+            // While there aren't messages for this request wait.
+            while (!filterIndex.containsKey(requestID)
+                    || filterIndex.get(requestID).size() == 0) {
+                filterIndexLocks.awaitForWrite(requestID);
+            }
 
-			return filterIndex.get(requestID).poll();
+            return filterIndex.get(requestID).poll();
 
-		} catch (InterruptedException ex) {
-			LOG.error(ex);
-			throw new IllegalArgumentException(ex.getMessage());
-		}
+        } catch (InterruptedException ex) {
+            LOG.error(ex);
+            throw new IllegalArgumentException(ex.getMessage());
+        }
 
-	}
+    }
 
-	public void relayStarted() {
-		relayStarted.countDown();
-	}
+    public void relayStarted() {
+        relayStarted.countDown();
+    }
 
-	public void waitRelayStart() throws InterruptedException {
-		relayStarted.await();
-	}
+    public void waitRelayStart() throws InterruptedException {
+        relayStarted.await();
+    }
 
-	public void allBatchMessagesRead(RequestIdentifier requestID) {
-		protocolBatchMessagesLocks.removeLock(requestID);
-		batchMessagesReceived.remove(requestID);
-		intBatchMessagesReceived.remove(requestID);
-	}
+    public void allBatchMessagesRead(RequestIdentifier requestID) {
+        protocolBatchMessagesLocks.removeLock(requestID);
+        batchMessagesReceived.remove(requestID);
+        intBatchMessagesReceived.remove(requestID);
+    }
 
-	public void readBatchMessages(RequestIdentifier requestID) {
-		protocolBatchMessagesLocks.unlockOnRequest(requestID);
-	}
+    public void readBatchMessages(RequestIdentifier requestID) {
+        protocolBatchMessagesLocks.unlockOnRequest(requestID);
+    }
 
 
-	public void waitNewBatchMessage(RequestIdentifier requestID)
-			throws InterruptedException {
-		protocolBatchMessagesLocks.awaitForWrite(requestID);
+    public void waitNewBatchMessage(RequestIdentifier requestID)
+            throws InterruptedException {
+        protocolBatchMessagesLocks.awaitForWrite(requestID);
 
-	}
+    }
 
-	public void allResultsRead(RequestIdentifier requestID) {
-		protocolResultsLocks.removeLock(requestID);
-		protocolResults.remove(requestID);
-		intProtocolResults.remove(requestID);
-	}
+    public void allResultsRead(RequestIdentifier requestID) {
+        protocolResultsLocks.removeLock(requestID);
+        protocolResults.remove(requestID);
+        intProtocolResults.remove(requestID);
+    }
 
-	public void protocolResultsRead(RequestIdentifier requestID) {
-		protocolResultsLocks.unlockOnRequest(requestID);
-	}
+    public void protocolResultsRead(RequestIdentifier requestID) {
+        protocolResultsLocks.unlockOnRequest(requestID);
+    }
 
-	@Override
-	public void intProtocolResultsRead(RequestIdentifier requestID) {
-		protocolResultsRead(requestID);
+    @Override
+    public void intProtocolResultsRead(RequestIdentifier requestID) {
+        protocolResultsRead(requestID);
 
-	}
+    }
 
-	@Override
-	public void longProtocolResultsRead(RequestIdentifier requestID) {
-		protocolResultsRead(requestID);
-	}
+    @Override
+    public void longProtocolResultsRead(RequestIdentifier requestID) {
+        protocolResultsRead(requestID);
+    }
 
-	public void allIndexesMessagesRead(RequestIdentifier requestID) {
-		filterIndexLocks.removeLock(requestID);
-		filterIndex.remove(requestID);
-	}
+    public void allIndexesMessagesRead(RequestIdentifier requestID) {
+        filterIndexLocks.removeLock(requestID);
+        filterIndex.remove(requestID);
+    }
 
-	public void indexMessageRead(RequestIdentifier requestID) {
-		filterIndexLocks.unlockOnRequest(requestID);
-	}
+    public void indexMessageRead(RequestIdentifier requestID) {
+        filterIndexLocks.unlockOnRequest(requestID);
+    }
 
-	public int numberofOfLocksResults() {
-		return this.protocolResultsLocks.countLocks();
-	}
+    public int numberofOfLocksResults() {
+        return this.protocolResultsLocks.countLocks();
+    }
 
-	public boolean lockExistsForResultsOnRequest(RequestIdentifier requestID) {
-		return this.protocolResultsLocks.lockExist(requestID);
-	}
+    public boolean lockExistsForResultsOnRequest(RequestIdentifier requestID) {
+        return this.protocolResultsLocks.lockExist(requestID);
+    }
 
-	/**
-	 * Method only used for unitTest class implementations. Should be ignored on
-	 * a concrete implementation
-	 */
-	public void receiveTestMessage(byte[] message) {
-		throw new UnsupportedOperationException(
-				"This method should only be used for testing purposes");
+    /**
+     * Method only used for unitTest class implementations. Should be ignored on
+     * a concrete implementation
+     */
+    public void receiveTestMessage(byte[] message) {
+        throw new UnsupportedOperationException(
+                "This method should only be used for testing purposes");
 
-	}
+    }
 }

@@ -5,13 +5,13 @@ import java.net.URLClassLoader;
 
 public class FilePaths {
 
-    public static String getPath(String filename){
+    public static String getPath(String filename) {
         ClassLoader cl = ClassLoader.getSystemClassLoader();
 
-        URL[] urls = ((URLClassLoader)cl).getURLs();
+        URL[] urls = ((URLClassLoader) cl).getURLs();
 
-        for(URL url: urls){
-            if(url.getFile().contains(filename)){
+        for (URL url : urls) {
+            if (url.getFile().contains(filename)) {
                 return url.getFile();
             }
         }

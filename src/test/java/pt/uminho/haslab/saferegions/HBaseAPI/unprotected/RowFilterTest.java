@@ -25,9 +25,9 @@ public class RowFilterTest extends AbstractUnprotectedFilterTest {
         List<byte[]> values = this.generatedValues.get(cf).get(cq);
 
         int indexChosen = randomGenerator.nextInt(values.size());
-        LOG.debug("Index chosen was "+ indexChosen);
+        LOG.debug("Index chosen was " + indexChosen);
 
-        return new RowFilter(CompareFilter.CompareOp.EQUAL, new BinaryComparator((""+indexChosen).getBytes()));
+        return new RowFilter(CompareFilter.CompareOp.EQUAL, new BinaryComparator(("" + indexChosen).getBytes()));
     }
 
     protected Filter getFilterOnProtectedColumn() {

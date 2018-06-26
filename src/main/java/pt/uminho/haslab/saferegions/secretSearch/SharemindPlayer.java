@@ -10,24 +10,20 @@ import java.util.List;
  */
 public interface SharemindPlayer extends Player {
 
-	// To define dest player use the function setTargetPlayer
-    void setTargetPlayer(int targetPlayerID);
-
     void sendProtocolResults(List<byte[]> dest);
 
     void sendIntProtocolResults(int[] dest);
 
     void sendLongProtocolResults(long[] dest);
 
-
     /**
-	 * This function accepts the local results, retrieves the results from the
-	 * message broker and joins all the results to obtain the final correct
-	 * result that contains the real HBase keys.
-	 * 
-	 * @return
-	 * @throws ResultsLengthMismatch
-	 */
+     * This function accepts the local results, retrieves the results from the
+     * message broker and joins all the results to obtain the final correct
+     * result that contains the real HBase keys.
+     *
+     * @return
+     * @throws ResultsLengthMismatch
+     */
     List<List<byte[]>> getProtocolResults() throws ResultsLengthMismatch;
 
     List<int[]> getIntProtocolResults() throws ResultsLengthMismatch;
@@ -36,13 +32,16 @@ public interface SharemindPlayer extends Player {
 
     void cleanValues();
 
-	void cleanResultsMatch();
+    void cleanResultsMatch();
 
     void sendFilteredIndexes(int[] results);
 
     int[] getFilterIndexes();
 
-	boolean isTargetPlayer();
+    boolean isTargetPlayer();
+
+    // To define dest player use the function setTargetPlayer
+    void setTargetPlayer(int targetPlayerID);
 
 
 }

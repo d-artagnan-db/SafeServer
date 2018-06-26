@@ -20,110 +20,110 @@ import static junit.framework.TestCase.assertEquals;
 
 @RunWith(Parameterized.class)
 public abstract class ConcurrentRedisDiscoveryServiceTest
-		extends
-			TestLinkedRegions {
+        extends
+        TestLinkedRegions {
 
-	protected static final Log LOG = LogFactory
-			.getLog(ConcurrentRedisDiscoveryServiceTest.class.getName());
+    protected static final Log LOG = LogFactory
+            .getLog(ConcurrentRedisDiscoveryServiceTest.class.getName());
 
-	protected final static int DISC_SERVICE_SLEEP_TIME = 200;
-	protected final static int DISC_SERVICE_INC_TIME = 100;
-	protected final static int DISC_SERVICE_RETRIES = 3;
+    protected final static int DISC_SERVICE_SLEEP_TIME = 200;
+    protected final static int DISC_SERVICE_INC_TIME = 100;
+    protected final static int DISC_SERVICE_RETRIES = 3;
 
-	protected final Map<Integer, List<RegionLocation>> locations;
-	protected final BigInteger requestsID;
-	protected final BigInteger regionsID;
-	protected final List<String> ips;
-	protected final List<Integer> ports;
+    protected final Map<Integer, List<RegionLocation>> locations;
+    protected final BigInteger requestsID;
+    protected final BigInteger regionsID;
+    protected final List<String> ips;
+    protected final List<Integer> ports;
 
-	public ConcurrentRedisDiscoveryServiceTest(BigInteger requestID,
-			BigInteger regionID, List<String> ip, List<Integer> port)
-			throws IOException {
-		this.requestsID = requestID;
-		this.regionsID = regionID;
-		this.ips = ip;
-		this.ports = port;
-		locations = new ConcurrentHashMap<Integer, List<RegionLocation>>();
-	}
+    public ConcurrentRedisDiscoveryServiceTest(BigInteger requestID,
+                                               BigInteger regionID, List<String> ip, List<Integer> port)
+            throws IOException {
+        this.requestsID = requestID;
+        this.regionsID = regionID;
+        this.ips = ip;
+        this.ports = port;
+        locations = new ConcurrentHashMap<Integer, List<RegionLocation>>();
+    }
 
 
     @Parameterized.Parameters
     public static Collection nbitsValues() {
-		return ValuesGenerator.RedisTestValueGenerator();
-	}
+        return ValuesGenerator.RedisTestValueGenerator();
+    }
 
-	protected void validateResults() throws InvalidSecretValue {
-		for (List<RegionLocation> loc : locations.values()) {
-			LOG.debug("List Size " + loc.size());
-			assertEquals(2, loc.size());
-		}
+    protected void validateResults() throws InvalidSecretValue {
+        for (List<RegionLocation> loc : locations.values()) {
+            LOG.debug("List Size " + loc.size());
+            assertEquals(2, loc.size());
+        }
 
-		for (Integer player : locations.keySet()) {
+        for (Integer player : locations.keySet()) {
 
-			boolean allMatch = true;
+            boolean allMatch = true;
 
-			for (RegionLocation location : locations.get(player)) {
-				boolean foundMatch = false;
+            for (RegionLocation location : locations.get(player)) {
+                boolean foundMatch = false;
 
-				int index = player;
-				for (int i = 0; i < 2; i++) {
-					index = (index + 1) % 3;
-					LOG.debug(player + " Comparing " + ips.get(index) + " : "
-							+ ports.get(index) + " <=> " + location.getIp()
-							+ ":" + location.getPort());
-					if (ips.get(index).equals(location.getIp())
-							&& ports.get(index) == location.getPort()) {
-						foundMatch |= true;
-						break;
-					}
+                int index = player;
+                for (int i = 0; i < 2; i++) {
+                    index = (index + 1) % 3;
+                    LOG.debug(player + " Comparing " + ips.get(index) + " : "
+                            + ports.get(index) + " <=> " + location.getIp()
+                            + ":" + location.getPort());
+                    if (ips.get(index).equals(location.getIp())
+                            && ports.get(index) == location.getPort()) {
+                        foundMatch |= true;
+                        break;
+                    }
 
-				}
-				allMatch &= foundMatch;
+                }
+                allMatch &= foundMatch;
 
-			}
+            }
 
-			assertEquals(true, allMatch);
+            assertEquals(true, allMatch);
 
-		}
+        }
 
-	}
+    }
 
-	protected abstract class RedisRegionServer extends Thread
-			implements
-				RegionServer {
+    protected abstract class RedisRegionServer extends Thread
+            implements
+            RegionServer {
 
-		protected final int playerID;
-		protected final byte[] requestID;
-		protected final byte[] regionID;
-		protected final String ip;
-		protected final Integer port;
-		protected boolean runStatus;
+        protected final int playerID;
+        protected final byte[] requestID;
+        protected final byte[] regionID;
+        protected final String ip;
+        protected final Integer port;
+        protected boolean runStatus;
 
-		public RedisRegionServer(int playerID, byte[] requestID,
-				byte[] regionID, String ip, Integer port) {
-			LOG.debug("Creating player id " + playerID);
-			this.playerID = playerID;
-			this.requestID = requestID;
-			this.regionID = regionID;
-			this.ip = ip;
-			this.port = port;
-			runStatus = true;
-		}
+        public RedisRegionServer(int playerID, byte[] requestID,
+                                 byte[] regionID, String ip, Integer port) {
+            LOG.debug("Creating player id " + playerID);
+            this.playerID = playerID;
+            this.requestID = requestID;
+            this.regionID = regionID;
+            this.ip = ip;
+            this.port = port;
+            runStatus = true;
+        }
 
-		public void startRegionServer() {
-			this.start();
+        public void startRegionServer() {
+            this.start();
 
-		}
+        }
 
-		public void stopRegionServer() throws IOException, InterruptedException {
-			this.join();
+        public void stopRegionServer() throws IOException, InterruptedException {
+            this.join();
 
-		}
+        }
 
-		public boolean getRunStatus() {
-			return runStatus;
-		}
+        public boolean getRunStatus() {
+            return runStatus;
+        }
 
-	}
+    }
 
 }

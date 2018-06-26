@@ -12,10 +12,9 @@ import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Conditio
 import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition.GreaterOrEqualThan;
 
 public class IntPlayerResults {
-    private static IntSharemindDealer dealer = new IntSharemindDealer();
-
     private static final Log LOG = LogFactory.getLog(IntPlayerResults.class
             .getName());
+    private static IntSharemindDealer dealer = new IntSharemindDealer();
     private final Condition condition;
     private final int nBits;
     private final List<int[]> results;

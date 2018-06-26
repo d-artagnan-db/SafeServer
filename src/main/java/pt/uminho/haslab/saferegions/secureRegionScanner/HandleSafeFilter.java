@@ -10,7 +10,6 @@ import pt.uminho.haslab.saferegions.SmpcConfiguration;
 import pt.uminho.haslab.saferegions.secretSearch.*;
 import pt.uminho.haslab.saferegions.secureFilters.*;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -195,12 +194,12 @@ public class HandleSafeFilter {
 
                 case ISMPC:
                     log = "IntSearchConditionFactory";
-                    String column = sFamily +":"+sQualifier;
+                    String column = sFamily + ":" + sQualifier;
                     factory = new IntSearchConditionFactory(cond, nBits, values, config, column, regionIdentifier);
                     break;
                 case LSMPC:
                     log = "LongSearchConditionFactory";
-                    String lcolumn = sFamily +":"+sQualifier;
+                    String lcolumn = sFamily + ":" + sQualifier;
                     factory = new LongSearchConditionFactory(cond, nBits, values, config, lcolumn, regionIdentifier);
                     break;
                 case SMPC:

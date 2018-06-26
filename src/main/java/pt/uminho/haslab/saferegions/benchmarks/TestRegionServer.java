@@ -16,19 +16,19 @@ import java.net.URL;
 
 public abstract class TestRegionServer extends Thread implements RegionServer {
 
-	private static final Log LOG = LogFactory.getLog(TestRegionServer.class
-			.getName());
-	protected final Relay relay;
-	protected final MessageBroker broker;
-	protected final SmpcConfiguration searchConf;
-	protected final int playerID;
-	protected boolean runStatus;
+    private static final Log LOG = LogFactory.getLog(TestRegionServer.class
+            .getName());
+    protected final Relay relay;
+    protected final MessageBroker broker;
+    protected final SmpcConfiguration searchConf;
+    protected final int playerID;
+    protected boolean runStatus;
 
-	public TestRegionServer(int playerID) throws IOException {
-		String resource = "hbase-site-" + playerID + ".xml";
+    public TestRegionServer(int playerID) throws IOException {
+        String resource = "hbase-site-" + playerID + ".xml";
 
-		Configuration conf = new Configuration();
-		/**
+        Configuration conf = new Configuration();
+        /**
          *
          * Hadoop configuration seems to have a weird behavior regarding file names.
          * It can find file given their names without the path as long as theses files are built in the jar. If the
@@ -42,63 +42,62 @@ public abstract class TestRegionServer extends Thread implements RegionServer {
          * a file name.
          *
          * */
-		System.out.println("Going to get resource " + resource);
+        System.out.println("Going to get resource " + resource);
 
-		URL f = new File(FilePaths.getPath(resource)).toURI().toURL();
-		//System.out.println("Going to get url " +f);
-		conf.addResource(f);
-		conf.reloadConfiguration();
-		searchConf = new SmpcConfiguration(conf);
-		if (playerID == 0) {
-			RedisUtils.flushAll(searchConf.getDiscoveryServiceLocation());
-		}
-		broker = new SharemindMessageBroker();
+        URL f = new File(FilePaths.getPath(resource)).toURI().toURL();
+        //System.out.println("Going to get url " +f);
+        conf.addResource(f);
+        conf.reloadConfiguration();
+        searchConf = new SmpcConfiguration(conf);
+        if (playerID == 0) {
+            RedisUtils.flushAll(searchConf.getDiscoveryServiceLocation());
+        }
+        broker = new SharemindMessageBroker();
 
-		relay = searchConf.createRelay(broker);
+        relay = searchConf.createRelay(broker);
 
-		this.playerID = playerID;
-		runStatus = true;
+        this.playerID = playerID;
+        runStatus = true;
 
 
+    }
 
-	}
+    public abstract void doComputation();
 
-	public abstract void doComputation();
+    @Override
+    public void run() {
 
-	@Override
-	public void run() {
+        try {
+            // Start and wait for other players.
+            relay.bootRelay();
 
-		try {
-			// Start and wait for other players.
-			relay.bootRelay();
+            broker.waitRelayStart();
+            doComputation();
 
-			broker.waitRelayStart();
-			doComputation();
+            relay.stopRelay();
+            Thread.sleep(1000);
 
-			relay.stopRelay();
-			Thread.sleep(1000);
+        } catch (InterruptedException ex) {
+            runStatus = false;
+            LOG.debug(ex);
+            throw new IllegalStateException(ex);
+        } catch (IOException ex) {
+            runStatus = false;
+            LOG.debug(ex);
+            throw new IllegalStateException(ex);
+        }
 
-		} catch (InterruptedException ex) {
-			runStatus = false;
-			LOG.debug(ex);
-			throw new IllegalStateException(ex);
-		} catch (IOException ex) {
-			runStatus = false;
-			LOG.debug(ex);
-			throw new IllegalStateException(ex);
-		}
+    }
 
-	}
+    public void stopRegionServer() throws IOException, InterruptedException {
+        this.join();
+    }
 
-	public void stopRegionServer() throws IOException, InterruptedException {
-		this.join();
-	}
+    public void startRegionServer() {
+        this.start();
+    }
 
-	public void startRegionServer() {
-		this.start();
-	}
-
-	public boolean getRunStatus() {
-		return this.runStatus;
-	}
+    public boolean getRunStatus() {
+        return this.runStatus;
+    }
 }

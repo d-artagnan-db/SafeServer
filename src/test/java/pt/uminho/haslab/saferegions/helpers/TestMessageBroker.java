@@ -15,126 +15,126 @@ import java.util.concurrent.CountDownLatch;
  * defined.
  */
 public abstract class TestMessageBroker implements MessageBroker {
-	private final CountDownLatch relayStarted;
+    private final CountDownLatch relayStarted;
 
-	public TestMessageBroker() {
-		this.relayStarted = new CountDownLatch(1);
-	}
+    public TestMessageBroker() {
+        this.relayStarted = new CountDownLatch(1);
+    }
 
-	public void receiveProtocolResults(ResultsMessage message) {
-		throw new UnsupportedOperationException(
-				"Method not currently supported on testing framework");
-	}
+    public void receiveProtocolResults(ResultsMessage message) {
+        throw new UnsupportedOperationException(
+                "Method not currently supported on testing framework");
+    }
 
     public void receiveFilterIndex(CIntBatchShareMessage message) {
         throw new UnsupportedOperationException(
-				"Method not currently supported on testing framework");
-	}
+                "Method not currently supported on testing framework");
+    }
 
-	public void relayStarted() {
-		relayStarted.countDown();
-	}
+    public void relayStarted() {
+        relayStarted.countDown();
+    }
 
-	public void waitRelayStart() throws InterruptedException {
-		relayStarted.await();
-	}
+    public void waitRelayStart() throws InterruptedException {
+        relayStarted.await();
+    }
 
-	public Queue<ResultsMessage> getProtocolResults(
-			RequestIdentifier requestID) {
-		throw new UnsupportedOperationException(
-				"Method not currently supported on testing framework");
-	}
+    public Queue<ResultsMessage> getProtocolResults(
+            RequestIdentifier requestID) {
+        throw new UnsupportedOperationException(
+                "Method not currently supported on testing framework");
+    }
 
     public CIntBatchShareMessage getFilterIndexes(
             RequestIdentifier requestID) {
-		throw new UnsupportedOperationException(
-				"Method not currently supported on testing framework");
-	}
+        throw new UnsupportedOperationException(
+                "Method not currently supported on testing framework");
+    }
 
-	public void waitNewMessage(RequestIdentifier requestID)
-			throws InterruptedException {
-		throw new UnsupportedOperationException(
-				"Method not currently supported on testing framework");
+    public void waitNewMessage(RequestIdentifier requestID)
+            throws InterruptedException {
+        throw new UnsupportedOperationException(
+                "Method not currently supported on testing framework");
 
-	}
+    }
 
-	public void readMessages(RequestIdentifier requestID) {
-		throw new UnsupportedOperationException(
-				"Method not currently supported on testing framework");
+    public void readMessages(RequestIdentifier requestID) {
+        throw new UnsupportedOperationException(
+                "Method not currently supported on testing framework");
 
-	}
+    }
 
-	public void allResultsRead(RequestIdentifier requestID) {
-		throw new UnsupportedOperationException(
-				"Method not currently supported on testing framework");
+    public void allResultsRead(RequestIdentifier requestID) {
+        throw new UnsupportedOperationException(
+                "Method not currently supported on testing framework");
 
-	}
+    }
 
-	public void protocolResultsRead(RequestIdentifier requestID) {
-		throw new UnsupportedOperationException(
-				"Method not currently supported on testing framework");
-	}
+    public void protocolResultsRead(RequestIdentifier requestID) {
+        throw new UnsupportedOperationException(
+                "Method not currently supported on testing framework");
+    }
 
-	public void allIndexesMessagesRead(RequestIdentifier requestID) {
-		throw new UnsupportedOperationException(
-				"Method not currently supported on testing framework");
-	}
+    public void allIndexesMessagesRead(RequestIdentifier requestID) {
+        throw new UnsupportedOperationException(
+                "Method not currently supported on testing framework");
+    }
 
-	public void indexMessageRead(RequestIdentifier requestID) {
-		throw new UnsupportedOperationException(
-				"Method not currently supported on testing framework");
-	}
+    public void indexMessageRead(RequestIdentifier requestID) {
+        throw new UnsupportedOperationException(
+                "Method not currently supported on testing framework");
+    }
 
-	public void receiveBatchMessage(BatchShareMessage message) {
-		throw new UnsupportedOperationException(
-				"Method not currently supported on testing framework");
-	}
+    public void receiveBatchMessage(BatchShareMessage message) {
+        throw new UnsupportedOperationException(
+                "Method not currently supported on testing framework");
+    }
 
-	public Queue<BatchShareMessage> getReceivedBatchMessages(
-			RequestIdentifier requestId) {
-		throw new UnsupportedOperationException(
-				"Method not currently supported on testing framework");
-	}
+    public Queue<BatchShareMessage> getReceivedBatchMessages(
+            RequestIdentifier requestId) {
+        throw new UnsupportedOperationException(
+                "Method not currently supported on testing framework");
+    }
 
-	public void waitNewBatchMessage(RequestIdentifier requestID)
-			throws InterruptedException {
-		throw new UnsupportedOperationException(
-				"Method not currently supported on testing framework");
-	}
+    public void waitNewBatchMessage(RequestIdentifier requestID)
+            throws InterruptedException {
+        throw new UnsupportedOperationException(
+                "Method not currently supported on testing framework");
+    }
 
-	public void allBatchMessagesRead(RequestIdentifier requestID) {
-		throw new UnsupportedOperationException(
-				"Method not currently supported on testing framework");
-	}
+    public void allBatchMessagesRead(RequestIdentifier requestID) {
+        throw new UnsupportedOperationException(
+                "Method not currently supported on testing framework");
+    }
 
-	public void readBatchMessages(RequestIdentifier requestID) {
-		throw new UnsupportedOperationException(
-				"Method not currently supported on testing framework");
-	}
+    public void readBatchMessages(RequestIdentifier requestID) {
+        throw new UnsupportedOperationException(
+                "Method not currently supported on testing framework");
+    }
 
-	@Override
+    @Override
     public void receiveProtocolResults(CIntBatchShareMessage message) {
         throw new UnsupportedOperationException(
-				"Method not currently supported on testing framework");
-	}
+                "Method not currently supported on testing framework");
+    }
 
-	@Override
+    @Override
     public Queue<CIntBatchShareMessage> getIntProtocolResults(RequestIdentifier requestID) {
         throw new UnsupportedOperationException(
-				"Method not currently supported on testing framework");
-	}
+                "Method not currently supported on testing framework");
+    }
 
-	@Override
-	public void intProtocolResultsRead(RequestIdentifier requestID) {
-		throw new UnsupportedOperationException(
-				"Method not currently supported on testing framework");
-	}
+    @Override
+    public void intProtocolResultsRead(RequestIdentifier requestID) {
+        throw new UnsupportedOperationException(
+                "Method not currently supported on testing framework");
+    }
 
-	@Override
-	public void receiveBatchMessage(CIntBatchShareMessage message) {
-		throw new UnsupportedOperationException(
-				"Method not currently supported on testing framework");
-	}
+    @Override
+    public void receiveBatchMessage(CIntBatchShareMessage message) {
+        throw new UnsupportedOperationException(
+                "Method not currently supported on testing framework");
+    }
 
     @Override
     public Queue<CIntBatchShareMessage> getReceivedBatchMessagesInt(RequestIdentifier requestId) {

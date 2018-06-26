@@ -12,8 +12,8 @@ import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Conditio
 
 public class PlayerResults {
 
-	private final Condition condition;
-	private final int nBits;
+    private final Condition condition;
+    private final int nBits;
     private final List<List<byte[]>> results;
 
     /**
@@ -22,22 +22,22 @@ public class PlayerResults {
     public PlayerResults(List<List<byte[]>> results, Condition condition,
                          int nBits) throws ResultsLengthMismatch {
 
-		this.condition = condition;
-		this.results = results;
-		this.nBits = nBits;
-	}
+        this.condition = condition;
+        this.results = results;
+        this.nBits = nBits;
+    }
 
-	/**
-	 * Iterates through the results of the smpc protocols and declassifies the
-	 * result. The function returns True for row keys that satisfy the
-	 * protocols.
+    /**
+     * Iterates through the results of the smpc protocols and declassifies the
+     * result. The function returns True for row keys that satisfy the
+     * protocols.
      *
      * @return BigInteger with the corresponding Index
-	 * @throws ResultsIdentifiersMismatch
-	 */
-	public List<Boolean> declassify() throws ResultsIdentifiersMismatch {
+     * @throws ResultsIdentifiersMismatch
+     */
+    public List<Boolean> declassify() throws ResultsIdentifiersMismatch {
 
-		List<Boolean> resultIDS = new ArrayList<Boolean>();
+        List<Boolean> resultIDS = new ArrayList<Boolean>();
 
         for (int i = 0; i < results.get(0).size(); i++) {
 
@@ -46,36 +46,36 @@ public class PlayerResults {
             byte[] bThirdSecret = results.get(2).get(i);
 
             BigInteger firstSecret = new BigInteger(bFirstSecret);
-			BigInteger secondSecret = new BigInteger(bSecondSecret);
-			BigInteger thirdSecret = new BigInteger(bThirdSecret);
+            BigInteger secondSecret = new BigInteger(bSecondSecret);
+            BigInteger thirdSecret = new BigInteger(bThirdSecret);
 
 
-			if (condition == Equal) {
-				SharemindSharedSecret secretResult = new SharemindSharedSecret(
-						1, firstSecret, secondSecret, thirdSecret);
+            if (condition == Equal) {
+                SharemindSharedSecret secretResult = new SharemindSharedSecret(
+                        1, firstSecret, secondSecret, thirdSecret);
 
-				int result = secretResult.unshare().intValue();
+                int result = secretResult.unshare().intValue();
 
-				if (result == 1) {
-					resultIDS.add(Boolean.TRUE);
-				} else {
-					resultIDS.add(Boolean.FALSE);
-				}
+                if (result == 1) {
+                    resultIDS.add(Boolean.TRUE);
+                } else {
+                    resultIDS.add(Boolean.FALSE);
+                }
 
-			} else if (condition == GreaterOrEqualThan) {
-				SharemindSharedSecret secretResult = new SharemindSharedSecret(
-						nBits + 1, firstSecret, secondSecret, thirdSecret);
+            } else if (condition == GreaterOrEqualThan) {
+                SharemindSharedSecret secretResult = new SharemindSharedSecret(
+                        nBits + 1, firstSecret, secondSecret, thirdSecret);
 
-				int result = secretResult.unshare().intValue();
+                int result = secretResult.unshare().intValue();
 
-				if (result == 0) {
-					resultIDS.add(Boolean.TRUE);
-				} else {
-					resultIDS.add(Boolean.FALSE);
-				}
-			}
-		}
+                if (result == 0) {
+                    resultIDS.add(Boolean.TRUE);
+                } else {
+                    resultIDS.add(Boolean.FALSE);
+                }
+            }
+        }
 
-		return resultIDS;
-	}
+        return resultIDS;
+    }
 }

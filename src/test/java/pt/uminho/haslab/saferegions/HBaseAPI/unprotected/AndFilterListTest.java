@@ -27,12 +27,12 @@ public class AndFilterListTest extends AbstractUnprotectedFilterTest {
         List<byte[]> values = this.generatedValues.get(cf).get(cqName);
 
         int indexChosen = randomGenerator.nextInt(values.size());
-        LOG.debug("Index chosen was "+ indexChosen);
+        LOG.debug("Index chosen was " + indexChosen);
         byte[] val = values.get(indexChosen);
-        LOG.debug("Random value chosen  was "+  new String(val));
+        LOG.debug("Random value chosen  was " + new String(val));
         byte[] ageVal = this.generatedValues.get(cf).get(cqAge).get(indexChosen);
-        Filter  nameFilter = new SingleColumnValueFilter(cf.getBytes(), cqName.getBytes(), CompareFilter.CompareOp.EQUAL, val);
-        Filter  ageFilter = new SingleColumnValueFilter(cf.getBytes(), cqAge.getBytes(), CompareFilter.CompareOp.EQUAL, ageVal);
+        Filter nameFilter = new SingleColumnValueFilter(cf.getBytes(), cqName.getBytes(), CompareFilter.CompareOp.EQUAL, val);
+        Filter ageFilter = new SingleColumnValueFilter(cf.getBytes(), cqAge.getBytes(), CompareFilter.CompareOp.EQUAL, ageVal);
         FilterList filterList = new FilterList(FilterList.Operator.MUST_PASS_ALL);
         filterList.addFilter(nameFilter);
         filterList.addFilter(ageFilter);
@@ -46,6 +46,7 @@ public class AndFilterListTest extends AbstractUnprotectedFilterTest {
     protected long getNumberOfRecords() {
         return 15;
     }
+
     protected int getNumberOfClusters() {
         return 1;
     }

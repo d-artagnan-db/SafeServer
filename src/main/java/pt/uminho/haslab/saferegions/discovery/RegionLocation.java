@@ -2,25 +2,25 @@ package pt.uminho.haslab.saferegions.discovery;
 
 public class RegionLocation {
 
-	private final int playerID;
-	private final String ip;
-	private final int port;
+    private final int playerID;
+    private final String ip;
+    private final int port;
 
-	public RegionLocation(int playerID, String ip, int port) {
-		this.playerID = playerID;
-		this.ip = ip;
-		this.port = port;
-	}
+    public RegionLocation(int playerID, String ip, int port) {
+        this.playerID = playerID;
+        this.ip = ip;
+        this.port = port;
+    }
 
-	public String getIp() {
-		return ip;
-	}
+    public String getIp() {
+        return ip;
+    }
 
-	public int getPort() {
-		return port;
-	}
+    public int getPort() {
+        return port;
+    }
 
-	public int getPlayerID() {
-		return playerID;
-	}
+    public int getPlayerID() {
+        return playerID;
+    }
 }

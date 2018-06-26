@@ -21,35 +21,35 @@ public abstract class SearchConditionFactory {
         this.config = config;
     }
 
-    abstract SearchCondition  equalSearchValue();
+    abstract SearchCondition equalSearchValue();
 
-    abstract SearchCondition  gteSearchValue();
+    abstract SearchCondition gteSearchValue();
 
     public SearchCondition conditionTransformer() {
         switch (op) {
-            case Equal :
+            case Equal:
                 return equalSearchValue();
-            case GreaterOrEqualThan :
+            case GreaterOrEqualThan:
                 return gteSearchValue();
-            case Greater :
+            case Greater:
                 SearchCondition equal = equalSearchValue();
                 SearchCondition notEqual = new UnarySearchValue(Not, equal,
                         Equal);
                 SearchCondition greaterEqualThan = gteSearchValue();
                 return new ComposedSearchValue(And, notEqual, greaterEqualThan,
                         Greater);
-            case Less :
+            case Less:
                 greaterEqualThan = gteSearchValue();
                 return new UnarySearchValue(Not, greaterEqualThan,
                         GreaterOrEqualThan);
-            case LessOrEqualThan :
+            case LessOrEqualThan:
                 greaterEqualThan = gteSearchValue();
                 equal = equalSearchValue();
                 SearchCondition notGreater = new UnarySearchValue(Not,
                         greaterEqualThan, GreaterOrEqualThan);
                 return new ComposedSearchValue(Xor, equal, notGreater,
                         LessOrEqualThan);
-            case NotEqual :
+            case NotEqual:
                 equal = equalSearchValue();
                 return new UnarySearchValue(Not, equal, Equal);
 

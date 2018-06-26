@@ -52,9 +52,9 @@ public class SecureRegionScanner implements RegionScanner {
         this.config = config;
         batcher = new Batcher(config);
 
-        if(config.isCachedData()){
+        if (config.isCachedData()) {
             scan = new Scan();
-        }else{
+        } else {
             scan = new Scan(scanStartRow, scanStopRow);
         }
 
@@ -129,7 +129,7 @@ public class SecureRegionScanner implements RegionScanner {
 
             do {
                 if (config.isCachedData() && mapBatchCachedData.containsKey(regionIdent)) {
-                    if(LOG.isDebugEnabled()){
+                    if (LOG.isDebugEnabled()) {
                         LOG.debug("Accessing region values on cache ident " + regionIdent);
                     }
                     BatchData cacheBatchData = mapBatchCachedData.get(regionIdent);
@@ -152,7 +152,7 @@ public class SecureRegionScanner implements RegionScanner {
                             cacheDataLock.lock();
 
                             if (!mapBatchCachedData.containsKey(regionIdent)) {
-                                if(LOG.isDebugEnabled()){
+                                if (LOG.isDebugEnabled()) {
                                     LOG.debug("Caching region values for ident " + regionIdent);
                                 }
                                 mapBatchCachedData.put(regionIdent, batchData);

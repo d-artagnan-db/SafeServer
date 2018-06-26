@@ -16,98 +16,98 @@ import static junit.framework.TestCase.assertEquals;
 
 @RunWith(Parameterized.class)
 public class ConcurrentNRegionsFailRedisDiscServiceTest
-		extends
-			ConcurrentNRegionsRedisDiscService {
+        extends
+        ConcurrentNRegionsRedisDiscService {
 
-	private final static int nRegions = 10;
-	private final static int bannedRegions = 2;
-	/*
-	 * This class simulates a cluster where some regions fail at publishing
-	 * their location. In the class constructor it is selected at random some
-	 * bannedPlayers and requestsIds in a tuple (bannedPlayer, requestId) which
-	 * are banned from sending their location to redis. The tuple is maintained
-	 * by the following two lists.
-	 */
-	private final Map<Integer, Integer> bannedPlayers;
-	private final Set<Integer> bannedRequestIDs;
-	private final Random r;
-	private final AtomicInteger fails;
+    private final static int nRegions = 10;
+    private final static int bannedRegions = 2;
+    /*
+     * This class simulates a cluster where some regions fail at publishing
+     * their location. In the class constructor it is selected at random some
+     * bannedPlayers and requestsIds in a tuple (bannedPlayer, requestId) which
+     * are banned from sending their location to redis. The tuple is maintained
+     * by the following two lists.
+     */
+    private final Map<Integer, Integer> bannedPlayers;
+    private final Set<Integer> bannedRequestIDs;
+    private final Random r;
+    private final AtomicInteger fails;
 
-	public ConcurrentNRegionsFailRedisDiscServiceTest(
-			Map<Integer, List<BigInteger>> requestIDs,
-			Map<Integer, List<BigInteger>> regionIDs,
-			Map<Integer, List<String>> ips, Map<Integer, List<Integer>> ports) {
-		super(requestIDs, regionIDs, ips, ports);
-		bannedPlayers = new HashMap<Integer, Integer>();
-		bannedRequestIDs = new HashSet<Integer>();
-		r = new Random();
-		fails = new AtomicInteger(0);
+    public ConcurrentNRegionsFailRedisDiscServiceTest(
+            Map<Integer, List<BigInteger>> requestIDs,
+            Map<Integer, List<BigInteger>> regionIDs,
+            Map<Integer, List<String>> ips, Map<Integer, List<Integer>> ports) {
+        super(requestIDs, regionIDs, ips, ports);
+        bannedPlayers = new HashMap<Integer, Integer>();
+        bannedRequestIDs = new HashSet<Integer>();
+        r = new Random();
+        fails = new AtomicInteger(0);
 
-		if (!(bannedRegions < nRegions)) {
-			throw new IllegalArgumentException(
-					"Teste parameters are not valid. "
-							+ "BannedRegions must be lesser than nRegions");
-		}
+        if (!(bannedRegions < nRegions)) {
+            throw new IllegalArgumentException(
+                    "Teste parameters are not valid. "
+                            + "BannedRegions must be lesser than nRegions");
+        }
 
-		for (int i = 0; i < bannedRegions; i++) {
+        for (int i = 0; i < bannedRegions; i++) {
 
-			int player = r.nextInt(3);
-			int pos = r.nextInt(nRegions);
-			bannedPlayers.put(pos, player);
-			bannedRequestIDs.add(pos);
-		}
-	}
+            int player = r.nextInt(3);
+            int pos = r.nextInt(nRegions);
+            bannedPlayers.put(pos, player);
+            bannedRequestIDs.add(pos);
+        }
+    }
 
-	@Parameterized.Parameters
-	public static Collection nbitsValues() {
-		return ValuesGenerator.NRegionsRedisTestValueGenerator(nRegions);
-	}
+    @Parameterized.Parameters
+    public static Collection nbitsValues() {
+        return ValuesGenerator.NRegionsRedisTestValueGenerator(nRegions);
+    }
 
-	protected RegionServer createRegionServer(int playerID, int pos)
-			throws IOException {
-		return new RedisRegionServerImpl(pos, playerID, requestIDs
-				.get(playerID).get(pos).toByteArray(), regionIDs.get(playerID)
-				.get(pos).toByteArray(), ips.get(playerID).get(pos), ports.get(
-				playerID).get(pos));
-	}
+    protected RegionServer createRegionServer(int playerID, int pos)
+            throws IOException {
+        return new RedisRegionServerImpl(pos, playerID, requestIDs
+                .get(playerID).get(pos).toByteArray(), regionIDs.get(playerID)
+                .get(pos).toByteArray(), ips.get(playerID).get(pos), ports.get(
+                playerID).get(pos));
+    }
 
-	@Override
-	protected void validateResults() throws InvalidSecretValue {
-		assertEquals(2 * (this.bannedRequestIDs.size()), fails.get());
-	}
+    @Override
+    protected void validateResults() throws InvalidSecretValue {
+        assertEquals(2 * (this.bannedRequestIDs.size()), fails.get());
+    }
 
-	protected class RedisRegionServerImpl extends RedisRegionServer {
+    protected class RedisRegionServerImpl extends RedisRegionServer {
 
-		private final int pos;
+        private final int pos;
 
-		public RedisRegionServerImpl(int pos, int playerID, byte[] requestID,
-				byte[] regionID, String ip, Integer port) {
-			super(playerID, requestID, regionID, ip, port);
-			this.pos = pos;
-		}
+        public RedisRegionServerImpl(int pos, int playerID, byte[] requestID,
+                                     byte[] regionID, String ip, Integer port) {
+            super(playerID, requestID, regionID, ip, port);
+            this.pos = pos;
+        }
 
-		@Override
-		public void run() {
-			RedisDiscoveryService service = new RedisDiscoveryService(
-					"localhost", playerID, ip, port, DISC_SERVICE_SLEEP_TIME,
-					DISC_SERVICE_INC_TIME, DISC_SERVICE_RETRIES, false);
-			if (!(bannedRequestIDs.contains(pos) && bannedPlayers.get(pos) == playerID)) {
-				RequestIdentifier reqi = new RequestIdentifier(requestID,
-						regionID);
-				List<RegionLocation> playerLocations = null;
-				service.registerRegion(reqi);
+        @Override
+        public void run() {
+            RedisDiscoveryService service = new RedisDiscoveryService(
+                    "localhost", playerID, ip, port, DISC_SERVICE_SLEEP_TIME,
+                    DISC_SERVICE_INC_TIME, DISC_SERVICE_RETRIES, false);
+            if (!(bannedRequestIDs.contains(pos) && bannedPlayers.get(pos) == playerID)) {
+                RequestIdentifier reqi = new RequestIdentifier(requestID,
+                        regionID);
+                List<RegionLocation> playerLocations = null;
+                service.registerRegion(reqi);
 
-				try {
-					playerLocations = service.discoverRegions(reqi);
-				} catch (FailedRegionDiscovery failedRegionDiscovery) {
+                try {
+                    playerLocations = service.discoverRegions(reqi);
+                } catch (FailedRegionDiscovery failedRegionDiscovery) {
                     LOG.error(failedRegionDiscovery);
                     fails.addAndGet(1);
-				}
-				locations.get(playerID).put(pos, playerLocations);
-				// service.unregisterRegion(reqi);
-				runStatus = false;
-			}
+                }
+                locations.get(playerID).put(pos, playerLocations);
+                // service.unregisterRegion(reqi);
+                runStatus = false;
+            }
 
-		}
-	}
+        }
+    }
 }

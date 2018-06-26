@@ -4,7 +4,6 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.RpcCallback;
 import com.google.protobuf.RpcController;
 import com.google.protobuf.Service;
-import org.apache.commons.el.GreaterThanOrEqualsOperator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -18,7 +17,6 @@ import org.apache.hadoop.hbase.coprocessor.CoprocessorService;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.filter.*;
 import org.apache.hadoop.hbase.regionserver.RegionScanner;
-import org.apache.hadoop.hbase.util.Bytes;
 import pt.uminho.haslab.protocommunication.Smpc;
 import pt.uminho.haslab.safemapper.DatabaseSchema;
 import pt.uminho.haslab.safemapper.TableSchema;
@@ -171,11 +169,11 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
                 }
                 /*
                  * In development mode clusters are not concurrent and the stop
-				 * requests by default waits for the other players to cancel
-				 * their channel. This only happens if every relay stops the
-				 * execution concurrently. This way the server socket is forced
-				 * to close.
-				 */
+                 * requests by default waits for the other players to cancel
+                 * their channel. This only happens if every relay stops the
+                 * execution concurrently. This way the server socket is forced
+                 * to close.
+                 */
                 relay.forceStopRelay();
                 ((RegionCoprocessorEnvironment) e).getSharedData().clear();
 
@@ -306,10 +304,10 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
         return this;
     }
 
-    private Filter parseFilter(byte[] filter, String filterClassName){
+    private Filter parseFilter(byte[] filter, String filterClassName) {
         try {
             Class filterClass = Class.forName(filterClassName);
-            Method m = filterClass.getDeclaredMethod("parseFrom",  byte[].class);
+            Method m = filterClass.getDeclaredMethod("parseFrom", byte[].class);
             Filter result = (Filter) m.invoke(null, filter);
             return result;
 
@@ -320,16 +318,14 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
     }
 
 
-
-
     @Override
     public void scan(RpcController rpcController, Smpc.ScanMessage scanMessage, RpcCallback<Smpc.Results> rpcCallback) {
         try {
             Scan scan = new Scan(scanMessage.getStartRow().toByteArray(), scanMessage.getStopRow().toByteArray());
-            scan.setAttribute(OperationAttributesIdentifiers.RequestIdentifier,  scanMessage.getRequestID().toByteArray());
-            scan.setAttribute(OperationAttributesIdentifiers.TargetPlayer, (""+scanMessage.getTargetPlayer()).getBytes());
+            scan.setAttribute(OperationAttributesIdentifiers.RequestIdentifier, scanMessage.getRequestID().toByteArray());
+            scan.setAttribute(OperationAttributesIdentifiers.TargetPlayer, ("" + scanMessage.getTargetPlayer()).getBytes());
             Filter f = parseFilter(scanMessage.getFilter().toByteArray(), scanMessage.getFilterType());
-            if(searchConf.isCachedData()){
+            if (searchConf.isCachedData()) {
                 FilterList flist = new FilterList(FilterList.Operator.MUST_PASS_ALL);
                 RowFilter startFilter = new RowFilter(CompareFilter.CompareOp.GREATER_OR_EQUAL, new BinaryComparator(scanMessage.getStartRow().toByteArray()));
                 RowFilter stopFilter = new RowFilter(CompareFilter.CompareOp.LESS, new BinaryComparator(scanMessage.getStopRow().toByteArray()));
@@ -337,7 +333,7 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
                 flist.addFilter(stopFilter);
                 flist.addFilter(f);
                 scan.setFilter(flist);
-            }else{
+            } else {
                 scan.setFilter(f);
             }
 
@@ -372,9 +368,9 @@ public class ConcurrentScanCoprocessor extends Smpc.ConcurrentScanService
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Result after processing data has size " + results.size());
             }
-            for(List<Cell> resRow : results){
-                Smpc.Row.Builder  rowBuilder  = Smpc.Row.newBuilder();
-                for(Cell cell: resRow){
+            for (List<Cell> resRow : results) {
+                Smpc.Row.Builder rowBuilder = Smpc.Row.newBuilder();
+                for (Cell cell : resRow) {
                     Smpc.Cell.Builder cellBuilder = Smpc.Cell.newBuilder();
                     cellBuilder.setColumnFamily(ByteString.copyFrom(CellUtil.cloneFamily(cell)));
                     cellBuilder.setColumnQualifier(ByteString.copyFrom(CellUtil.cloneQualifier(cell)));

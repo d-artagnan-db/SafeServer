@@ -12,63 +12,63 @@ import java.io.IOException;
 
 public abstract class TestRegionServer extends Thread implements RegionServer {
 
-	private static final Log LOG = LogFactory.getLog(TestRegionServer.class
-			.getName());
-	protected final Relay relay;
-	protected final MessageBroker broker;
-	protected final SmpcConfiguration searchConf;
-	protected final int playerID;
-	protected boolean runStatus;
+    private static final Log LOG = LogFactory.getLog(TestRegionServer.class
+            .getName());
+    protected final Relay relay;
+    protected final MessageBroker broker;
+    protected final SmpcConfiguration searchConf;
+    protected final int playerID;
+    protected boolean runStatus;
 
-	public TestRegionServer(int playerID) throws IOException {
+    public TestRegionServer(int playerID) throws IOException {
 
-		String resource = "hbase-site-" + playerID + ".xml";
+        String resource = "hbase-site-" + playerID + ".xml";
 
-		Configuration conf = new Configuration();
-		conf.addResource(resource);
-		searchConf = new SmpcConfiguration(conf);
+        Configuration conf = new Configuration();
+        conf.addResource(resource);
+        searchConf = new SmpcConfiguration(conf);
 
-		broker = new SharemindMessageBroker();
+        broker = new SharemindMessageBroker();
 
-		relay = searchConf.createRelay(broker);
+        relay = searchConf.createRelay(broker);
 
-		this.playerID = playerID;
-		runStatus = true;
+        this.playerID = playerID;
+        runStatus = true;
 
-	}
+    }
 
-	public abstract void doComputation();
+    public abstract void doComputation();
 
-	@Override
-	public void run() {
+    @Override
+    public void run() {
 
-		try {
-			// Start and wait for other players.
-			relay.bootRelay();
+        try {
+            // Start and wait for other players.
+            relay.bootRelay();
 
-			broker.waitRelayStart();
-			doComputation();
+            broker.waitRelayStart();
+            doComputation();
 
-			relay.stopRelay();
-			Thread.sleep(1000);
+            relay.stopRelay();
+            Thread.sleep(1000);
 
-		} catch (InterruptedException | IOException ex) {
-			runStatus = false;
-			LOG.error(ex);
-			throw new IllegalStateException(ex);
-		}
+        } catch (InterruptedException | IOException ex) {
+            runStatus = false;
+            LOG.error(ex);
+            throw new IllegalStateException(ex);
+        }
 
-	}
+    }
 
-	public void stopRegionServer() throws IOException, InterruptedException {
-		this.join();
-	}
+    public void stopRegionServer() throws IOException, InterruptedException {
+        this.join();
+    }
 
-	public void startRegionServer() {
-		this.start();
-	}
+    public void startRegionServer() {
+        this.start();
+    }
 
-	public boolean getRunStatus() {
-		return this.runStatus;
-	}
+    public boolean getRunStatus() {
+        return this.runStatus;
+    }
 }

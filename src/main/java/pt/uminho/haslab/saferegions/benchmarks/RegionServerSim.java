@@ -1,7 +1,6 @@
 package pt.uminho.haslab.saferegions.benchmarks;
 
 import pt.uminho.haslab.saferegions.comunication.RequestIdentifier;
-import pt.uminho.haslab.saferegions.secretSearch.BigIntegerSearchConditionFactory;
 import pt.uminho.haslab.saferegions.secretSearch.SearchCondition;
 import pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition;
 import pt.uminho.haslab.saferegions.secretSearch.SharemindPlayer;
@@ -19,7 +18,7 @@ public abstract class RegionServerSim extends TestRegionServer {
     protected final int nBits;
 
     protected final List<List<byte[]>> firstInputs;
-    protected final  List<List<byte[]>> secondInputs;
+    protected final List<List<byte[]>> secondInputs;
     protected final List<byte[]> ids;
 
 
@@ -29,7 +28,7 @@ public abstract class RegionServerSim extends TestRegionServer {
 
     public RegionServerSim(int playerID, Condition condition, int nBits, List<List<byte[]>> firstInputs, List<List<byte[]>> secondInputs) throws IOException {
 
-		super(playerID);
+        super(playerID);
         this.cond = condition;
         this.nBits = nBits;
         this.firstInputs = firstInputs;
@@ -40,7 +39,7 @@ public abstract class RegionServerSim extends TestRegionServer {
         latency = new ArrayList<Long>();
         initResources();
 
-	}
+    }
 
     private void initResources() {
         byte[] regionID = "1".getBytes();
@@ -66,28 +65,28 @@ public abstract class RegionServerSim extends TestRegionServer {
     protected abstract SearchCondition getSearchCondition(
             List<byte[]> secTwo);
 
-    public List<Long> getLatency(){
+    public List<Long> getLatency() {
         return this.latency;
     }
 
-	@Override
-	public void doComputation() {
+    @Override
+    public void doComputation() {
         /** SearchConditions are being removed from the SearchConditions filter so the space used for protocol
          *  results can be freed by the JVM. The process was quickly using all of the JVM heap space.
          */
-        while(!searchConditions.isEmpty()) {
-            if(playerID == 0){
+        while (!searchConditions.isEmpty()) {
+            if (playerID == 0) {
                 long start = System.nanoTime();
                 searchConditions.get(0).evaluateCondition(firstInputs.get(0), ids, players.get(0));
                 long end = System.nanoTime();
                 long duration = end - start;
                 latency.add(duration);
-            }else{
+            } else {
                 searchConditions.get(0).evaluateCondition(firstInputs.get(0), ids, players.get(0));
             }
             searchConditions.remove(0);
             players.remove(0);
         }
-	}
+    }
 
 }

@@ -7,7 +7,7 @@ import java.util.Queue;
 
 public interface MessageBroker {
 
-	void receiveProtocolResults(ResultsMessage message);
+    void receiveProtocolResults(ResultsMessage message);
 
     void receiveProtocolResults(CIntBatchShareMessage message);
 
@@ -15,11 +15,11 @@ public interface MessageBroker {
 
     void receiveFilterIndex(CIntBatchShareMessage message);
 
-	void relayStarted();
+    void relayStarted();
 
-	void waitRelayStart() throws InterruptedException;
+    void waitRelayStart() throws InterruptedException;
 
-	Queue<ResultsMessage> getProtocolResults(RequestIdentifier requestID);
+    Queue<ResultsMessage> getProtocolResults(RequestIdentifier requestID);
 
     Queue<CIntBatchShareMessage> getIntProtocolResults(RequestIdentifier requestID);
 
@@ -27,9 +27,9 @@ public interface MessageBroker {
 
     CIntBatchShareMessage getFilterIndexes(RequestIdentifier requestID);
 
-	void allResultsRead(RequestIdentifier requestID);
+    void allResultsRead(RequestIdentifier requestID);
 
-	void protocolResultsRead(RequestIdentifier requestID);
+    void protocolResultsRead(RequestIdentifier requestID);
 
     void intProtocolResultsRead(RequestIdentifier requestID);
 
@@ -38,18 +38,18 @@ public interface MessageBroker {
 
     void allIndexesMessagesRead(RequestIdentifier requestID);
 
-	void indexMessageRead(RequestIdentifier requestID);
+    void indexMessageRead(RequestIdentifier requestID);
 
-	void receiveBatchMessage(CIntBatchShareMessage message);
+    void receiveBatchMessage(CIntBatchShareMessage message);
 
     void receiveBatchMessage(CLongBatchShareMessage message);
 
     void receiveBatchMessage(BatchShareMessage message);
 
-	void receiveTestMessage(byte[] message);
+    void receiveTestMessage(byte[] message);
 
-	Queue<BatchShareMessage> getReceivedBatchMessages(
-			RequestIdentifier requestId);
+    Queue<BatchShareMessage> getReceivedBatchMessages(
+            RequestIdentifier requestId);
 
     Queue<CIntBatchShareMessage> getReceivedBatchMessagesInt(
             RequestIdentifier requestId);
@@ -57,11 +57,11 @@ public interface MessageBroker {
     Queue<CLongBatchShareMessage> getReceivedBatchMessagesLong(
             RequestIdentifier requestId);
 
-	void waitNewBatchMessage(RequestIdentifier requestID)
-			throws InterruptedException;
+    void waitNewBatchMessage(RequestIdentifier requestID)
+            throws InterruptedException;
 
-	void allBatchMessagesRead(RequestIdentifier requestID);
+    void allBatchMessagesRead(RequestIdentifier requestID);
 
-	void readBatchMessages(RequestIdentifier requestID);
+    void readBatchMessages(RequestIdentifier requestID);
 
 }

@@ -6,8 +6,8 @@ import java.util.List;
 
 public interface SecureFilter {
 
-	void reset();
+    void reset();
 
-	boolean filterRow(List<Cell> row);
+    boolean filterRow(List<Cell> row);
 
 }

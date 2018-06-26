@@ -11,91 +11,91 @@ import java.util.List;
 
 public class IORelay implements Relay {
 
-	private static final Log LOG = LogFactory.getLog(IORelay.class.getName());
+    private static final Log LOG = LogFactory.getLog(IORelay.class.getName());
 
-	private final RelayServer server;
-	private final MessageBroker broker;
-	private final DiscoveryService discoveryService;
-	private final PeersConnectionManager peerConnectionManager;
-	private boolean running;
+    private final RelayServer server;
+    private final MessageBroker broker;
+    private final DiscoveryService discoveryService;
+    private final PeersConnectionManager peerConnectionManager;
+    private boolean running;
 
-	public IORelay(String bindingAddress, int bindingPort,
-			MessageBroker broker, DiscoveryServiceConfiguration conf)
-			throws IOException {
+    public IORelay(String bindingAddress, int bindingPort,
+                   MessageBroker broker, DiscoveryServiceConfiguration conf)
+            throws IOException {
         LOG.info("Player" + conf.getPlayerID() + " relay server created in " + bindingAddress + ":" + bindingPort);
         server = new RelayServer(bindingAddress, bindingPort, broker);
-		discoveryService = new RedisDiscoveryService(conf);
-		peerConnectionManager = new PeersConnectionManagerImpl(bindingPort);
+        discoveryService = new RedisDiscoveryService(conf);
+        peerConnectionManager = new PeersConnectionManagerImpl(bindingPort);
 
-		this.running = false;
-		this.broker = broker;
+        this.running = false;
+        this.broker = broker;
 
-	}
+    }
 
-	public void stopRelay() throws IOException {
-		try {
+    public void stopRelay() throws IOException {
+        try {
 
-			LOG.info(server.getBindingPort() + " going to stop relay");
-			peerConnectionManager.shutdownClients();
+            LOG.info(server.getBindingPort() + " going to stop relay");
+            peerConnectionManager.shutdownClients();
             discoveryService.closeConnection();
             server.shutdown();
-			LOG.info(server.getBindingPort() + " relay stopped");
+            LOG.info(server.getBindingPort() + " relay stopped");
 
-		} catch (InterruptedException ex) {
-			LOG.error(ex);
-			throw new IllegalStateException(ex);
-		}
-	}
+        } catch (InterruptedException ex) {
+            LOG.error(ex);
+            throw new IllegalStateException(ex);
+        }
+    }
 
-	public void forceStopRelay() throws IOException {
-		try {
+    public void forceStopRelay() throws IOException {
+        try {
             LOG.info(server.getBindingPort() + " going to force stop relay");
             peerConnectionManager.shutdownClients();
             discoveryService.closeConnection();
             server.forceShutdown();
             LOG.info(server.getBindingPort() + " relay force stopped");
         } catch (InterruptedException ex) {
-			LOG.error(ex);
-			throw new IllegalStateException(ex);
-		}
-	}
+            LOG.error(ex);
+            throw new IllegalStateException(ex);
+        }
+    }
 
-	public void stopErrorRelay() throws InterruptedException, IOException {
-		peerConnectionManager.shutdownClients();
-		server.shutdown();
-	}
+    public void stopErrorRelay() throws InterruptedException, IOException {
+        peerConnectionManager.shutdownClients();
+        server.shutdown();
+    }
 
-	public boolean isRelayRunning() {
-		return running;
-	}
+    public boolean isRelayRunning() {
+        return running;
+    }
 
-	private void startServer() throws IOException {
+    private void startServer() throws IOException {
 
-		server.startServer();
-		this.broker.relayStarted();
-		this.running = true;
-	}
+        server.startServer();
+        this.broker.relayStarted();
+        this.running = true;
+    }
 
-	public void bootRelay() {
+    public void bootRelay() {
 
-		try {
-			LOG.debug("Initiated server booting");
-			int bp = server.getBindingPort();
-			this.startServer();
-			LOG.info(bp + " completed booting phase");
-		} catch (IOException ex) {
-			LOG.error(ex);
-			throw new IllegalStateException(ex);
-		}
-	}
+        try {
+            LOG.debug("Initiated server booting");
+            int bp = server.getBindingPort();
+            this.startServer();
+            LOG.info(bp + " completed booting phase");
+        } catch (IOException ex) {
+            LOG.error(ex);
+            throw new IllegalStateException(ex);
+        }
+    }
 
-	private RelayClient getTargetClient(int playerID,
-			RequestIdentifier requestIdentifier) {
-		RelayClient client = null;
+    private RelayClient getTargetClient(int playerID,
+                                        RequestIdentifier requestIdentifier) {
+        RelayClient client = null;
 
-		try {
-			List<RegionLocation> locations = this.discoveryService
-					.discoverRegions(requestIdentifier);
+        try {
+            List<RegionLocation> locations = this.discoveryService
+                    .discoverRegions(requestIdentifier);
 
 			/*if(LOG.isDebugEnabled()){
 
@@ -109,33 +109,33 @@ public class IORelay implements Relay {
                 }
 
             }*/
-			for (RegionLocation location : locations) {
-				if (location.getPlayerID() == playerID) {
-					//LOG.debug("Location PlayerID " + location.getPlayerID() + " - " + location.getIp() + ":" + location.getPort());
-					client = peerConnectionManager.getRelayClient(
-							location.getIp(), location.getPort());
-					break;
-				}
-			}
-		} catch (FailedRegionDiscovery failedRegionDiscovery) {
-			LOG.error(failedRegionDiscovery);
-			throw new IllegalStateException(failedRegionDiscovery);
-		}
-		return client;
-	}
+            for (RegionLocation location : locations) {
+                if (location.getPlayerID() == playerID) {
+                    //LOG.debug("Location PlayerID " + location.getPlayerID() + " - " + location.getIp() + ":" + location.getPort());
+                    client = peerConnectionManager.getRelayClient(
+                            location.getIp(), location.getPort());
+                    break;
+                }
+            }
+        } catch (FailedRegionDiscovery failedRegionDiscovery) {
+            LOG.error(failedRegionDiscovery);
+            throw new IllegalStateException(failedRegionDiscovery);
+        }
+        return client;
+    }
 
-	public void sendBatchMessages(BatchShareMessage msg)
-			throws IOException {
-		RequestIdentifier ident = new RequestIdentifier(msg.getRequestID()
-				.toByteArray(), msg.getRegionID().toByteArray());
+    public void sendBatchMessages(BatchShareMessage msg)
+            throws IOException {
+        RequestIdentifier ident = new RequestIdentifier(msg.getRequestID()
+                .toByteArray(), msg.getRegionID().toByteArray());
         getTargetClient(msg.getPlayerDest(), ident).sendBatchMessages(msg);
-	}
+    }
 
-	public void sendBatchMessages(CIntBatchShareMessage msg) throws IOException {
-        RelayClient client =  getTargetClient(msg.getPlayerDest(), msg.getRequestID());
+    public void sendBatchMessages(CIntBatchShareMessage msg) throws IOException {
+        RelayClient client = getTargetClient(msg.getPlayerDest(), msg.getRequestID());
         client.sendBatchMessages(msg);
 
-	}
+    }
 
     @Override
     public void sendBatchMessages(CLongBatchShareMessage msg) throws IOException {
@@ -144,11 +144,11 @@ public class IORelay implements Relay {
     }
 
     public void sendProtocolResults(ResultsMessage msg)
-			throws IOException {
-		RequestIdentifier ident = new RequestIdentifier(msg.getRequestID()
-				.toByteArray(), msg.getRegionID().toByteArray());
-		getTargetClient(msg.getPlayerDest(), ident).sendProtocolResults(msg);
-	}
+            throws IOException {
+        RequestIdentifier ident = new RequestIdentifier(msg.getRequestID()
+                .toByteArray(), msg.getRegionID().toByteArray());
+        getTargetClient(msg.getPlayerDest(), ident).sendProtocolResults(msg);
+    }
 
     @Override
     public void sendProtocolResults(CIntBatchShareMessage msg) throws IOException {
@@ -166,14 +166,14 @@ public class IORelay implements Relay {
             throws IOException {
         RequestIdentifier ident = msg.getRequestID();
         getTargetClient(msg.getPlayerDest(), ident).sendFilteredIndexes(msg);
-	}
+    }
 
-	public void registerRequest(RequestIdentifier requestIdentifier) {
-		discoveryService.registerRegion(requestIdentifier);
-	}
+    public void registerRequest(RequestIdentifier requestIdentifier) {
+        discoveryService.registerRegion(requestIdentifier);
+    }
 
-	public synchronized void unregisterRequest(RequestIdentifier requestIdentifier) {
-		discoveryService.unregisterRegion(requestIdentifier);
-	}
+    public synchronized void unregisterRequest(RequestIdentifier requestIdentifier) {
+        discoveryService.unregisterRegion(requestIdentifier);
+    }
 
 }

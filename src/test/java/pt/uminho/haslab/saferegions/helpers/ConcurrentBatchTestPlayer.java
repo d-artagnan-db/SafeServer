@@ -14,107 +14,107 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class ConcurrentBatchTestPlayer extends Thread
-		implements
+        implements
         Player {
 
-	private static final Log LOG = LogFactory
-			.getLog(ConcurrentBatchTestPlayer.class.getName());
+    private static final Log LOG = LogFactory
+            .getLog(ConcurrentBatchTestPlayer.class.getName());
 
-	protected final Map<Integer, List<List<byte[]>>> messagesSent;
+    protected final Map<Integer, List<List<byte[]>>> messagesSent;
 
-	protected final Map<Integer, List<List<byte[]>>> messagesReceived;
+    protected final Map<Integer, List<List<byte[]>>> messagesReceived;
 
-	protected final ContextPlayer player;
+    protected final ContextPlayer player;
 
-	protected final List<byte[]> firstValueSecret;
+    protected final List<byte[]> firstValueSecret;
 
-	protected final List<byte[]> secondValueSecret;
+    protected final List<byte[]> secondValueSecret;
 
-	protected final int nBits;
+    protected final int nBits;
 
-	protected List<byte[]> resultSecret;
+    protected List<byte[]> resultSecret;
 
-	protected RequestIdentifier requestID;
+    protected RequestIdentifier requestID;
 
-	public ConcurrentBatchTestPlayer(Relay relay, RequestIdentifier requestID,
-			int playerID, MessageBroker broker, List<byte[]> firstVals,
-			List<byte[]> secondVals, int nBits) {
-		this.player = new ContextPlayer(relay, requestID, playerID, broker);
-		messagesSent = new HashMap<Integer, List<List<byte[]>>>();
-		messagesReceived = new HashMap<Integer, List<List<byte[]>>>();
+    public ConcurrentBatchTestPlayer(Relay relay, RequestIdentifier requestID,
+                                     int playerID, MessageBroker broker, List<byte[]> firstVals,
+                                     List<byte[]> secondVals, int nBits) {
+        this.player = new ContextPlayer(relay, requestID, playerID, broker);
+        messagesSent = new HashMap<Integer, List<List<byte[]>>>();
+        messagesReceived = new HashMap<Integer, List<List<byte[]>>>();
 
-		firstValueSecret = firstVals;
-		secondValueSecret = secondVals;
+        firstValueSecret = firstVals;
+        secondValueSecret = secondVals;
 
-		this.nBits = nBits;
-		this.requestID = requestID;
+        this.nBits = nBits;
+        this.requestID = requestID;
 
-	}
+    }
 
-	public void sendValueToPlayer(int playerId, BigInteger value) {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
+    public void sendValueToPlayer(int playerId, BigInteger value) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 
-	public void storeValue(Integer playerDest, Integer playerSource,
-			BigInteger value) {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
+    public void storeValue(Integer playerDest, Integer playerSource,
+                           BigInteger value) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 
-	public void storeValues(Integer playerDest, Integer playerSource,
-			List<byte[]> values) {
-		player.storeValues(playerDest, playerSource, values);
-	}
+    public void storeValues(Integer playerDest, Integer playerSource,
+                            List<byte[]> values) {
+        player.storeValues(playerDest, playerSource, values);
+    }
 
-	public BigInteger getValue(Integer originPlayerId) {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
+    public BigInteger getValue(Integer originPlayerId) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 
-	public int getPlayerID() {
-		return player.getPlayerID();
-	}
+    public int getPlayerID() {
+        return player.getPlayerID();
+    }
 
-	public void sendValueToPlayer(Integer playerID, List<byte[]> values) {
-		player.sendValueToPlayer(playerID, values);
-	}
+    public void sendValueToPlayer(Integer playerID, List<byte[]> values) {
+        player.sendValueToPlayer(playerID, values);
+    }
 
-	public List<byte[]> getValues(Integer rec) {
-		return player.getValues(rec);
-	}
+    public List<byte[]> getValues(Integer rec) {
+        return player.getValues(rec);
+    }
 
-	@Override
-	public void run() {
-		resultSecret = testingProtocol(firstValueSecret, secondValueSecret);
-	}
+    @Override
+    public void run() {
+        resultSecret = testingProtocol(firstValueSecret, secondValueSecret);
+    }
 
-	public List<byte[]> getResultSecret() {
-		return this.resultSecret;
-	}
+    public List<byte[]> getResultSecret() {
+        return this.resultSecret;
+    }
 
-	public void startProtocol() {
-		this.start();
-	}
+    public void startProtocol() {
+        this.start();
+    }
 
-	public void waitEndOfProtocol() throws InterruptedException {
-		this.join();
-	}
+    public void waitEndOfProtocol() throws InterruptedException {
+        this.join();
+    }
 
-	protected abstract List<byte[]> testingProtocol(
-			List<byte[]> firstValueSecret, List<byte[]> secondValueSecret);
+    protected abstract List<byte[]> testingProtocol(
+            List<byte[]> firstValueSecret, List<byte[]> secondValueSecret);
 
-	@Override
-	public void storeValues(Integer integer, Integer integer1, int[] ints) {
-		player.storeValues(integer, integer1, ints);
-	}
+    @Override
+    public void storeValues(Integer integer, Integer integer1, int[] ints) {
+        player.storeValues(integer, integer1, ints);
+    }
 
-	@Override
-	public void sendValueToPlayer(Integer integer, int[] ints) {
-		player.sendValueToPlayer(integer, ints);
-	}
+    @Override
+    public void sendValueToPlayer(Integer integer, int[] ints) {
+        player.sendValueToPlayer(integer, ints);
+    }
 
-	@Override
-	public int[] getIntValues(Integer integer) {
-		return player.getIntValues(integer);
-	}
+    @Override
+    public int[] getIntValues(Integer integer) {
+        return player.getIntValues(integer);
+    }
 
     @Override
     public void storeValues(Integer integer, Integer integer1, long[] ints) {

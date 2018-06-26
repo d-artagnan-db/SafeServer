@@ -7,7 +7,6 @@ import pt.uminho.haslab.saferegions.protocolresults.ResultsLengthMismatch;
 import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
 import pt.uminho.haslab.smpc.sharemindImp.Long.LongSharemindSecretFunctions;
 
-import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +19,7 @@ import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Conditio
 public class LongSearchValue extends SearchValue {
 
     private static final Lock cacheDataLock = new ReentrantLock();
-    private static final Map<String,Map<String, long[]>> cacheValues = new HashMap<String, Map<String, long[]>>();
+    private static final Map<String, Map<String, long[]>> cacheValues = new HashMap<String, Map<String, long[]>>();
 
 
     private final String column;
@@ -53,11 +52,11 @@ public class LongSearchValue extends SearchValue {
             if (config.isCachedData()) {
                 //This causes tests to fail because the three clusters see the same values as the cache is static.
                 cacheDataLock.lock();
-                if(!cacheValues.containsKey(key)){
+                if (!cacheValues.containsKey(key)) {
                     cacheValues.put(key, new HashMap<String, long[]>());
                 }
 
-                if(!cacheValues.get(key).containsKey(regionIdentifier)){
+                if (!cacheValues.get(key).containsKey(regionIdentifier)) {
                     cacheValues.get(key).put(regionIdentifier, vals);
                 }
                 cacheDataLock.unlock();
@@ -86,14 +85,14 @@ public class LongSearchValue extends SearchValue {
             long[] values;
             long[] intCmpValues;
             /* *
-			 * Batch protocol comparison protocols require that the array of
-			 * values being compared have the same size. As the value to be
-			 * compared is always the same, it is created a list with the same
-			 * size as the values being compared.
-			 *
-			 * e.g: Values = [val1, val1, val1] cmpValues = [val2, val3, val4]
-			 * In this example val1 is compared to every other value.
-			 */
+             * Batch protocol comparison protocols require that the array of
+             * values being compared have the same size. As the value to be
+             * compared is always the same, it is created a list with the same
+             * size as the values being compared.
+             *
+             * e.g: Values = [val1, val1, val1] cmpValues = [val2, val3, val4]
+             * In this example val1 is compared to every other value.
+             */
 
             values = convertLong(value.get(0));
             intCmpValues = convertLongs(cmpValues, player);

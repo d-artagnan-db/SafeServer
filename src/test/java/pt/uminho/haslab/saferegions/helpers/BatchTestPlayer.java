@@ -16,40 +16,40 @@ import java.util.Map;
 
 public class BatchTestPlayer implements SharemindPlayer {
 
-	private static final Log LOG = LogFactory.getLog(BatchTestPlayer.class
-			.getName());
-	protected final ContextPlayer player;
-	private final Map<Integer, List<List<byte[]>>> messagesSent;
-	private final Map<Integer, List<List<byte[]>>> messagesReceived;
-	protected RequestIdentifier requestID;
+    private static final Log LOG = LogFactory.getLog(BatchTestPlayer.class
+            .getName());
+    protected final ContextPlayer player;
+    private final Map<Integer, List<List<byte[]>>> messagesSent;
+    private final Map<Integer, List<List<byte[]>>> messagesReceived;
+    protected RequestIdentifier requestID;
 
-	public BatchTestPlayer(Relay relay, RequestIdentifier requestID,
-			int playerID, MessageBroker broker) {
-		this.player = new ContextPlayer(relay, requestID, playerID, broker);
-		messagesSent = new HashMap<Integer, List<List<byte[]>>>();
-		messagesReceived = new HashMap<Integer, List<List<byte[]>>>();
-		this.requestID = requestID;
+    public BatchTestPlayer(Relay relay, RequestIdentifier requestID,
+                           int playerID, MessageBroker broker) {
+        this.player = new ContextPlayer(relay, requestID, playerID, broker);
+        messagesSent = new HashMap<Integer, List<List<byte[]>>>();
+        messagesReceived = new HashMap<Integer, List<List<byte[]>>>();
+        this.requestID = requestID;
 
-	}
+    }
 
-	public void sendValueToPlayer(int playerId, BigInteger value) {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
+    public void sendValueToPlayer(int playerId, BigInteger value) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 
-	public void storeValue(Integer playerDest, Integer playerSource,
-			BigInteger value) {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
+    public void storeValue(Integer playerDest, Integer playerSource,
+                           BigInteger value) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 
-	public void storeValues(Integer playerDest, Integer playerSource,
-			List<byte[]> values) {
-		player.storeValues(playerDest, playerSource, values);
-	}
+    public void storeValues(Integer playerDest, Integer playerSource,
+                            List<byte[]> values) {
+        player.storeValues(playerDest, playerSource, values);
+    }
 
-	@Override
-	public void storeValues(Integer integer, Integer integer1, int[] ints) {
+    @Override
+    public void storeValues(Integer integer, Integer integer1, int[] ints) {
 
-	}
+    }
 
     @Override
     public void storeValues(Integer integer, Integer integer1, long[] longs) {
@@ -57,25 +57,25 @@ public class BatchTestPlayer implements SharemindPlayer {
     }
 
     public BigInteger getValue(Integer originPlayerId) {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 
-	public int getPlayerID() {
-		return player.getPlayerID();
-	}
+    public int getPlayerID() {
+        return player.getPlayerID();
+    }
 
-	public void sendValueToPlayer(Integer playerID, List<byte[]> values) {
-		player.sendValueToPlayer(playerID, values);
-	}
+    public void sendValueToPlayer(Integer playerID, List<byte[]> values) {
+        player.sendValueToPlayer(playerID, values);
+    }
 
-	public List<byte[]> getValues(Integer rec) {
-		return player.getValues(rec);
-	}
+    public List<byte[]> getValues(Integer rec) {
+        return player.getValues(rec);
+    }
 
-	@Override
-	public void sendValueToPlayer(Integer integer, int[] ints) {
-		player.sendValueToPlayer(integer, ints);
-	}
+    @Override
+    public void sendValueToPlayer(Integer integer, int[] ints) {
+        player.sendValueToPlayer(integer, ints);
+    }
 
     @Override
     public void sendValueToPlayer(Integer integer, long[] longs) {
@@ -83,9 +83,9 @@ public class BatchTestPlayer implements SharemindPlayer {
     }
 
     @Override
-	public int[] getIntValues(Integer integer) {
-		return player.getIntValues(integer);
-	}
+    public int[] getIntValues(Integer integer) {
+        return player.getIntValues(integer);
+    }
 
     @Override
     public long[] getLongValues(Integer integer) {
@@ -93,21 +93,21 @@ public class BatchTestPlayer implements SharemindPlayer {
     }
 
     public Map<Integer, List<List<byte[]>>> getMessagesSent() {
-		return messagesSent;
-	}
+        return messagesSent;
+    }
 
-	public Map<Integer, List<List<byte[]>>> getMessagesReceived() {
-		return messagesReceived;
-	}
+    public Map<Integer, List<List<byte[]>>> getMessagesReceived() {
+        return messagesReceived;
+    }
 
-	public void sendProtocolResults(List<byte[]> res) {
-		player.sendProtocolResults(res);
-	}
+    public void sendProtocolResults(List<byte[]> res) {
+        player.sendProtocolResults(res);
+    }
 
-	@Override
-	public void sendIntProtocolResults(int[] dest) {
-		player.sendIntProtocolResults(dest);
-	}
+    @Override
+    public void sendIntProtocolResults(int[] dest) {
+        player.sendIntProtocolResults(dest);
+    }
 
     @Override
     public void sendLongProtocolResults(long[] dest) {
@@ -115,14 +115,14 @@ public class BatchTestPlayer implements SharemindPlayer {
     }
 
     public List<List<byte[]>> getProtocolResults()
-			throws ResultsLengthMismatch {
-		return player.getProtocolResults();
-	}
+            throws ResultsLengthMismatch {
+        return player.getProtocolResults();
+    }
 
-	@Override
+    @Override
     public List<int[]> getIntProtocolResults() throws ResultsLengthMismatch {
         return player.getIntProtocolResults();
-	}
+    }
 
     @Override
     public List<long[]> getLongProtocolResults() throws ResultsLengthMismatch {
@@ -130,26 +130,26 @@ public class BatchTestPlayer implements SharemindPlayer {
     }
 
     public void cleanValues() {
-		player.cleanValues();
-	}
+        player.cleanValues();
+    }
 
-	public void cleanResultsMatch() {
-		player.cleanResultsMatch();
-	}
+    public void cleanResultsMatch() {
+        player.cleanResultsMatch();
+    }
 
     public void sendFilteredIndexes(int[] indexes) {
         player.sendFilteredIndexes(indexes);
-	}
+    }
 
     public int[] getFilterIndexes() {
         return player.getFilterIndexes();
-	}
+    }
 
-	public boolean isTargetPlayer() {
-		return player.isTargetPlayer();
-	}
+    public boolean isTargetPlayer() {
+        return player.isTargetPlayer();
+    }
 
-	public void setTargetPlayer(int targetPlayer) {
-		player.setTargetPlayer(targetPlayer);
-	}
+    public void setTargetPlayer(int targetPlayer) {
+        player.setTargetPlayer(targetPlayer);
+    }
 }

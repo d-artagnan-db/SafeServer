@@ -8,7 +8,6 @@ import pt.uminho.haslab.smpc.exceptions.InvalidNumberOfBits;
 import pt.uminho.haslab.smpc.exceptions.InvalidSecretValue;
 import pt.uminho.haslab.smpc.sharemindImp.BigInteger.SharemindSecretFunctions;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,15 +30,15 @@ public class BigIntegerSearchValue extends SearchValue {
 
             List<byte[]> values = new ArrayList<byte[]>();
 
-			/* *
-			 * Batch protocol comparison protocols require that the array of
-			 * values being compared have the same size. As the value to be
-			 * compared is always the same, it is created a list with the same
-			 * size as the values being compared.
-			 *
-			 * e.g: Values = [val1, val1, val1] cmpValues = [val2, val3, val4]
-			 * In this example val1 is compared to every other value.
-			 */
+            /* *
+             * Batch protocol comparison protocols require that the array of
+             * values being compared have the same size. As the value to be
+             * compared is always the same, it is created a list with the same
+             * size as the values being compared.
+             *
+             * e.g: Values = [val1, val1, val1] cmpValues = [val2, val3, val4]
+             * In this example val1 is compared to every other value.
+             */
 
             if (value.size() == 1 && cmpValues.size() > 1) {
                 // If there is only a single value replicate it

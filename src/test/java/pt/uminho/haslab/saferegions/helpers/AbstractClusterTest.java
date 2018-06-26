@@ -34,20 +34,12 @@ public abstract class AbstractClusterTest {
 
     protected static final Log LOG = LogFactory
             .getLog(AbstractClusterTest.class.getName());
-
-    private Clusters clusters;
     protected SmpcConfiguration config;
     protected TableSchema schema;
     protected Map<String, Map<String, ColType>> qualifierColTypes;
     protected Map<String, Map<String, List<byte[]>>> generatedValues;
     protected List<byte[]> rowIdentifiers;
-
-    @Before
-    public void initializeRedisContainer() throws IOException {
-        LOG.debug("Initalize redis");
-        RedisUtils.initializeRedisContainer();
-    }
-
+    private Clusters clusters;
 
     public AbstractClusterTest() throws Exception {
 
@@ -62,6 +54,12 @@ public abstract class AbstractClusterTest {
         qualifierColTypes = new HashMap<String, Map<String, ColType>>();
         rowIdentifiers = new ArrayList<byte[]>();
 
+    }
+
+    @Before
+    public void initializeRedisContainer() throws IOException {
+        LOG.debug("Initalize redis");
+        RedisUtils.initializeRedisContainer();
     }
 
     private List<Put> generatePuts() {
@@ -219,18 +217,18 @@ public abstract class AbstractClusterTest {
         List<Put> puts = generatePuts();
         TestClusterTables tables;
 
-        if(getNumberOfRegions() > 1) {
+        if (getNumberOfRegions() > 1) {
             List<byte[]> splitKeys = getSplitKeys(getNumberOfRegions());
             tables = clusters.createTablesByteList(schema.getTablename(),
                     familyNames, splitKeys);
-        }else{
+        } else {
             tables = clusters.createTables(schema.getTablename(), familyNames);
         }
 
         assert tables != null;
         tables.setSchema(schema);
 
-        if(usesMPC()){
+        if (usesMPC()) {
             LOG.debug("Test uses MPC protocols");
             tables.usesMpc();
         }
@@ -274,10 +272,11 @@ public abstract class AbstractClusterTest {
 
     }
 
-    private List<Result> decodeResults(List<List<Result>> results, boolean isResultOfVanilla){
+    private List<Result> decodeResults(List<List<Result>> results, boolean isResultOfVanilla) {
 
         return results.get(0);
     }
+
     private void testExecution(TestClusterTables tables) throws IOException,
             InterruptedException {
 
@@ -290,7 +289,6 @@ public abstract class AbstractClusterTest {
     public enum ColType {
         STRING, INT, INTEGER, LONG
     }
-
 
 
 }
