@@ -8,6 +8,7 @@ public class GreaterOrEqualThanSingleColumnValueTest extends GreaterOrEqualThanS
     public GreaterOrEqualThanSingleColumnValueTest() throws Exception {
         super();
     }
+
     protected int getNumberOfRegions() {
         return 2;
     }

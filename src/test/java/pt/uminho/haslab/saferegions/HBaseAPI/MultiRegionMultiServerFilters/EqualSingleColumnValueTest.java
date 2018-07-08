@@ -7,6 +7,7 @@ public class EqualSingleColumnValueTest extends EqualSingleColumnValueFilterTest
     public EqualSingleColumnValueTest() throws Exception {
         super();
     }
+
     protected int getNumberOfRegions() {
         return 4;
     }
@@ -15,7 +16,7 @@ public class EqualSingleColumnValueTest extends EqualSingleColumnValueFilterTest
         return 1000;
     }
 
-    protected int getNumberOfRegionsServers(){
+    protected int getNumberOfRegionsServers() {
         return 2;
     }
 }

@@ -119,10 +119,6 @@ public class SecureRegionScanner implements RegionScanner {
 
     public boolean next(List<Cell> results) throws IOException {
 
-        /*if (LOG.isDebugEnabled()) {
-            LOG.debug("Next in SecureRegionScanner was issued ");
-        }*/
-
         boolean run = resultsCache.isBatchEmpty() && !(handler.isStopOnInvalidRecord() && handler.foundInvalidRecord());
         if (run) {
             List<List<Cell>> fRows = new ArrayList<List<Cell>>();

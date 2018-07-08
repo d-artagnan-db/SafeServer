@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Random;
 
 public abstract class AbsSingleColumnValueFilterTest extends AbstractClusterTest {
+    byte[] chosenVal;
     private Random randomGenerator;
-    byte[]  chosenVal;
 
     public AbsSingleColumnValueFilterTest() throws Exception {
         super();
@@ -53,8 +53,8 @@ public abstract class AbsSingleColumnValueFilterTest extends AbstractClusterTest
     protected List<String> getResources() {
         List<String> resources = new ArrayList<String>();
 
-        for(int i=0; i < 3; i++){
-            String resource = "hbase-site-"+i+".xml";
+        for (int i = 0; i < 3; i++) {
+            String resource = "hbase-site-" + i + ".xml";
             resources.add(resource);
         }
 

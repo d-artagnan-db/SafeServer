@@ -23,7 +23,9 @@ public abstract class AbstractUnprotectedFilterTest extends AbstractClusterTest 
         this.qualifierColTypes.get("User").put("Age", ColType.INT);
     }
 
-    protected boolean usesMPC(){ return false;}
+    protected boolean usesMPC() {
+        return false;
+    }
 
     protected long getNumberOfRecords() {
         return 10;

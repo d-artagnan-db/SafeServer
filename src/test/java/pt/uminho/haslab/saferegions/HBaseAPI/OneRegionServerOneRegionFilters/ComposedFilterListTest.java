@@ -14,9 +14,9 @@ import java.util.Random;
 
 public class ComposedFilterListTest extends AbstractClusterTest {
 
-    private Random randomGenerator;
     byte[] age;
     byte[] stuff;
+    private Random randomGenerator;
 
     public ComposedFilterListTest() throws Exception {
         super();
@@ -24,6 +24,7 @@ public class ComposedFilterListTest extends AbstractClusterTest {
 
 
     }
+
     protected void generateTableSchema() {
         String file = getClass().getResource("/int-protected-schema.xml").getFile();
         DatabaseSchema dSchema = new DatabaseSchema(file);
@@ -55,14 +56,14 @@ public class ComposedFilterListTest extends AbstractClusterTest {
         int index2 = randomGenerator.nextInt(stuffValues.size());
 
 
-        LOG.debug("Chosen indexes were  "+ index1 + ":"+index2) ;
+        LOG.debug("Chosen indexes were  " + index1 + ":" + index2);
         age = ageValues.get(index1);
         stuff = stuffValues.get(index2);
 
 
-        Filter gte =  new SingleColumnValueFilter(cf.getBytes(), cq.getBytes(), CompareFilter.CompareOp.GREATER_OR_EQUAL, age);
-        Filter lt =  new SingleColumnValueFilter(cf.getBytes(), cqS.getBytes(), CompareFilter.CompareOp.LESS, stuff);
-        FilterList list  = new FilterList(FilterList.Operator.MUST_PASS_ONE);
+        Filter gte = new SingleColumnValueFilter(cf.getBytes(), cq.getBytes(), CompareFilter.CompareOp.GREATER_OR_EQUAL, age);
+        Filter lt = new SingleColumnValueFilter(cf.getBytes(), cqS.getBytes(), CompareFilter.CompareOp.LESS, stuff);
+        FilterList list = new FilterList(FilterList.Operator.MUST_PASS_ONE);
         list.addFilter(gte);
         list.addFilter(lt);
 
@@ -75,9 +76,9 @@ public class ComposedFilterListTest extends AbstractClusterTest {
         String cqStuff = "Stuff";
 
 
-        Filter gte =  new SingleColumnValueFilter(cf.getBytes(), cqAge.getBytes(), CompareFilter.CompareOp.GREATER_OR_EQUAL, age);
-        Filter lt =  new SingleColumnValueFilter(cf.getBytes(), cqStuff.getBytes(), CompareFilter.CompareOp.LESS, stuff);
-        FilterList list  = new FilterList(FilterList.Operator.MUST_PASS_ONE);
+        Filter gte = new SingleColumnValueFilter(cf.getBytes(), cqAge.getBytes(), CompareFilter.CompareOp.GREATER_OR_EQUAL, age);
+        Filter lt = new SingleColumnValueFilter(cf.getBytes(), cqStuff.getBytes(), CompareFilter.CompareOp.LESS, stuff);
+        FilterList list = new FilterList(FilterList.Operator.MUST_PASS_ONE);
         list.addFilter(gte);
         list.addFilter(lt);
         return list;
@@ -94,8 +95,8 @@ public class ComposedFilterListTest extends AbstractClusterTest {
     protected List<String> getResources() {
         List<String> resources = new ArrayList<String>();
 
-        for(int i=0; i < 3; i++){
-            String resource = "hbase-site-"+i+".xml";
+        for (int i = 0; i < 3; i++) {
+            String resource = "hbase-site-" + i + ".xml";
             resources.add(resource);
         }
 

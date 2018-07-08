@@ -13,31 +13,31 @@ import java.util.List;
 import static pt.uminho.haslab.saferegions.secretSearch.SearchCondition.Condition.Equal;
 
 public class ConcurrentBatchEqualSecretSearchTest
-		extends
-			ConcurrentSecretSearchTest {
+        extends
+        ConcurrentSecretSearchTest {
 
-	public ConcurrentBatchEqualSecretSearchTest(List<Integer> nbits,
-			List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo)
-			throws IOException, InvalidNumberOfBits, InvalidSecretValue {
-		super(nbits, valuesOne, valuesTwo);
-	}
+    public ConcurrentBatchEqualSecretSearchTest(List<Integer> nbits,
+                                                List<List<BigInteger>> valuesOne, List<List<BigInteger>> valuesTwo)
+            throws IOException, InvalidNumberOfBits, InvalidSecretValue {
+        super(nbits, valuesOne, valuesTwo);
+    }
 
-	@Override
-	protected SearchCondition getSearchCondition(int nBits,
-			List<byte[]> firstValueSecret) {
-		return new BigIntegerSearchConditionFactory(Equal, nBits,
-				firstValueSecret, null).conditionTransformer();
-	}
+    @Override
+    protected SearchCondition getSearchCondition(int nBits,
+                                                 List<byte[]> firstValueSecret) {
+        return new BigIntegerSearchConditionFactory(Equal, nBits,
+                firstValueSecret, null).conditionTransformer();
+    }
 
-	@Override
-	protected List<Boolean> getSearchExpectedResult(Integer request) {
-		List<BigInteger> secretOne = valuesOne.get(request);
-		List<BigInteger> secretTwo = valuesTwo.get(request);
-		List<Boolean> bool = new ArrayList<Boolean>();
-		for (int i = 0; i < secretOne.size(); i++) {
-			bool.add(secretOne.get(i).equals(secretTwo.get(i)));
-		}
-		return bool;
-	}
+    @Override
+    protected List<Boolean> getSearchExpectedResult(Integer request) {
+        List<BigInteger> secretOne = valuesOne.get(request);
+        List<BigInteger> secretTwo = valuesTwo.get(request);
+        List<Boolean> bool = new ArrayList<Boolean>();
+        for (int i = 0; i < secretOne.size(); i++) {
+            bool.add(secretOne.get(i).equals(secretTwo.get(i)));
+        }
+        return bool;
+    }
 
 }

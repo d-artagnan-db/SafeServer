@@ -9,6 +9,7 @@ public class CIntBatchShareMessage {
     private final int playerDest;
     private final RequestIdentifier requestID;
     private final int[] values;
+
     public CIntBatchShareMessage(int sourcePlayer, int playerDest, RequestIdentifier requestID, int[] values) {
         this.sourcePlayer = sourcePlayer;
         this.playerDest = playerDest;

@@ -13,10 +13,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-public class WhileMatchFilterTest extends AbstractClusterTest{
+public class WhileMatchFilterTest extends AbstractClusterTest {
 
-    private Random randomGenerator;
     byte[] chosenVal;
+    private Random randomGenerator;
 
     public WhileMatchFilterTest() throws Exception {
         super();
@@ -47,9 +47,9 @@ public class WhileMatchFilterTest extends AbstractClusterTest{
 
         int indexChosen = randomGenerator.nextInt(values.size());
 
-        LOG.debug("Index chosen was "+ indexChosen);
+        LOG.debug("Index chosen was " + indexChosen);
         chosenVal = values.get(indexChosen);
-        LOG.debug("Random value chosen  was "+  new BigInteger(chosenVal));
+        LOG.debug("Random value chosen  was " + new BigInteger(chosenVal));
 
         Filter f = new SingleColumnValueFilter(cf.getBytes(), cq.getBytes(), CompareFilter.CompareOp.GREATER_OR_EQUAL, chosenVal);
         return new WhileMatchFilter(f);
@@ -58,7 +58,7 @@ public class WhileMatchFilterTest extends AbstractClusterTest{
     protected Filter getFilterOnProtectedColumn() {
         String cf = "User";
         String cq = "Age";
-        Filter f =  new SingleColumnValueFilter(cf.getBytes(), cq.getBytes(), CompareFilter.CompareOp.GREATER_OR_EQUAL, chosenVal);
+        Filter f = new SingleColumnValueFilter(cf.getBytes(), cq.getBytes(), CompareFilter.CompareOp.GREATER_OR_EQUAL, chosenVal);
         return new WhileMatchFilter(f);
     }
 
@@ -75,8 +75,8 @@ public class WhileMatchFilterTest extends AbstractClusterTest{
 
         List<String> resources = new ArrayList<String>();
 
-        for(int i=0; i < 3; i++){
-            String resource = "hbase-site-"+i+".xml";
+        for (int i = 0; i < 3; i++) {
+            String resource = "hbase-site-" + i + ".xml";
             resources.add(resource);
         }
 

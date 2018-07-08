@@ -13,7 +13,7 @@ public class CIntBatchShareMessageTest {
 
 
     @Test
-    public void testEncodeDecode(){
+    public void testEncodeDecode() {
         int sourcePlayer = 2;
         int destPlayer = 3;
         byte[] requestID = BigInteger.valueOf(112313131).toByteArray();
@@ -22,7 +22,7 @@ public class CIntBatchShareMessageTest {
         RequestIdentifier reqID = new RequestIdentifier(requestID, regionID);
         int[] vals = new int[100];
 
-        for(int i =0; i  < vals.length; i++){
+        for (int i = 0; i < vals.length; i++) {
             vals[i] = 1;
         }
         CIntBatchShareMessage msg = new CIntBatchShareMessage(sourcePlayer, destPlayer, reqID, vals);

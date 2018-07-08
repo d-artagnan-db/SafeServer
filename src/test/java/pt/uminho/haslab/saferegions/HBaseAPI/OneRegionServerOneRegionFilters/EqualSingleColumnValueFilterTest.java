@@ -11,7 +11,6 @@ public class EqualSingleColumnValueFilterTest extends AbsSingleColumnValueFilter
     }
 
 
-
     CompareFilter.CompareOp getComparator() {
         return CompareFilter.CompareOp.EQUAL;
     }

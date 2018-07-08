@@ -14,9 +14,9 @@ import java.util.List;
 import java.util.Random;
 
 public class ScanFilterTest extends AbstractClusterTest {
-    private Random randomGenerator;
     byte[] val1;
     byte[] val2;
+    private Random randomGenerator;
 
     public ScanFilterTest() throws Exception {
         super();
@@ -24,6 +24,7 @@ public class ScanFilterTest extends AbstractClusterTest {
 
 
     }
+
     protected void generateTableSchema() {
         String file = getClass().getResource("/protected-schema.xml").getFile();
         DatabaseSchema dSchema = new DatabaseSchema(file);
@@ -50,24 +51,24 @@ public class ScanFilterTest extends AbstractClusterTest {
         int index2 = randomGenerator.nextInt(values.size());
 
 
-        LOG.debug("Chosen indexes were  "+ index1 + ":"+index2) ;
+        LOG.debug("Chosen indexes were  " + index1 + ":" + index2);
         val1 = values.get(index1);
         val2 = values.get(index2);
         BigInteger bVal1 = new BigInteger(val1);
         BigInteger bVal2 = new BigInteger(val2);
 
         int cmpRes = bVal2.compareTo(bVal1);
-        if(cmpRes < 0 ){
+        if (cmpRes < 0) {
             byte[] aux = val1;
             val1 = val2;
             val2 = aux;
         }
 
-        LOG.debug("Chosen values were "+  new BigInteger(val1)+":"+ new BigInteger(val2));
+        LOG.debug("Chosen values were " + new BigInteger(val1) + ":" + new BigInteger(val2));
 
-        Filter gte =  new SingleColumnValueFilter(cf.getBytes(), cq.getBytes(), CompareFilter.CompareOp.GREATER_OR_EQUAL, val1);
-        Filter lt =  new SingleColumnValueFilter(cf.getBytes(), cq.getBytes(), CompareFilter.CompareOp.LESS, val2);
-        FilterList list  = new FilterList(FilterList.Operator.MUST_PASS_ALL);
+        Filter gte = new SingleColumnValueFilter(cf.getBytes(), cq.getBytes(), CompareFilter.CompareOp.GREATER_OR_EQUAL, val1);
+        Filter lt = new SingleColumnValueFilter(cf.getBytes(), cq.getBytes(), CompareFilter.CompareOp.LESS, val2);
+        FilterList list = new FilterList(FilterList.Operator.MUST_PASS_ALL);
         list.addFilter(gte);
         list.addFilter(lt);
 
@@ -78,9 +79,9 @@ public class ScanFilterTest extends AbstractClusterTest {
         String cf = "User";
         String cq = "Age";
 
-        Filter gte =  new SingleColumnValueFilter(cf.getBytes(), cq.getBytes(), CompareFilter.CompareOp.GREATER_OR_EQUAL, val1);
-        Filter lt =  new SingleColumnValueFilter(cf.getBytes(), cq.getBytes(), CompareFilter.CompareOp.LESS, val2);
-        FilterList list  = new FilterList(FilterList.Operator.MUST_PASS_ALL);
+        Filter gte = new SingleColumnValueFilter(cf.getBytes(), cq.getBytes(), CompareFilter.CompareOp.GREATER_OR_EQUAL, val1);
+        Filter lt = new SingleColumnValueFilter(cf.getBytes(), cq.getBytes(), CompareFilter.CompareOp.LESS, val2);
+        FilterList list = new FilterList(FilterList.Operator.MUST_PASS_ALL);
         list.addFilter(gte);
         list.addFilter(lt);
         return list;
@@ -97,8 +98,8 @@ public class ScanFilterTest extends AbstractClusterTest {
     protected List<String> getResources() {
         List<String> resources = new ArrayList<String>();
 
-        for(int i=0; i < 3; i++){
-            String resource = "hbase-site-"+i+".xml";
+        for (int i = 0; i < 3; i++) {
+            String resource = "hbase-site-" + i + ".xml";
             resources.add(resource);
         }
 

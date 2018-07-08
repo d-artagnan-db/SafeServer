@@ -8,19 +8,18 @@ public class EqualSingleColumnValueTest extends EqualSingleColumnValueFilterTest
         super();
     }
 
-    protected int getNumberOfRegions() {
-        return 4;
+    public static void main(String[] args) {
     }
 
-    protected long getNumberOfRecords() {
-        return 1000;
+    protected int getNumberOfRegions() {
+        return 4;
     }
 
     /*protected int getNumberOfRegionsServers(){
         return 2;
     }*/
 
-
-    public static void main(String[] args){
+    protected long getNumberOfRecords() {
+        return 1000;
     }
 }
