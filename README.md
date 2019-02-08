@@ -11,7 +11,7 @@ This component is responsible for interacting with every party in d'Artagnan and
 
 
 
-# How to use Install SafeClient?
+# How to use Install SafeServer?
 
 To Install SafeClient and any other dependency just do in each project.
 mvn install -DskipTests
