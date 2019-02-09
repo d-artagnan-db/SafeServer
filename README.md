@@ -11,12 +11,8 @@ This component is responsible for interacting with every party in d'Artagnan and
 
 
 
-# How to use Install SafeServer?
+# How to use install ?
 
-To Install SafeServer and any other dependency just do in each project.
-mvn install -DskipTests
-
-
-The project is an HBase coprocessor that can be installed according to HBases documentation.
+The setup instructions can be found on the project's website.
 
 
